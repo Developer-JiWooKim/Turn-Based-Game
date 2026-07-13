@@ -1,0 +1,16 @@
+{
+    "name": "TurnBasedGame.Data",
+    "rootNamespace": "",
+    "references": [
+        "TurnBasedGame.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
