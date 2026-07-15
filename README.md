@@ -12,7 +12,7 @@
 ```
 TitleScene (게임 시작 / 옵션 / 종료)
   ↓
-SelectWeaponScene (캐릭터 선택 → 성향 포인트 배분 팝업)
+SettingScene (캐릭터 선택 → 성향 포인트 배분 팝업)
   ↓
 BattleScene (전투 → 로그라이크 선택지 팝업 → 결과 화면 팝업)
 ```
