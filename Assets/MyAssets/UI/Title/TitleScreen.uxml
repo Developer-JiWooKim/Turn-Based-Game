@@ -1,0 +1,69 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
+    <Style src="../Common.uss" />
+    <Style src="TitleScreen.uss" />
+    <ui:Template name="OptionPopup" src="../OptionPopup.uxml" />
+    <ui:VisualElement name="screen-root" class="screen-root" picking-mode="Ignore">
+        <!-- 공용 배경: 패널 전환과 무관하게 항상 뒤에 깔림 -->
+        <ui:VisualElement name="background" class="background" picking-mode="Ignore">
+            <ui:VisualElement class="bg-band bg-sky" picking-mode="Ignore" />
+            <ui:VisualElement class="bg-band bg-blend-1" picking-mode="Ignore" />
+            <ui:VisualElement class="bg-band bg-grass-mid" picking-mode="Ignore" />
+            <ui:VisualElement class="bg-band bg-blend-2" picking-mode="Ignore" />
+            <ui:VisualElement class="bg-band bg-grass-dark" picking-mode="Ignore" />
+        </ui:VisualElement>
+        <ui:VisualElement name="clouds" class="clouds" picking-mode="Ignore">
+            <ui:VisualElement class="cloud cloud-1" />
+            <ui:VisualElement class="cloud cloud-2" />
+            <ui:VisualElement class="cloud cloud-3" />
+        </ui:VisualElement>
+
+        <!-- TitlePanelUI._rootElementName = "title-panel" -->
+        <ui:VisualElement name="title-panel" class="panel" picking-mode="Ignore">
+            <ui:VisualElement name="title-wrap" class="title-wrap" picking-mode="Ignore">
+                <ui:Label text="TURN TACTICS" name="game-title" class="title-text outline-text" />
+                <ui:Label text="(제목 미정 · placeholder)" name="game-subtitle" class="subtitle-text outline-text" />
+            </ui:VisualElement>
+            <ui:VisualElement name="menu" class="menu" picking-mode="Ignore">
+                <ui:Button text="게임 시작" name="start-button" class="btn btn-cta" />
+                <ui:Button text="옵션" name="option-button" class="btn btn-secondary" />
+                <ui:Button text="게임 종료" name="quit-button" class="btn btn-secondary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- CharacterSelectPanelUI._rootElementName = "character-select-panel" -->
+        <ui:VisualElement name="character-select-panel" class="panel" style="display: none;">
+            <ui:VisualElement name="select-header" class="select-header wood-panel">
+                <ui:Label text="캐릭터 선택" class="select-header-text outline-text" />
+            </ui:VisualElement>
+            <ui:VisualElement name="select-body" class="select-body" picking-mode="Ignore">
+                <ui:Button text="◀" name="prev-button" class="nav-arrow" />
+                <ui:VisualElement name="preview-column" class="preview-column" picking-mode="Ignore">
+                    <!-- 프리뷰 카메라의 RenderTexture가 CharacterSelectPanelUI에서 배선됨 -->
+                    <ui:VisualElement name="character-preview" class="character-preview" />
+                    <ui:Label text="Knight" name="character-name" class="character-name outline-text" />
+                    <ui:VisualElement name="stat-placeholder" class="stat-placeholder wood-panel">
+                        <ui:Label text="(스탯바 — 다음 단계)" class="stat-placeholder-text" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button text="▶" name="next-button" class="nav-arrow" />
+            </ui:VisualElement>
+            <ui:VisualElement name="indicator" class="indicator" picking-mode="Ignore">
+                <ui:VisualElement class="dot dot-active" />
+                <ui:VisualElement class="dot" />
+                <ui:VisualElement class="dot" />
+                <ui:VisualElement class="dot" />
+                <ui:VisualElement class="dot" />
+                <ui:VisualElement class="dot" />
+            </ui:VisualElement>
+            <ui:VisualElement name="select-footer" class="select-footer" picking-mode="Ignore">
+                <ui:Button text="뒤로" name="select-back-button" class="btn btn-secondary" />
+                <ui:Button text="전투 시작" name="battle-button" class="btn btn-cta" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:Label text="v0.0.1" name="version-label" class="version-label outline-text" />
+
+        <!-- Instance의 TemplateContainer 래퍼: 내용물 크기 기본값이라 화면 전체로 늘리되, 팝업이 닫혔을 때 클릭을 가로채지 않도록 Ignore -->
+        <ui:Instance template="OptionPopup" picking-mode="Ignore" style="position: absolute; width: 100%; height: 100%;" />
+    </ui:VisualElement>
+</ui:UXML>
