@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
+    <Style src="Common.uss" />
+    <!--
+      옵션 팝업 (OptionPopupUI). Title/Battle 등 여러 씬의 UXML에서
+      <ui:Template>/<ui:Instance>로 재사용한다. 표시/숨김은 OptionPopupUI가 담당.
+    -->
+    <ui:VisualElement name="option-popup" class="popup-overlay" style="display: none;">
+        <ui:VisualElement class="popup-frame wood-panel">
+            <ui:Label text="옵션" class="popup-title outline-text" />
+            <ui:Label text="(준비 중)" class="popup-body outline-text" />
+            <ui:Button text="닫기" name="option-close-button" class="btn btn-secondary" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

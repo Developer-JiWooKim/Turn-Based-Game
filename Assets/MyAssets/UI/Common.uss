@@ -1,0 +1,124 @@
+/*
+ * 공용 디자인 토큰 / 재사용 클래스
+ * 색상·텍스트·버튼 규칙은 UI_DesignReference.md 기준
+ * 새 화면(UXML)에서는 이 파일을 @import 해서 재사용한다.
+ */
+
+:root {
+    --color-sky: #7ECBF0;
+    --color-grass-mid: #A8E0A0;
+    --color-grass-mid-alt: #BFE8B0;
+    --color-grass-dark: #8FD070;
+    --color-grass-dark-alt: #A0D47A;
+
+    --color-outline: #16202A;
+
+    --color-gold-light: #FFD97A;
+    --color-gold-dark: #E8963C;
+    --color-gold-text: #5A2E0C;
+
+    --color-wood-light: #9A6A34;
+    --color-wood-dark: #6A4520;
+
+    --color-cream: #FFF8E0;
+
+    --color-danger: #C9382A;
+    --color-heal: #6FBF3F;
+    --color-recruit: #9A5FD4;
+    --color-info: #3A7AC9;
+}
+
+/* 검은 아웃라인 + 굵은 텍스트 (타이틀/버튼/카드 공통) */
+.outline-text {
+    -unity-font-style: bold;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: var(--color-outline);
+}
+
+/* 버튼 공통: 검은 테두리 + 하단 두꺼운 테두리로 하드 섀도우(베벨) 표현 */
+.btn {
+    -unity-font-style: bold;
+    color: var(--color-cream);
+    font-size: 32px;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: var(--color-outline);
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-top-width: 4px;
+    border-bottom-width: 8px;
+    border-left-color: var(--color-outline);
+    border-right-color: var(--color-outline);
+    border-top-color: var(--color-outline);
+    border-bottom-color: var(--color-outline);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+    padding: 14px 40px;
+    margin: 8px;
+    translate: 0 0;
+    transition-property: translate, border-bottom-width;
+    transition-duration: 0.08s;
+}
+
+.btn:hover {
+    translate: 0 -2px;
+}
+
+.btn:active {
+    border-bottom-width: 4px;
+    translate: 0 4px;
+}
+
+/* CTA 버튼: 골드 그라디언트 배경 + 진한 갈색 텍스트 */
+.btn-cta {
+    background-color: var(--color-gold-dark);
+    color: var(--color-gold-text);
+    -unity-text-outline-color: var(--color-outline);
+}
+
+/* 보조 버튼: 나무 텍스처 톤 */
+.btn-secondary {
+    background-color: var(--color-wood-light);
+    font-size: 24px;
+}
+
+/* 나무 텍스처 패널 (정보 배너 / 팝업 프레임) */
+.wood-panel {
+    background-color: var(--color-wood-dark);
+    border-width: 5px;
+    border-color: var(--color-outline);
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+}
+
+/* 팝업 오버레이 (OptionPopup 등 여러 화면에서 재사용) */
+.popup-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(14, 22, 30, 0.55);
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-frame {
+    width: 480px;
+    padding: 32px;
+    align-items: center;
+}
+
+.popup-title {
+    font-size: 36px;
+    color: var(--color-cream);
+    margin-bottom: 12px;
+}
+
+.popup-body {
+    font-size: 20px;
+    color: var(--color-cream);
+    opacity: 0.8;
+    margin-bottom: 24px;
+}
