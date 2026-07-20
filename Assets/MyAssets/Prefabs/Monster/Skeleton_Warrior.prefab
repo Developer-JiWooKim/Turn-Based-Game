@@ -454,13 +454,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85397b976d2811f48b732e19079051e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitView
-  _animator: {fileID: 8246122498218623264}
-  _healthBar: {fileID: 609563609540979427}
-  _spawnDuration: 3.567
-  _attackDuration: 1.333
-  _skillDuration: 1.333
-  _hitDuration: 0.867
-  _dieDuration: 0.8
+  _unitAnimator: {fileID: 6399015051089811547}
+  _unitHealthBar: {fileID: 609563609540979427}
 --- !u!135 &3293325009884510362
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -690,6 +685,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3bf74afe04cac8d4c9397024ed6aa73d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8246122498218623264}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3bf74afe04cac8d4c9397024ed6aa73d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6399015051089811547}
   m_SourcePrefab: {fileID: 100100000, guid: 3bf74afe04cac8d4c9397024ed6aa73d, type: 3}
 --- !u!4 &2259078676005760305 stripped
 Transform:
@@ -723,6 +721,23 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6399015051089811547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2372470690575802468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30b9fbdbbd8373749bcb2b461f7f3616, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitAnimator
+  _spawnDuration: 3.567
+  _attackDuration: 1.333
+  _skillDuration: 1.333
+  _hitDuration: 0.867
+  _dieDuration: 2
 --- !u!4 &3145594093480688350 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3bf74afe04cac8d4c9397024ed6aa73d, type: 3}
