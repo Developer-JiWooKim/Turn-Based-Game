@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed42345a3ddbcb94e87e3438fa37e06d, type: 3}
+  m_Name: MinionSO
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.MonsterStatsSO
+  _displayName: Skeleton Minion
+  _prefab: {fileID: 1853872766813388552, guid: c6aa89b6eebcab34294ea414ef917f54, type: 3}
+  _maxHp: 50
+  _atk: 10
+  _spd: 7
+  _def: 8
+  _critRate: 0.1
+  _critDmg: 1.5
+  _res: 0
+  _tier: 0
+  _hasSkill: 0
+  _skillCooldown: 2
+  _skillScope: 0
+  _skillPowerMultiplier: 1.4

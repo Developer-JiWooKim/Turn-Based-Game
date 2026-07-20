@@ -54,6 +54,12 @@ namespace Assets.MyAssets.Scripts.UI
         private void GoToTitle() => _flowFSM.ChangeState(_flowFSM.TitleState);
         private void GoToCharacterSelect() => _flowFSM.ChangeState(_flowFSM.CharacterSelectState);
         private void QuitGame() => GameManager.Instance.GameExit();
-        private void StartBattle() => GameManager.Instance.LoadScene(BattleSceneName);
+
+        private void StartBattle()
+        {
+            // 선택한 캐릭터로 새 런을 시작(파티 1명) → BattleScene에서 이 파티로 전투 구성
+            GameManager.Instance.BeginRun(_characterSelectPanel.SelectedCharacter);
+            GameManager.Instance.LoadScene(BattleSceneName);
+        }
     }
 }
