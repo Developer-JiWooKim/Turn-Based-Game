@@ -42,6 +42,13 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public TurnEndedEventArgs(int turnNumber) => TurnNumber = turnNumber;
     }
 
+    /// <summary>한 유닛의 행동 차례가 시작됨. HUD가 현재 행동 유닛을 표시하는 데 쓴다.</summary>
+    public sealed class ActorTurnEventArgs : EventArgs
+    {
+        public readonly Unit Actor;
+        public ActorTurnEventArgs(Unit actor) => Actor = actor;
+    }
+
     /// <summary>한 행동이 해소됨(데미지 적용 완료). View는 공격/피격 애니메이션을 재생한다.</summary>
     public sealed class ActionResolvedEventArgs : PlaybackEventArgs
     {
