@@ -49,9 +49,21 @@
 
 ## 현재 코드 상태 (2026-07 기준)
 
-- `Assets/MyAssets/Scripts/`는 아직 비어 있음 (기본 템플릿 `Test.cs`만 존재, 실질 게임 로직 없음)
-- 씬은 `Assets/MyAssets/Scenes/GameScene.unity` 하나뿐 — README에 정의된 TitleScene/SelectWeaponScene/BattleScene 3씬 구조는 아직 구현 전
-- `Assets/InputSystem_Actions.inputactions`는 Unity 기본 템플릿 그대로(Move/Look/Attack/Interact/Crouch 등)이며, 턴제 커맨드 배틀(몬스터 클릭 타겟팅 등)에 맞게 재정의가 필요함
+### 구현된 것
+- **인프라**: `Scripts/Singleton/`(`Singleton<T>` 베이스, `GameManager` — 씬 전환/페이드), `Scripts/Utility/FadeScreenEffect`(Unity `Awaitable` 기반 async)
+- **UI 흐름 (View)**: `Scripts/UI/` — `GameUIController` + `GameFlowFSM`(순수 C# 상태 머신) + `IGameFlowState`(Title/CharacterSelect), 각 패널은 UI Toolkit(`BasePanelUI` 상속). 현재 GameScene에서 Title → CharacterSelect → `LoadScene("BattleScene")`까지 연결
+- **전투 Core (`Scripts/Battle/Core/`, 순수 C#·UnityEngine 비의존)**: `Stats`, `Unit`, `SkillProfile`, `DamageCalculator`(비율감소+크리), `TurnOrder`(SPD 정렬), `BattleState`, `IRandom`/`SystemRandom`, 액션/셀렉터(`IActionSelector`, `PlayerActionSelector`=입력 await, `MonsterAiSelector`=노멀 공격/보스 스킬우선), `BattleEvents`, `BattleSimulation`(async 턴 루프). **연출 동기화**: 이벤트 인자의 `RegisterPlayback(Task)`로 View 애니메이션 완료를 시뮬레이션이 대기
+- **전투 View (`Scripts/Battle/View/`)**: `BattleDirector`(스폰·이벤트구독·연출 오케스트레이션), `UnitView`(Unit.Id↔프리팹, Attack/Skill/Hit/Die 트리거 재생), `UnitHealthBar`(uGUI 월드스페이스), `TargetingController`(몬스터 클릭→`SubmitTarget`), `CameraShake`
+- **전투 Data (`Scripts/Battle/Data/`)**: `UnitStatsSO`(베이스) + `CharacterStatsSO`/`MonsterStatsSO`(임시 스탯, 밸런싱 TBD)
+- **애니메이터**: 캐릭터/몬스터 컨트롤러는 `Idle/Attack/Hit/Die` 트리거 구조(베이스+override). 몬스터 베이스(`Skeleton_Minion.controller`)에 `Skill` 트리거/스테이트 추가됨(현재 Attack과 같은 클립 참조 — 보스 스킬 클립 준비되면 교체)
+- 캐릭터/몬스터 프리팹 + 애니메이션 연결 완료
+
+### 아직 안 된 것
+- 씬은 `GameScene.unity` 하나뿐 — **`BattleScene`은 미생성**(`GameUIController`가 이 이름으로 로드하므로 이름 일치 필요). BattleDirector/타겟팅/슬롯 등 씬 배치·프리팹 UnitView 와이어링은 에디터 작업 필요
+- BattleScene의 **UI Toolkit HUD**(턴 순서 표시, 타겟 하이라이트 등) 미구현
+- SelectWeaponScene → BattleScene **파티 데이터 전달(RunData)** 미구현 — 현재 BattleDirector는 인스펙터의 임시 SO 배열로 전투를 구성
+- 로그라이크 선택지(9종)/스폰 패턴 SO, 성향 포인트·영구 저장 미구현
+- `Assets/InputSystem_Actions.inputactions`는 Unity 기본 템플릿 그대로(타겟팅은 `Mouse.current` 직접 사용). 커맨드 배틀에 맞는 정식 재정의는 추후
 
 ## 아키텍처 방향 (README.md 기획 기반)
 
