@@ -39,6 +39,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _healthBar.Set(currentHp, maxHp);
         }
 
+        /// <summary>피격 연출 없이 체력바만 갱신(회복·최대체력 증가 등 스탯 변화 반영용).</summary>
+        public void RefreshHealth(int currentHp, int maxHp)
+        {
+            if (_healthBar != null)
+                _healthBar.Set(currentHp, maxHp);
+        }
+
         /// <summary>
         /// 등장 연출 대기. Spawned는 Animator의 기본 진입 상태라 트리거 없이 자동 재생되므로,
         /// 여기서는 그 클립 길이(_spawnDuration)만큼 기다려 전투 시작을 늦춘다.

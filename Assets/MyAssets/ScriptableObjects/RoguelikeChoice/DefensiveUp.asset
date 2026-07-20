@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e10ca03e41a60c94cb6fd8bbc0f3dcfd, type: 3}
+  m_Name: DefensiveUp
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.RoguelikeChoiceSO
+  _title: Defensive Up
+  _description: 'HP +15
+
+    DEF +8
+
+    RES +0.1'
+  _category: 2
+  _hpFlat: 15
+  _atkFlat: 0
+  _spdFlat: 0
+  _defFlat: 8
+  _healFlat: 0
+  _resFlat: 0.1
+  _critRateFlat: 0
+  _critDmgFlat: 0

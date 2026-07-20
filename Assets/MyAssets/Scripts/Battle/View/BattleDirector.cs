@@ -37,9 +37,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [SerializeField] private float _impactDelay = 0.35f;
         [SerializeField] private CameraShake _cameraShake;
 
+        [Header("로그라이크")]
+        [Tooltip("승리 시 이 풀에서 3개를 무작위로 뽑아 제시한다(가중치는 추후).")]
+        [SerializeField] private RoguelikeChoiceSO[] _choicePool;
+        [Tooltip("제시할 선택지 개수.")]
+        [SerializeField] private int _choiceCount = 3;
+
         [Header("연결")]
         [SerializeField] private TargetingController _targeting;
         [SerializeField] private BattleHUD _hud;
+        [SerializeField] private RoguelikeChoicePanel _rewardPanel;
 
         private readonly Dictionary<int, UnitView> _views = new();
         private PlayerActionSelector _playerSelector;
@@ -85,8 +92,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
             var run = GameManager.Instance != null ? GameManager.Instance.CurrentRun : null;
             int stage = run?.CurrentStage ?? 1;
 
-            // 파티가 전멸하거나(패배) 몬스터 웨이브가 없을 때까지 스테이지를 계속 이어간다(최소 루프).
-            // 로그라이크 선택지 팝업 등 스테이지 사이 연출은 다음 단계에서 추가한다.
+            // 파티가 전멸하거나(패배) 몬스터 웨이브가 없을 때까지 스테이지를 계속 이어간다.
+            // 각 승리 후에는 성장 선택지를 제시하고 다음 웨이브로 넘어간다.
             while (true)
             {
                 if (_hud != null)
@@ -148,6 +155,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
                     return;
                 }
 
+                // 승리 → 다음 스테이지 전, 성장 선택지 제시 후 살아있는 파티에 즉시 적용
+                await PresentRewardAsync(players, rng);
+
                 stage++;
                 if (run != null)
                     run.CurrentStage = stage;
@@ -173,6 +183,46 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             int index = (stage - 1) % _monsterWaves.Length;
             return _monsterWaves[index];
+        }
+
+        /// <summary>선택지를 제시하고, 고른 보상을 살아있는 파티에 적용한 뒤 체력바/스탯을 갱신한다.</summary>
+        private async Task PresentRewardAsync(List<Unit> party, IRandom rng)
+        {
+            if (_rewardPanel == null)
+                return;
+
+            List<RoguelikeChoiceSO> choices = PickChoices(_choiceCount, rng);
+            if (choices.Count == 0)
+                return;
+
+            RoguelikeChoiceSO picked = await _rewardPanel.PresentAsync(choices, _cts.Token);
+            if (picked == null)
+                return;
+
+            picked.CreateReward().Apply(party.Where(u => u.IsAlive));
+
+            foreach (Unit unit in party)
+            {
+                if (unit.IsAlive && _views.TryGetValue(unit.Id, out UnitView view))
+                    view.RefreshHealth(unit.CurrentHp, unit.Stats.MaxHp);
+            }
+        }
+
+        /// <summary>선택지 풀에서 중복 없이 무작위로 count개를 뽑는다(가중치 없음 — 균등).</summary>
+        private List<RoguelikeChoiceSO> PickChoices(int count, IRandom rng)
+        {
+            var pool = _choicePool == null
+                ? new List<RoguelikeChoiceSO>()
+                : _choicePool.Where(c => c != null).ToList();
+
+            var picked = new List<RoguelikeChoiceSO>();
+            while (picked.Count < count && pool.Count > 0)
+            {
+                int i = rng.Range(0, pool.Count);
+                picked.Add(pool[i]);
+                pool.RemoveAt(i);
+            }
+            return picked;
         }
 
         private void HandleDefeat()

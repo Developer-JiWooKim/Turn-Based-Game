@@ -1,0 +1,60 @@
+/* 화면 전체를 덮는 반투명 오버레이 */
+.roguelike-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.roguelike-header {
+    font-size: 34px;
+    -unity-font-style: bold;
+    color: rgb(255, 244, 200);
+    margin-bottom: 24px;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.roguelike-cards {
+    flex-direction: row;
+    justify-content: center;
+}
+
+.choice-card {
+    width: 220px;
+    height: 300px;
+    margin: 12px;
+    padding: 20px;
+    border-radius: 16px;
+    border-width: 3px;
+    border-color: rgba(255, 214, 92, 0.5);
+    background-color: rgba(48, 40, 32, 0.96);
+    align-items: center;
+    justify-content: flex-start;
+    transition-property: scale, border-color;
+    transition-duration: 0.12s;
+}
+
+.choice-card:hover {
+    scale: 1.05 1.05;
+    border-color: rgb(255, 214, 92);
+}
+
+.card-title {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(255, 244, 200);
+    margin-bottom: 16px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.card-desc {
+    font-size: 15px;
+    color: rgb(220, 214, 200);
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
