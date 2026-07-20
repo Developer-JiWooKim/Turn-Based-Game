@@ -18,11 +18,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// </summary>
     public sealed class BattleDirector : MonoBehaviour
     {
+        /// <summary>패배 시 되돌아갈 타이틀/캐릭터 선택 씬.</summary>
+        private const string IntroSceneName = "IntroScene";
+
         [Header("전투 구성")]
         [Tooltip("Title→캐릭터 선택을 거치지 않고 BattleScene을 직접 플레이할 때 쓰는 테스트 파티(폴백).")]
         [SerializeField] private CharacterStatsSO[] _testParty;
-        [Tooltip("몬스터 구성. 스테이지 기반 스폰은 다음 청크에서 SO로 대체 예정.")]
-        [SerializeField] private MonsterStatsSO[] _enemies;
+        [Tooltip("스테이지별 몬스터 웨이브. 인덱스 0 = 1스테이지. RunData.CurrentStage로 순서대로 진행하며,\n" +
+                 "배열 길이를 넘어가면 처음부터 순환한다(6스테이지 이후 랜덤 스폰 패턴 풀은 추후 구현).")]
+        [SerializeField] private SpawnWaveSO[] _monsterWaves;
 
         [Header("배치 슬롯 (가로 일렬)")]
         [SerializeField] private Transform[] _playerSlots;
@@ -35,6 +39,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         [Header("연결")]
         [SerializeField] private TargetingController _targeting;
+        [SerializeField] private BattleHUD _hud;
 
         private readonly Dictionary<int, UnitView> _views = new();
         private PlayerActionSelector _playerSelector;
@@ -73,32 +78,80 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 SpawnView(unit, so.Prefab, _playerSlots, i);
             }
 
-            var enemies = new List<Unit>();
-            for (int i = 0; i < _enemies.Length; i++)
-            {
-                MonsterStatsSO so = _enemies[i];
-                var unit = new Unit(++nextId, so.DisplayName, TeamSide.Enemy, so.CreateStats(), so.CreateSkill());
-                enemies.Add(unit);
-                SpawnView(unit, so.Prefab, _enemySlots, i);
-            }
-
             // 몬스터의 Spawned 등장 모션 등 스폰 연출이 전부 끝난 뒤에야 첫 턴이 시작되도록 대기.
             // 이걸 빼먹으면 SPD가 높은 몬스터가 등장 연출 중에 바로 공격해버리는 문제가 생긴다.
             await Task.WhenAll(_views.Values.Select(v => v.PlaySpawnAsync(_cts.Token)));
 
-            var state = new BattleState(players, enemies);
-            _playerSelector = new PlayerActionSelector();
-            var enemySelector = new MonsterAiSelector(rng);
-            _simulation = new BattleSimulation(state, _playerSelector, enemySelector, rng);
+            var run = GameManager.Instance != null ? GameManager.Instance.CurrentRun : null;
+            int stage = run?.CurrentStage ?? 1;
 
-            _simulation.ActionResolved += OnActionResolved;
-            _simulation.UnitDied += OnUnitDied;
-            _simulation.BattleEnded += OnBattleEnded;
+            // 파티가 전멸하거나(패배) 몬스터 웨이브가 없을 때까지 스테이지를 계속 이어간다(최소 루프).
+            // 로그라이크 선택지 팝업 등 스테이지 사이 연출은 다음 단계에서 추가한다.
+            while (true)
+            {
+                if (_hud != null)
+                    _hud.SetStage(stage);
 
-            if (_targeting != null)
-                _targeting.Initialize(_playerSelector);
+                SpawnWaveSO wave = ResolveWave(stage);
+                if (wave == null)
+                {
+                    Debug.LogError("[BattleDirector] 스폰할 몬스터 웨이브가 설정되지 않았습니다.");
+                    return;
+                }
 
-            await _simulation.RunAsync(_cts.Token);
+                var enemies = new List<Unit>();
+                var enemyViews = new List<UnitView>();
+                for (int i = 0; i < wave.Monsters.Count; i++)
+                {
+                    MonsterStatsSO so = wave.Monsters[i];
+                    var unit = new Unit(++nextId, so.DisplayName, TeamSide.Enemy, so.CreateStats(), so.CreateSkill());
+                    enemies.Add(unit);
+                    UnitView view = SpawnView(unit, so.Prefab, _enemySlots, i);
+                    if (view != null)
+                        enemyViews.Add(view);
+                }
+
+                await Task.WhenAll(enemyViews.Select(v => v.PlaySpawnAsync(_cts.Token)));
+
+                List<Unit> aliveParty = players.Where(u => u.IsAlive).ToList();
+                var state = new BattleState(aliveParty, enemies);
+                _playerSelector = new PlayerActionSelector();
+                var enemySelector = new MonsterAiSelector(rng);
+                _simulation = new BattleSimulation(state, _playerSelector, enemySelector, rng);
+
+                _simulation.TurnStarted += OnTurnStarted;
+                _simulation.ActorTurnStarted += OnActorTurnStarted;
+                _simulation.ActionResolved += OnActionResolved;
+                _simulation.UnitDied += OnUnitDied;
+                _simulation.BattleEnded += OnBattleEnded;
+
+                if (_targeting != null)
+                    _targeting.Initialize(_playerSelector);
+
+                BattleOutcome outcome = await _simulation.RunAsync(_cts.Token);
+
+                _simulation.TurnStarted -= OnTurnStarted;
+                _simulation.ActorTurnStarted -= OnActorTurnStarted;
+                _simulation.ActionResolved -= OnActionResolved;
+                _simulation.UnitDied -= OnUnitDied;
+                _simulation.BattleEnded -= OnBattleEnded;
+
+                foreach (UnitView view in enemyViews)
+                {
+                    _views.Remove(view.UnitId);
+                    Destroy(view.gameObject);
+                }
+
+                if (outcome == BattleOutcome.Defeat)
+                {
+                    HandleDefeat();
+                    return;
+                }
+
+                stage++;
+                if (run != null)
+                    run.CurrentStage = stage;
+            }
         }
 
         /// <summary>런 데이터의 파티를 우선 사용하고, 없으면(직접 플레이) 인스펙터 테스트 파티로 폴백한다.</summary>
@@ -112,12 +165,29 @@ namespace Assets.MyAssets.Scripts.Battle.View
             return _testParty;
         }
 
-        private void SpawnView(Unit unit, GameObject prefab, Transform[] slots, int index)
+        /// <summary>스테이지 번호에 대응하는 웨이브를 찾는다. 설정된 웨이브 수를 넘어가면 순환한다.</summary>
+        private SpawnWaveSO ResolveWave(int stage)
+        {
+            if (_monsterWaves == null || _monsterWaves.Length == 0)
+                return null;
+
+            int index = (stage - 1) % _monsterWaves.Length;
+            return _monsterWaves[index];
+        }
+
+        private void HandleDefeat()
+        {
+            Debug.Log("[BattleDirector] 파티 전멸 — 리타이어");
+            // TODO(다음 단계): 결과 화면 팝업 후 타이틀로 복귀
+            GameManager.Instance.LoadScene(IntroSceneName);
+        }
+
+        private UnitView SpawnView(Unit unit, GameObject prefab, Transform[] slots, int index)
         {
             if (prefab == null)
             {
                 Debug.LogError($"[BattleDirector] '{unit.DisplayName}' 프리팹이 비어 있습니다.");
-                return;
+                return null;
             }
 
             Transform slot = (slots != null && index < slots.Length && slots[index] != null) ? slots[index] : transform;
@@ -127,22 +197,43 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (view == null)
             {
                 Debug.LogError($"[BattleDirector] '{unit.DisplayName}' 프리팹에 UnitView가 없습니다.");
-                return;
+                return null;
             }
 
             view.Initialize(unit.Id, unit.CurrentHp, unit.Stats.MaxHp);
             _views[unit.Id] = view;
+            return view;
+        }
+
+        // ── Core 이벤트 → HUD 갱신 ──
+
+        private void OnTurnStarted(object sender, TurnStartedEventArgs e)
+        {
+            if (_hud != null)
+                _hud.ShowTurnOrder(e.Order);
+        }
+
+        private void OnActorTurnStarted(object sender, ActorTurnEventArgs e)
+        {
+            if (_hud != null)
+                _hud.SetActiveUnit(e.Actor);
         }
 
         // ── Core 이벤트 → 연출 (연출 Task를 등록하면 시뮬레이션이 완료를 대기) ──
 
         private void OnActionResolved(object sender, ActionResolvedEventArgs e)
         {
+            if (_hud != null)
+                _hud.HidePrompt(); // 입력 완료 → 연출 단계이므로 "당신의 차례" 프롬프트 숨김
+
             e.RegisterPlayback(PlayActionAsync(e.Result));
         }
 
         private void OnUnitDied(object sender, UnitDiedEventArgs e)
         {
+            if (_hud != null)
+                _hud.MarkDead(e.Unit.Id);
+
             if (_views.TryGetValue(e.Unit.Id, out UnitView view))
                 e.RegisterPlayback(view.PlayDeathAsync(_cts.Token));
         }
@@ -190,6 +281,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             if (_simulation != null)
             {
+                _simulation.TurnStarted -= OnTurnStarted;
+                _simulation.ActorTurnStarted -= OnActorTurnStarted;
                 _simulation.ActionResolved -= OnActionResolved;
                 _simulation.UnitDied -= OnUnitDied;
                 _simulation.BattleEnded -= OnBattleEnded;

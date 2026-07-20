@@ -3,10 +3,6 @@ using UnityEngine.UI;
 
 namespace Assets.MyAssets.Scripts.Battle.View
 {
-    /// <summary>
-    /// 월드스페이스 체력바(uGUI). 유닛 머리 위에 붙어 카메라를 향해 빌보딩한다.
-    /// 로직(Core)과 무관하게 UnitView가 HP 값을 밀어넣어 갱신한다.
-    /// </summary>
     public sealed class UnitHealthBar : MonoBehaviour
     {
         [Tooltip("Image Type = Filled 로 설정된 채력 게이지.")]
@@ -23,9 +19,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void LateUpdate()
         {
             if (_billboardRoot == null) return;
-            Camera cam = Camera.main;
-            if (cam == null) return;
-            _billboardRoot.forward = cam.transform.forward;
+            Camera camera = Camera.main;
+            if (camera == null) return;
+            _billboardRoot.forward = camera.transform.forward;
         }
     }
 }

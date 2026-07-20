@@ -1,0 +1,74 @@
+.battle-hud {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+}
+
+/* 상단 중앙 스테이지 표시 */
+.stage-label {
+    position: absolute;
+    top: 16px;
+    left: 0;
+    right: 0;
+    -unity-text-align: middle-center;
+    font-size: 28px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* 상단 턴 순서 바 (가로 나열) */
+.turn-order {
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.turn-chip {
+    margin: 3px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: rgb(255, 255, 255);
+    border-width: 2px;
+    border-color: rgba(0, 0, 0, 0.35);
+    background-color: rgba(40, 40, 40, 0.8);
+}
+
+.turn-chip-player {
+    background-color: rgba(46, 105, 178, 0.9);
+}
+
+.turn-chip-enemy {
+    background-color: rgba(168, 58, 58, 0.9);
+}
+
+/* 현재 행동 유닛 강조 */
+.turn-chip-active {
+    border-color: rgb(255, 214, 92);
+    scale: 1.15 1.15;
+    color: rgb(255, 244, 200);
+}
+
+/* 이번 턴 사망한 유닛 */
+.turn-chip-dead {
+    opacity: 0.35;
+}
+
+/* 하단 중앙 플레이어 차례 프롬프트 */
+.player-prompt {
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    right: 0;
+    -unity-text-align: middle-center;
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(255, 244, 200);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}

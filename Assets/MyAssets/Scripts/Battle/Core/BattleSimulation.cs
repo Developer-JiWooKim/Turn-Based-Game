@@ -27,6 +27,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public event EventHandler BattleStarted;
         public event EventHandler<TurnStartedEventArgs> TurnStarted;
         public event EventHandler<TurnEndedEventArgs> TurnEnded;
+        public event EventHandler<ActorTurnEventArgs> ActorTurnStarted;
         public event EventHandler<ActionResolvedEventArgs> ActionResolved;
         public event EventHandler<UnitDiedEventArgs> UnitDied;
         public event EventHandler<BattleEndedEventArgs> BattleEnded;
@@ -59,6 +60,8 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 {
                     if (!actor.IsAlive) continue;      // 이번 턴에 먼저 사망한 유닛은 건너뜀
                     if (_state.IsBattleOver) break;
+
+                    ActorTurnStarted?.Invoke(this, new ActorTurnEventArgs(actor));
 
                     IActionSelector selector = actor.Team == TeamSide.Player ? _playerSelector : _enemySelector;
                     ActionPlan plan = await selector.SelectAsync(actor, _state, cancellationToken);
