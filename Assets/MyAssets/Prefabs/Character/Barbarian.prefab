@@ -455,11 +455,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitView
   _animator: {fileID: 7352813705563361956}
   _healthBar: {fileID: 5943251446082417106}
-  _spawnDuration: 0
-  _attackDuration: 1.167
-  _skillDuration: 0
-  _hitDuration: 0.867
-  _dieDuration: 2.633
+  _unitAnimator: {fileID: 7061339416067858036}
+  _unitHealthBar: {fileID: 5943251446082417106}
 --- !u!1001 &2330694530003350163
 PrefabInstance:
   m_ObjectHideFlags: 0

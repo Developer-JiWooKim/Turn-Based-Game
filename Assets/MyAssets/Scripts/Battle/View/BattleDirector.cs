@@ -285,7 +285,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _hud.MarkDead(e.Unit.Id);
 
             if (_views.TryGetValue(e.Unit.Id, out UnitView view))
-                e.RegisterPlayback(view.PlayDeathAsync(_cts.Token));
+                e.RegisterPlayback(view.PlayDieAsync(_cts.Token));
         }
 
         private async Task PlayActionAsync(ActionResult result)
