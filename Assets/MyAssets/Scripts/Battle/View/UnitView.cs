@@ -14,6 +14,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [SerializeField] private Animator _animator;
         [SerializeField] private UnitHealthBar _healthBar;
 
+        private UnitAnimator _unitAnimator;
+        private UnitHealthBar _unitHealthBar;
+
         [Header("연출 시간(초) — 애니메이션 길이에 맞게 조정")]
         [Tooltip("등장 연출 시간. 몬스터는 Animator 기본 상태가 Spawned(자동 재생 후 Idle 전환)이므로 그 클립 길이를 넣는다. 등장 연출이 없는 프리팹은 0.")]
         [SerializeField] private float _spawnDuration = 0f;
@@ -33,6 +36,22 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public void Initialize(int unitId, int currentHp, int maxHp)
         {
             UnitId = unitId;
+            _unitAnimator = GetComponentInChildren<UnitAnimator>();
+            if (_unitAnimator != null)
+            {
+                Debug.LogError("_unitAnimator is null");
+            }
+
+            _unitHealthBar = GetComponentInChildren<UnitHealthBar>();
+            if (_unitHealthBar != null)
+            {
+                _unitHealthBar.Set(currentHp, maxHp);
+            }
+            else
+            {
+                Debug.LogError("_unitHealthBar is null");
+            }
+
             if (_animator == null)
                 _animator = GetComponentInChildren<Animator>();
             if (_healthBar != null)
@@ -81,4 +100,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
             await Awaitable.WaitForSecondsAsync(_dieDuration, ct);
         }
     }
+
+
+    // #TODO: UnitView는 연출 담당 컴포넌트라고 했는데, 애니메이터와 체력바 갱신 두가지 작업을 하고 있음 -> 기능 모듈화, UnitAnimator.cs / UnitHealthBar.cs 로 나눠서 해당 스크립트들은 각 기능만 가지고 있고
+    // UnitView.cs(이름 변경할 가능성 높음) 은 이 스크립트들을 가지고 컨트롤 하는 역할 담당할듯(UnitViewController? 로 바꿀듯)
 }
