@@ -34,5 +34,21 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         {
             return new Stats(MaxHp, Atk, Spd, Def, CritRate, CritDmg, Res);
         }
+
+        /// <summary>
+        /// 다른 스냅샷의 값으로 되돌린다(참조는 유지한 채 필드만 덮어씀).
+        /// 임시 효과(파티 시너지 등)를 뺄셈이 아니라 스냅샷 복원으로 제거할 때 쓴다 —
+        /// CritRate/Res처럼 1.0으로 클램프되는 값은 단순히 빼면 오차가 생기기 때문.
+        /// </summary>
+        public void CopyFrom(Stats other)
+        {
+            MaxHp = other.MaxHp;
+            Atk = other.Atk;
+            Spd = other.Spd;
+            Def = other.Def;
+            CritRate = other.CritRate;
+            CritDmg = other.CritDmg;
+            Res = other.Res;
+        }
     }
 }

@@ -31,8 +31,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 977863138585903583}
   - {fileID: 4906087950294337465}
+  - {fileID: 977863138585903583}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1939100855008560629
@@ -189,6 +189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitHealthBar
   _fill: {fileID: 78747795689321570}
+  _hpText: {fileID: 2474687819239365528}
   _billboardRoot: {fileID: 977863138585903583}
 --- !u!1 &2825188023480619683
 GameObject:
@@ -277,7 +278,7 @@ GameObject:
   - component: {fileID: 8523281228843158270}
   - component: {fileID: 2474687819239365528}
   m_Layer: 5
-  m_Name: HealthValueText
+  m_Name: HPText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

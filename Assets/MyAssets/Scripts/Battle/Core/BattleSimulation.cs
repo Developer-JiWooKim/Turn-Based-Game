@@ -21,6 +21,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         private readonly IActionSelector _playerSelector;
         private readonly IActionSelector _enemySelector;
         private readonly IRandom _rng;
+        private readonly bool _enemySkipFirstTurn;
 
         public BattleState State => _state;
 
@@ -32,12 +33,17 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public event EventHandler<UnitDiedEventArgs> UnitDied;
         public event EventHandler<BattleEndedEventArgs> BattleEnded;
 
-        public BattleSimulation(BattleState state, IActionSelector playerSelector, IActionSelector enemySelector, IRandom rng)
+        /// <param name="enemySkipFirstTurn">
+        /// 로그라이크 '몬스터 행동불가' 선택지 — 1턴째 몬스터 전원이 행동을 건너뛴다.
+        /// </param>
+        public BattleSimulation(BattleState state, IActionSelector playerSelector, IActionSelector enemySelector, IRandom rng,
+                                bool enemySkipFirstTurn = false)
         {
             _state = state;
             _playerSelector = playerSelector;
             _enemySelector = enemySelector;
             _rng = rng;
+            _enemySkipFirstTurn = enemySkipFirstTurn;
         }
 
         /// <summary>전투를 끝까지 진행하고 결과를 반환한다. 씬 종료 등으로 취소되면 OperationCanceledException.</summary>
@@ -60,6 +66,9 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 {
                     if (!actor.IsAlive) continue;      // 이번 턴에 먼저 사망한 유닛은 건너뜀
                     if (_state.IsBattleOver) break;
+
+                    // 행동불가 선택지: 1턴째 몬스터는 턴 시작 알림 없이 그대로 넘어간다
+                    if (_enemySkipFirstTurn && turnNumber == 1 && actor.Team == TeamSide.Enemy) continue;
 
                     ActorTurnStarted?.Invoke(this, new ActorTurnEventArgs(actor));
 

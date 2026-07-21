@@ -119,6 +119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitHealthBar
   _fill: {fileID: 6112825322896077092}
+  _hpText: {fileID: 3031644479993035043}
   _billboardRoot: {fileID: 1005140055649724691}
 --- !u!1 &2166857055389640481
 GameObject:
@@ -317,15 +318,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85397b976d2811f48b732e19079051e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitView
-  _animator: {fileID: 4349813925521469238}
-  _healthBar: {fileID: 2910642383794243410}
   _unitAnimator: {fileID: 2659710978674258532}
   _unitHealthBar: {fileID: 2910642383794243410}
-  _spawnDuration: 0
-  _attackDuration: 0
-  _skillDuration: 0
-  _hitDuration: 0
-  _dieDuration: 0
 --- !u!135 &193381492465792008
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -359,7 +353,7 @@ GameObject:
   - component: {fileID: 1201295053632146151}
   - component: {fileID: 3031644479993035043}
   m_Layer: 5
-  m_Name: HealthValueText
+  m_Name: HPText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

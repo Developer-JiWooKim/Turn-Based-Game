@@ -18,6 +18,13 @@ MonoBehaviour:
   _atk: 20
   _spd: 10
   _def: 15
-  _critRate: 0.15
+  _critRate: 0.25
   _critDmg: 1.5
   _res: 0.2
+  _synergyThreshold: 2
+  _synergyAtk: 0
+  _synergySpd: 0
+  _synergyDef: 8
+  _synergyCritRate: 0
+  _synergyCritDmg: 0
+  _synergyRes: 0.1

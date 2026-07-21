@@ -6,8 +6,6 @@ namespace Assets.MyAssets.Scripts.UI
     {
         protected override void Start()
         {
-            base.Start();
-
             Root.Q<Button>("option-close-button").clicked += Hide;
         }
     }

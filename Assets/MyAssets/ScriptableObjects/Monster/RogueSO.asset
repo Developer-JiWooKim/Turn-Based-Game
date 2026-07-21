@@ -22,7 +22,7 @@ MonoBehaviour:
   _critDmg: 2
   _res: 0.1
   _tier: 1
-  _hasSkill: 0
-  _skillCooldown: 2
+  _hasSkill: 1
+  _skillCooldown: 5
   _skillScope: 0
-  _skillPowerMultiplier: 1.4
+  _skillPowerMultiplier: 1.1

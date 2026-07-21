@@ -12,8 +12,6 @@ namespace Assets.MyAssets.Scripts.UI
 
     protected override void Start()
     {
-      base.Start();
-
       Root.Q<Button>("start-button").clicked += () => OnPlayClicked?.Invoke();
       Root.Q<Button>("option-button").clicked += () => OnOptionClicked?.Invoke();
       Root.Q<Button>("quit-button").clicked += () => OnQuitClicked?.Invoke();

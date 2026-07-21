@@ -190,10 +190,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2780131479872095143}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed751ddd85df49e4280e60b72c2d2d88, type: 3}
+  m_Script: {fileID: 11500000, guid: dec1d82ae16406047953e930cdff721e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Utility.FadeScreenEffect
-  _canvasGroup: {fileID: 8838177866057894765}
+  _canvasGroup: {fileID: 0}
   _fadeOutDuration: 0.5
   _fadeInDuration: 1
 --- !u!225 &8838177866057894765

@@ -15,7 +15,7 @@ MonoBehaviour:
   _displayName: Skeleton Warrior
   _prefab: {fileID: 8524646091852153869, guid: 2bf7cbd5cb5e12f4dbd88b4f3b9f0ed9, type: 3}
   _maxHp: 150
-  _atk: 25
+  _atk: 23
   _spd: 10
   _def: 20
   _critRate: 0.1
@@ -23,6 +23,6 @@ MonoBehaviour:
   _res: 0.3
   _tier: 2
   _hasSkill: 1
-  _skillCooldown: 2
+  _skillCooldown: 3
   _skillScope: 1
-  _skillPowerMultiplier: 1.4
+  _skillPowerMultiplier: 1.2

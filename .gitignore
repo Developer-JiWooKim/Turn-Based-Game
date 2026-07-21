@@ -73,3 +73,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# 에디터 플레이 중 생성되는 로컬 세이브 (SaveService — 에디터에서만 프로젝트 루트에 저장)
+/[Ss]ave[Dd]ata/

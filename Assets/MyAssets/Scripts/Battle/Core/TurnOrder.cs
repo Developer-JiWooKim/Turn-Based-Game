@@ -4,8 +4,7 @@ using System.Linq;
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
-    /// 매 턴 시작 시 살아있는 전체 유닛을 SPD 내림차순으로 정렬해 행동 순서를 만든다(순수 로직).
-    /// SPD가 같으면 Id 오름차순으로 안정적으로 결정한다.
+    /// 매 턴 시작 시 살아있는 전체 유닛을 SPD 내림차순으로 정렬
     /// </summary>
     public static class TurnOrder
     {

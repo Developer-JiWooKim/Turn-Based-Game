@@ -17,6 +17,19 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
+/* 좌상단 파티 시너지 (스테이지/턴 순서와 겹치지 않도록 왼쪽에 배치) */
+.synergy-label {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    max-width: 320px;
+    white-space: normal;
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: rgb(180, 235, 190);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
 /* 상단 턴 순서 바 (가로 나열) */
 .turn-order {
     position: absolute;
