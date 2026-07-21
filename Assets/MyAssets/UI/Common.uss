@@ -122,3 +122,17 @@
     opacity: 0.8;
     margin-bottom: 24px;
 }
+
+/* 옵션 볼륨 슬라이더 */
+.option-slider {
+    width: 100%;
+    margin-top: 6px;
+    margin-bottom: 18px;
+}
+
+.option-slider .unity-base-field__label {
+    color: var(--color-cream);
+    font-size: 22px;
+    min-width: 120px;
+    -unity-font-style: bold;
+}

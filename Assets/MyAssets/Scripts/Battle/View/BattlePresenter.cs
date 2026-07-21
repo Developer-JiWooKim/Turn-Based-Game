@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
-using Assets.MyAssets.Scripts.Run;
+using Assets.MyAssets.Scripts.Progression.Run;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.View
@@ -127,8 +128,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
                     playback.Add(targetView.PlayHitAsync(hit.Target.CurrentHp, hit.Target.Stats.MaxHp, _ct));
             }
 
-            if (anyCritical && _cameraShake != null)
-                _cameraShake.Shake();
+            if (anyCritical)
+            {
+                if (_cameraShake != null)
+                    _cameraShake.Shake();
+                AudioManager.Sfx(AudioManager.Library?.Critical);
+            }
 
             await Task.WhenAll(playback);
         }

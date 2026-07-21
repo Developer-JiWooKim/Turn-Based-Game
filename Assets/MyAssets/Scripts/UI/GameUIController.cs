@@ -1,4 +1,4 @@
-using Assets.MyAssets.Scripts.Singleton;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.UI

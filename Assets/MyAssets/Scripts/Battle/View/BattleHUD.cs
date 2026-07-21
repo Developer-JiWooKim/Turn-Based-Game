@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Assets.MyAssets.Scripts.Battle.Core;
-using Assets.MyAssets.Scripts.Run;
+using Assets.MyAssets.Scripts.Progression.Run;
 using UnityEngine;
 using UnityEngine.UIElements;
 

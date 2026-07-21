@@ -1,5 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Assets.MyAssets.Scripts.Audio.Data;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.View
@@ -11,6 +13,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
     {
         [SerializeField] private UnitAnimator _unitAnimator;
         [SerializeField] private UnitHealthBar _unitHealthBar;
+        [Tooltip("이 유닛의 전투음(등장/공격/스킬/피격/사망). 비워두면 소리 없이 진행한다.")]
+        [SerializeField] private UnitSfxSO _sfx;
 
         public int UnitId { get; private set; }
 
@@ -51,21 +55,25 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         public async Task PlaySpawnAsync(CancellationToken ct = default)
         {
+            AudioManager.Sfx(_sfx?.Spawn);
             await Awaitable.WaitForSecondsAsync(_unitAnimator.SpawnDuration, ct);
         }
 
         public async Task PlayAttackAsync(CancellationToken ct = default)
         {
+            AudioManager.Sfx(_sfx?.Attack);
             await Awaitable.WaitForSecondsAsync(_unitAnimator.PlayAttack(), ct);
         }
 
         public async Task PlaySkillAsync(CancellationToken ct = default)
         {
+            AudioManager.Sfx(_sfx?.Skill);
             await Awaitable.WaitForSecondsAsync(_unitAnimator.PlaySkill(), ct);
         }
 
         public async Task PlayHitAsync(int currentHp, int maxHp, CancellationToken ct = default)
         {
+            AudioManager.Sfx(_sfx?.Hit);
             Awaitable hitTask = Awaitable.WaitForSecondsAsync(_unitAnimator.PlayHit(), ct);
             if (_unitHealthBar != null)
             {
@@ -76,6 +84,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         public async Task PlayDieAsync(CancellationToken ct = default)
         {
+            AudioManager.Sfx(_sfx?.Die);
             await Awaitable.WaitForSecondsAsync(_unitAnimator.PlayDie(), ct);
         }
     }

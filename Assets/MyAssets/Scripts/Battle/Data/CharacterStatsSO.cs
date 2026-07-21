@@ -8,7 +8,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
     ///
     /// 파티 시너지는 "같은 캐릭터가 임계 인원 이상 모이면 그 캐릭터들에게만" 적용되며,
     /// 전투 중 대상이 죽어 조건이 깨지면 즉시 사라져야 하므로 런 데이터에 누적하지 않고
-    /// <see cref="Run.PartySynergyTracker"/>가 전투용 Unit에만 얹었다 뺐다 한다. 되돌릴 수 없는 최대 HP는 시너지 대상에서 제외한다.
+    /// <see cref="Progression.Run.PartySynergyTracker"/>가 전투용 Unit에만 얹었다 뺐다 한다. 되돌릴 수 없는 최대 HP는 시너지 대상에서 제외한다.
     /// </summary>
     [CreateAssetMenu(menuName = "Battle/Character Stats", fileName = "CharacterStats")]
     public sealed class CharacterStatsSO : UnitStatsSO

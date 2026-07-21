@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Battle.Data;
-using Assets.MyAssets.Scripts.Run;
+using Assets.MyAssets.Scripts.Progression.Run;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.View
