@@ -46,8 +46,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85397b976d2811f48b732e19079051e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitView
-  _animator: {fileID: 3121815397000954120}
-  _healthBar: {fileID: 9009452306026809640}
   _unitAnimator: {fileID: 2276879436703654036}
   _unitHealthBar: {fileID: 9009452306026809640}
 --- !u!1 &3505599304823500136
@@ -93,7 +91,7 @@ GameObject:
   - component: {fileID: 827357209409690004}
   - component: {fileID: 2671377665728125037}
   m_Layer: 5
-  m_Name: HealthValueText
+  m_Name: HPText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -487,6 +485,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitHealthBar
   _fill: {fileID: 3842147497067681855}
+  _hpText: {fileID: 2671377665728125037}
   _billboardRoot: {fileID: 9102199153385298356}
 --- !u!1001 &2077422033728887321
 PrefabInstance:
@@ -539,6 +538,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 3dc1c1f6fd27a374883e80c6d24a066d, type: 3}
       propertyPath: m_Name
       value: arrow_bow
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3dc1c1f6fd27a374883e80c6d24a066d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

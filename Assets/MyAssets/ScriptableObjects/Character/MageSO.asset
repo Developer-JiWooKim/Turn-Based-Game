@@ -15,9 +15,16 @@ MonoBehaviour:
   _displayName: Mage
   _prefab: {fileID: 1510330627128820198, guid: d55a75d52be3e45489d297eed6468992, type: 3}
   _maxHp: 80
-  _atk: 30
-  _spd: 5
-  _def: 3
+  _atk: 35
+  _spd: 3
+  _def: 1
   _critRate: 0.3
   _critDmg: 3
   _res: 0
+  _synergyThreshold: 2
+  _synergyAtk: 0
+  _synergySpd: 0
+  _synergyDef: 0
+  _synergyCritRate: 0
+  _synergyCritDmg: 0.5
+  _synergyRes: 0

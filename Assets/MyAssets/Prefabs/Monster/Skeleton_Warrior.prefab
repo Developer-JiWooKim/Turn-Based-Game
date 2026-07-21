@@ -119,6 +119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitHealthBar
   _fill: {fileID: 1614186180810003446}
+  _hpText: {fileID: 9148360224136649211}
   _billboardRoot: {fileID: 2171307455422809110}
 --- !u!1 &6644318100962335178
 GameObject:
@@ -132,7 +133,7 @@ GameObject:
   - component: {fileID: 385424076865901775}
   - component: {fileID: 9148360224136649211}
   m_Layer: 3
-  m_Name: HealthValueText
+  m_Name: HPText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

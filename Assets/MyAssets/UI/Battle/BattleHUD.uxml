@@ -3,6 +3,8 @@
     <!-- picking-mode=Ignore: HUD가 몬스터 클릭 타겟팅을 가로채지 않도록 전부 통과 -->
     <ui:VisualElement name="battle-hud" class="battle-hud" picking-mode="Ignore">
         <ui:Label name="stage-label" class="stage-label" text="STAGE 1" picking-mode="Ignore" />
+        <!-- 발동 중인 파티 시너지. 내용은 BattleHUD가 실제 효과 수치에서 생성한다 -->
+        <ui:Label name="synergy-label" class="synergy-label" text="" picking-mode="Ignore" />
         <ui:VisualElement name="turn-order" class="turn-order" picking-mode="Ignore" />
         <ui:Label name="player-prompt" class="player-prompt" text="" picking-mode="Ignore" />
     </ui:VisualElement>

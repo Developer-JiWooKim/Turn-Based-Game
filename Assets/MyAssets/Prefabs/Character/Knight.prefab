@@ -121,8 +121,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85397b976d2811f48b732e19079051e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitView
-  _animator: {fileID: 3010942856119664746}
-  _healthBar: {fileID: 3090712517280085384}
   _unitAnimator: {fileID: 2663826194520173772}
   _unitHealthBar: {fileID: 3090712517280085384}
 --- !u!1 &2558311668932259329
@@ -319,6 +317,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitHealthBar
   _fill: {fileID: 606280788697698876}
+  _hpText: {fileID: 7634967632641125013}
   _billboardRoot: {fileID: 1696854600184111713}
 --- !u!1 &3572310497636583668
 GameObject:
@@ -332,7 +331,7 @@ GameObject:
   - component: {fileID: 1467346653619612374}
   - component: {fileID: 7634967632641125013}
   m_Layer: 5
-  m_Name: HealthValueText
+  m_Name: HPText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

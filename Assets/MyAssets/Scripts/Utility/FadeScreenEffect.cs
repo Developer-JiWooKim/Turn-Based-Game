@@ -2,14 +2,18 @@ using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Utility
 {
+    [RequireComponent(typeof(CanvasGroup))]
     public class FadeScreenEffect : MonoBehaviour
     {
-        [SerializeField] private CanvasGroup _canvasGroup;
+        [Header("Fade Time Setting")]
         [SerializeField] private float _fadeOutDuration = 0.5f;
         [SerializeField] private float _fadeInDuration = 1f;
 
+        private CanvasGroup _canvasGroup;
+
         private void Awake()
         {
+            _canvasGroup = GetComponent<CanvasGroup>();
             _canvasGroup.alpha = 0f;
             _canvasGroup.blocksRaycasts = false;
         }
@@ -46,4 +50,3 @@ namespace Assets.MyAssets.Scripts.Utility
         }
     }
 }
-

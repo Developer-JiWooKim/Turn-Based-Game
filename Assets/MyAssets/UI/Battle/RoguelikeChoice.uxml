@@ -1,8 +1,12 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
     <Style src="RoguelikeChoice.uss" />
     <ui:VisualElement name="roguelike-panel" class="roguelike-overlay" style="display: none;">
-        <ui:Label text="성장 선택" class="roguelike-header" />
+        <ui:Label name="panel-header" text="성장 선택" class="roguelike-header" />
         <ui:VisualElement class="roguelike-cards">
+            <ui:Button name="choice-card" class="choice-card">
+                <ui:Label name="card-title" class="card-title" />
+                <ui:Label name="card-desc" class="card-desc" />
+            </ui:Button>
             <ui:Button name="choice-card" class="choice-card">
                 <ui:Label name="card-title" class="card-title" />
                 <ui:Label name="card-desc" class="card-desc" />

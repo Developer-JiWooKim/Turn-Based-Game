@@ -15,9 +15,16 @@ MonoBehaviour:
   _displayName: Ranger
   _prefab: {fileID: 470179588852354655, guid: 03fde4f9645f3234c8b69bca880268aa, type: 3}
   _maxHp: 90
-  _atk: 25
+  _atk: 30
   _spd: 10
-  _def: 5
+  _def: 3
   _critRate: 0.4
-  _critDmg: 2
+  _critDmg: 2.1
   _res: 0
+  _synergyThreshold: 2
+  _synergyAtk: 0
+  _synergySpd: 5
+  _synergyDef: 0
+  _synergyCritRate: 0
+  _synergyCritDmg: 0
+  _synergyRes: 0.01

@@ -17,7 +17,6 @@ namespace Assets.MyAssets.Scripts.Singleton
         {
             base.Awake();
             DontDestroyOnLoad(this.gameObject);
-
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
@@ -62,4 +61,3 @@ namespace Assets.MyAssets.Scripts.Singleton
         }
     }
 }
-

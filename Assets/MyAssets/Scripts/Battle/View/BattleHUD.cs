@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Run;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -15,6 +17,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [SerializeField] private UIDocument _document;
 
         private Label _stageLabel;
+        private Label _synergyLabel;
         private VisualElement _turnOrder;
         private Label _playerPrompt;
 
@@ -24,6 +27,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             VisualElement root = _document.rootVisualElement;
             _stageLabel = root.Q<Label>("stage-label");
+            _synergyLabel = root.Q<Label>("synergy-label");
             _turnOrder = root.Q<VisualElement>("turn-order");
             _playerPrompt = root.Q<Label>("player-prompt");
             HidePrompt();
@@ -33,6 +37,41 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             if (_stageLabel != null)
                 _stageLabel.text = $"STAGE {stage}";
+        }
+
+        /// <summary>발동 중인 파티 시너지를 표시한다(없으면 숨김).</summary>
+        public void ShowSynergies(IReadOnlyList<ActiveSynergy> synergies)
+        {
+            if (_synergyLabel == null) return;
+
+            if (synergies == null || synergies.Count == 0)
+            {
+                _synergyLabel.style.display = DisplayStyle.None;
+                return;
+            }
+
+            _synergyLabel.text = string.Join("\n", synergies.Select(DescribeSynergy));
+            _synergyLabel.style.display = DisplayStyle.Flex;
+        }
+
+        /// <summary>
+        /// 시너지 한 줄을 만든다. 문구를 SO에 따로 적어두면 수치를 조정할 때 설명이 어긋나므로
+        /// 실제 효과 값에서 생성한다.
+        /// </summary>
+        private static string DescribeSynergy(ActiveSynergy synergy)
+        {
+            RoguelikeEffect e = synergy.Effect;
+            var parts = new List<string>();
+
+            if (e.AtkFlat != 0) parts.Add($"ATK +{e.AtkFlat}");
+            if (e.SpdFlat != 0) parts.Add($"SPD +{e.SpdFlat}");
+            if (e.DefFlat != 0) parts.Add($"DEF +{e.DefFlat}");
+            if (e.CritRateFlat != 0f) parts.Add($"치명타 +{e.CritRateFlat * 100f:0}%");
+            if (e.CritDmgFlat != 0f) parts.Add($"치명피해 +{e.CritDmgFlat * 100f:0}%");
+            if (e.ResFlat != 0f) parts.Add($"저항 +{e.ResFlat * 100f:0}%");
+
+            string name = synergy.Source != null ? synergy.Source.DisplayName : "?";
+            return $"{name} ×{synergy.Count}  {string.Join(" · ", parts)}";
         }
 
         /// <summary>이번 턴의 SPD 순서로 칩을 다시 그린다.</summary>

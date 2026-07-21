@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: Heal
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.RoguelikeChoiceSO
   _title: Heal
-  _description: HP +40
+  _description: Restore 40 HP
   _category: 4
-  _hpFlat: 40
+  _hpFlat: 0
   _atkFlat: 0
   _spdFlat: 0
   _defFlat: 0
-  _healFlat: 0
+  _healFlat: 40
   _resFlat: 0
   _critRateFlat: 0
   _critDmgFlat: 0
