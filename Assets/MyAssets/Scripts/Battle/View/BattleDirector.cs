@@ -5,9 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Battle.Data;
-using Assets.MyAssets.Scripts.Run;
-using Assets.MyAssets.Scripts.Save;
-using Assets.MyAssets.Scripts.Singleton;
+using Assets.MyAssets.Scripts.Progression.Run;
+using Assets.MyAssets.Scripts.Progression.Save;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.View
@@ -110,6 +110,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 }
 
                 // 승리 → 다음 스테이지로 진급 후 자동 성장, 그다음 선택지 제시
+                AudioManager.Sfx(AudioManager.Library?.VictoryStinger);
                 _run.CurrentStage++;
                 _run.ApplyStageGrowth(_scaling);
                 _registry.RefreshHealth(_run.Members); // 선택지 패널의 카드와 체력바가 같은 값을 보이도록 먼저 갱신
@@ -132,6 +133,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 Debug.LogError("[BattleDirector] 스폰할 몬스터 웨이브가 설정되지 않았습니다.");
                 return false;
             }
+
+            // 보스/일반 BGM으로 전환. 같은 클립이면 AudioManager가 무시하므로 매 스테이지 호출해도 안전하다.
+            AudioManager.Bgm(AudioManager.Library?.GetBattleBgm(wave.IsBossWave));
 
             // 파티 Unit은 스테이지마다 런 데이터의 현재 상태(성장한 스탯 + 이어받은 HP)로 새로 만든다.
             // Id는 RunMember가 런 내내 유지하므로 이미 스폰된 View를 그대로 쓴다.
@@ -265,6 +269,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>전멸 시 결과를 보여주고, 플레이어가 확인하면 타이틀로 돌아간다.</summary>
         private async Task HandleDefeatAsync()
         {
+            AudioManager.Sfx(AudioManager.Library?.DefeatStinger);
+
             int reachedStage = _run.CurrentStage;
             Debug.Log($"[BattleDirector] 파티 전멸 — {reachedStage}스테이지에서 리타이어");
 

@@ -7,7 +7,9 @@
     <ui:VisualElement name="option-popup" class="popup-overlay" style="display: none;">
         <ui:VisualElement class="popup-frame wood-panel">
             <ui:Label text="옵션" class="popup-title outline-text" />
-            <ui:Label text="(준비 중)" class="popup-body outline-text" />
+            <ui:Slider name="master-volume-slider" label="마스터" low-value="0" high-value="1" value="1" class="option-slider" />
+            <ui:Slider name="bgm-volume-slider" label="BGM" low-value="0" high-value="1" value="1" class="option-slider" />
+            <ui:Slider name="sfx-volume-slider" label="효과음" low-value="0" high-value="1" value="1" class="option-slider" />
             <ui:Button text="닫기" name="option-close-button" class="btn btn-secondary" />
         </ui:VisualElement>
     </ui:VisualElement>

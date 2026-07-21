@@ -487,6 +487,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.UnitView
   _unitAnimator: {fileID: 5483442559171548244}
   _unitHealthBar: {fileID: 7352951753767284191}
+  _sfx: {fileID: 11400000, guid: bec49bca968b11d4196f8a22649a57d1, type: 2}
 --- !u!1001 &5462780633866409559
 PrefabInstance:
   m_ObjectHideFlags: 0
