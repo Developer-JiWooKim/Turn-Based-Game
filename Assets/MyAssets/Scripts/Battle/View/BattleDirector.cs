@@ -161,7 +161,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             };
 
             if (_targeting != null)
-                _targeting.Initialize(playerSelector);
+                _targeting.Initialize(playerSelector, _registry);
 
             BattleOutcome outcome = await simulation.RunAsync(_cts.Token);
 

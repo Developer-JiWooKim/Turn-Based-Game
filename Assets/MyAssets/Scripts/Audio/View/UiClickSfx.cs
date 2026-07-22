@@ -34,7 +34,7 @@ namespace Assets.MyAssets.Scripts.Audio.View
         private void OnClick(ClickEvent evt)
         {
             if (evt.target is Button)
-                AudioManager.Sfx(AudioManager.Library?.UiClick);
+                AudioManager.UiClick();
         }
     }
 }

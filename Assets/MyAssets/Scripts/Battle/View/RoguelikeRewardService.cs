@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Progression.Run;
+using Assets.MyAssets.Scripts.Progression.Save;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.View
@@ -36,6 +37,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [SerializeField] private int _choiceCount = 3;
         [Tooltip("파티원 영입 선택지가 뽑을 캐릭터 목록(캐릭터 선택 화면과 같은 로스터).")]
         [SerializeField] private CharacterRosterSO _roster;
+        [Tooltip("성향 포인트 1점당 해당 카테고리 등장 가중치에 더해지는 값(밸런싱).")]
+        [SerializeField] private float _weightPerPoint = 1f;
 
         [Header("영입")]
         [Tooltip("영입 선택지를 골랐을 때 제시할 후보 수. 로스터에서 중복 없이 무작위로 뽑는다.")]
@@ -168,7 +171,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 : _choicePool.Where(c => c != null && (allowRecruit || !c.RequiresPartySlot)).ToList();
 
             int emptySlots = RunData.MaxPartySize - run.Members.Count;
-            List<float> weights = pool.Select(c => c.GetWeight(emptySlots)).ToList();
+            List<float> weights = pool.Select(c =>
+                c.GetWeight(emptySlots) + SaveService.Current.GetPoints(c.Category) * _weightPerPoint).ToList();
 
             return WeightedPicker.PickDistinct(weights, _choiceCount, rng)
                                  .Select(i => pool[i])

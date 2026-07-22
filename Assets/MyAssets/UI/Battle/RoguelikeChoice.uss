@@ -43,6 +43,12 @@
     border-color: rgb(255, 214, 92);
 }
 
+/* 방향키로 겨냥한 카드(마우스 :hover와 동일한 강조) */
+.choice-card--active {
+    scale: 1.05 1.05;
+    border-color: rgb(255, 214, 92);
+}
+
 .card-title {
     font-size: 22px;
     -unity-font-style: bold;

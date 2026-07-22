@@ -5,7 +5,6 @@ namespace Assets.MyAssets.Scripts.UI
 {
   public class TitlePanelUI : BasePanelUI
   {
-
     public event Action OnPlayClicked;
     public event Action OnOptionClicked;
     public event Action OnQuitClicked;

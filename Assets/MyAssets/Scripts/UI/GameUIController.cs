@@ -11,6 +11,7 @@ namespace Assets.MyAssets.Scripts.UI
         [SerializeField] private TitlePanelUI _titlePanel;
         [SerializeField] private CharacterSelectPanelUI _characterSelectPanel;
         [SerializeField] private OptionPopupUI _optionPopup;
+        [SerializeField] private PointAllocationPopupUI _allocationPopup;
 
         public TitlePanelUI TitlePanel => _titlePanel;
         public CharacterSelectPanelUI CharacterSelectPanel => _characterSelectPanel;
@@ -30,6 +31,7 @@ namespace Assets.MyAssets.Scripts.UI
 
             _characterSelectPanel.OnBackClicked += GoToTitle;
             _characterSelectPanel.OnBattleClicked += StartBattle;
+            _characterSelectPanel.OnAllocationClicked += _allocationPopup.Show;
         }
 
         private void OnDisable()
@@ -40,6 +42,7 @@ namespace Assets.MyAssets.Scripts.UI
 
             _characterSelectPanel.OnBackClicked -= GoToTitle;
             _characterSelectPanel.OnBattleClicked -= StartBattle;
+            _characterSelectPanel.OnAllocationClicked -= _allocationPopup.Show;
         }
 
         private void Start()
@@ -47,6 +50,7 @@ namespace Assets.MyAssets.Scripts.UI
             _titlePanel.Hide();
             _characterSelectPanel.Hide();
             _optionPopup.Hide();
+            _allocationPopup.Hide();
 
             _flowFSM.ChangeState(_flowFSM.TitleState);
         }
