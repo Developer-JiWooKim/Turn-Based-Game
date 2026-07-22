@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.SpawnWaveSO
   _monsters:
   - {fileID: 11400000, guid: f22332c2326d42a49a19b4245a36b548, type: 2}
+  - {fileID: 11400000, guid: a11246c6ae1340340bc6fa0e82268c65, type: 2}
   - {fileID: 11400000, guid: f22332c2326d42a49a19b4245a36b548, type: 2}
-  - {fileID: 11400000, guid: f22332c2326d42a49a19b4245a36b548, type: 2}
+  _weight: 1

@@ -13,13 +13,18 @@ MonoBehaviour:
   m_Name: AttackUp
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.RoguelikeChoiceSO
   _title: Attack Up
-  _description: "HP +5 \nATK +10"
+  _description: "HP +5 \nATK +12"
   _category: 0
   _hpFlat: 5
-  _atkFlat: 10
+  _atkFlat: 12
   _spdFlat: 0
   _defFlat: 0
   _healFlat: 0
   _resFlat: 0
   _critRateFlat: 0
   _critDmgFlat: 0
+  _enemyHpMul: 1
+  _enemyAtkMul: 1
+  _enemySkipFirstTurn: 0
+  _weight: 1
+  _weightPerEmptySlot: 0

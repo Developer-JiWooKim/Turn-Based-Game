@@ -19,7 +19,10 @@
 - **스폰 패턴**: 1~5스테이지 수동 설계 + 6스테이지 이후 랜덤 풀 추첨 + 배수 스테이지 보스 강제
 - **결과 화면**: 전멸 시 도달 스테이지 + 최고 기록 팝업(신기록 여부 표시) 후 타이틀 복귀
 - **로컬 영구 저장**: `SaveData`/`SaveService`(최고 스테이지, 카테고리별 포인트, 옵션값을 `save.json`으로 영속화)
-- **사운드**: BGM 크로스페이드(씬 전환·전투/보스 전환) + 유닛 전투음/크리티컬/UI클릭/승리·패배 스팅어 SFX + 옵션 팝업 볼륨 슬라이더(마스터/BGM/SFX)
+- **성향 포인트 배분**: 캐릭터 선택 화면의 '성향' 버튼 → 오버레이 팝업에서 카테고리별(9종) 영구 포인트 투자/리스펙, `RoguelikeRewardService`의 선택지 추첨 가중치에 실시간 반영
+- **사운드**: BGM 크로스페이드(씬 전환·전투/보스 전환) + 유닛 전투음/크리티컬/UI클릭·이동·확정/승리·패배 스팅어 SFX + 옵션 팝업 볼륨 슬라이더(마스터/BGM/SFX)
+- **입력 허브 (`InputManager`)**: 흩어진 플레이어 입력을 한곳으로 통합(생성된 `InputSystem_Actions` 래퍼 소유, 구 `PlayerInput`/`PlayerInputAction` 제거). 마우스/배틀 방향키/UI 방향키를 분리해 노출, `TargetingController`가 `Mouse.current` 직접 사용 대신 허브 경유
+- **키보드 조작**: 배틀 타겟팅(좌/우 방향키 순환=화면 좌→우 정렬, Enter/Space 확정), 캐릭터 선택(방향키=prev/next), 로그라이크 선택지(방향키 카드 겨냥+Enter/Space 선택). 마우스와 병행, 각 조작음 재생
 
 ---
 
@@ -32,19 +35,6 @@
 
 ---
 
-## 🟡 2순위 — 메타 진행 / 성장
-
-### 2-1. 성향 포인트 배분 팝업  (상태: 미착수)
-- 저장 레이어(`SaveData.CategoryPoints`·`GetEarnedPoints`/`SetPoints`/`ResetPoints`)는 준비됨. 배분 UI와 가중치 반영 로직이 미구현
-- 캐릭터 선택 완료 후(SelectWeapon 단계) 등장, 무료 리스펙(초기화) 지원
-- 투자한 포인트를 실제 추첨에 반영하려면 `RoguelikeRewardService`가 `RoguelikeChoiceSO.GetWeight` 결과에 `SaveData.GetPoints(category)`를 더해 `WeightedPicker`에 넘기면 됨
-
-### 2-2. 영구 포인트 획득 규칙  (상태: 부분구현)
-- `SaveData.GetEarnedPoints(stagesPerPoint)`는 있으나 "몇 스테이지마다 1점"을 넘겨주는 호출부(SO 밸런싱 값)가 아직 없음
-- 2-1과 맞물려 UI에서 실제로 써야 완결됨
-
----
-
 ## 🟡 3순위 — UI / UX
 
 ### 3-1. 영입 후보 카드 아이콘화  (상태: 미착수)
@@ -52,9 +42,9 @@
 - 이름 텍스트 폰트 크기를 절반 정도로 축소(카드 크기는 유지)
 - `RoguelikeRewardService.DescribeCandidate`와 `ChoiceCard`(현재 제목+설명 2필드)에 아이콘 필드 확장 필요
 
-### 3-2. 타겟팅 피드백  (상태: 미착수, `TargetingController` 내 TODO)
-- 플레이어 차례에 유효 대상(몬스터) 하이라이트 / 커서 피드백
-- 현재는 감으로 클릭
+### 3-2. 타겟팅 피드백  (상태: 부분구현, `TargetingController` 내 TODO)
+- 마우스 2단계 클릭 + 방향키 순환/Enter·Space 확정은 구현 완료. 겨냥된 **단일** 대상은 빨강 아웃라인 표시
+- 남은 것: 플레이어 차례에 **유효 대상 전체** 하이라이트 / 커서 피드백(어디를 겨냥할 수 있는지)
 
 ### 3-3. 캐릭터 선택 화면 폴리시  (상태: 부분구현)
 - 스탯 바(로스터 대비 비율)는 구현 완료
@@ -72,9 +62,10 @@
 - 타격 시 히트 이펙트 재생 (외부 에셋 구매/다운로드 예정)
 - `BattlePresenter.PlayActionAsync`에 이펙트 스폰 훅 추가 지점 있음
 
-### 4-2. 입력 시스템 정식화  (상태: 미착수)
-- `Assets/InputSystem_Actions.inputactions`가 Unity 기본 템플릿 그대로
-- 현재 타겟팅은 `Mouse.current` 직접 사용 → 커맨드 배틀용 액션맵으로 정식 재정의
+### 4-2. 입력 시스템 정식화  (상태: 부분구현)
+- 입력은 `InputManager` 허브로 통합 완료(마우스/배틀 방향키/UI 방향키 분리 노출, 원시 디바이스 직접 접근 제거)
+- 남은 것: `Assets/InputSystem_Actions.inputactions`의 **Player 맵은 여전히 비어 있고**, 배틀 키(방향키/확정)는 asset 액션맵이 아니라 코드로 만든 `InputAction`. 커맨드 배틀용 액션맵으로 asset에 정식 재정의 + 리바인딩(키 변경) 지원은 추후
+- 씬 정리: 에디터에서 `InputManager` 오브젝트의 잔여 `PlayerInput` + Missing 스크립트(구 `PlayerInputAction`) 컴포넌트 제거 필요
 
 ---
 

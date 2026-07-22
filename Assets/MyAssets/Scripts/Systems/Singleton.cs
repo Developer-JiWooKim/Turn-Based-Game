@@ -9,10 +9,7 @@ namespace Assets.MyAssets.Scripts.Systems
 
         protected virtual void Awake()
         {
-
-            // 이미 다른 인스턴스가 있으면 이 중복 오브젝트를 파괴한다.
-            // (기존 조건은 Instance == this라 중복이 파괴되지 않고 Instance만 덮어써져,
-            //  씬을 왕복할 때마다 DontDestroyOnLoad 오브젝트가 하나씩 쌓이는 버그가 있었다.)
+            // 이미 다른 인스턴스가 있으면 중복 오브젝트를 파괴
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);

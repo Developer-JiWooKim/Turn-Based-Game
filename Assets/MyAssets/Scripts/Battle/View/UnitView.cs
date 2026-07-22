@@ -18,9 +18,19 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         public int UnitId { get; private set; }
 
+        /// <summary>아웃라인 색을 결정하는 3D 모델 렌더러들과 원래 레이어(복원용).
+        /// 월드스페이스 체력바는 uGUI(CanvasRenderer)라 Renderer로 잡히지 않아 자동 제외된다.</summary>
+        private Renderer[] _modelRenderers;
+        private int[] _originalLayers;
+
         public void Initialize(int unitId, int currentHp, int maxHp)
         {
             UnitId = unitId;
+
+            _modelRenderers = GetComponentsInChildren<Renderer>(true);
+            _originalLayers = new int[_modelRenderers.Length];
+            for (int i = 0; i < _modelRenderers.Length; i++)
+                _originalLayers[i] = _modelRenderers[i].gameObject.layer;
 
             if (_unitAnimator == null)
             {
@@ -41,7 +51,28 @@ namespace Assets.MyAssets.Scripts.Battle.View
         }
 
         /// <summary>
-        /// 체력바 갱신        
+        /// 아웃라인 색을 바꾸기 위해 모델 렌더러의 레이어를 지정 레이어로 옮긴다
+        /// (렌더러별 아웃라인 기능이 레이어로 색을 결정). 콜라이더는 건드리지 않아 타겟 클릭 판정은 그대로.
+        /// </summary>
+        public void SetOutlineLayer(int layer)
+        {
+            if (_modelRenderers == null) return;
+            for (int i = 0; i < _modelRenderers.Length; i++)
+                if (_modelRenderers[i] != null)
+                    _modelRenderers[i].gameObject.layer = layer;
+        }
+
+        /// <summary>모델 렌더러 레이어를 스폰 당시 원래 값으로 되돌린다(기본 검정 아웃라인 복귀).</summary>
+        public void ResetOutlineLayer()
+        {
+            if (_modelRenderers == null || _originalLayers == null) return;
+            for (int i = 0; i < _modelRenderers.Length; i++)
+                if (_modelRenderers[i] != null)
+                    _modelRenderers[i].gameObject.layer = _originalLayers[i];
+        }
+
+        /// <summary>
+        /// 체력바 갱신
         /// </summary>
         public void RefreshHealth(int currentHp, int maxHp)
         {

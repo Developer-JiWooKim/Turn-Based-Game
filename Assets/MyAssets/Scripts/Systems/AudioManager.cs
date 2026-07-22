@@ -6,26 +6,24 @@ using UnityEngine.SceneManagement;
 namespace Assets.MyAssets.Scripts.Systems
 {
     /// <summary>
-    /// BGM/SFX 재생과 볼륨을 총괄하는 전역 오디오 관리자.
-    /// <see cref="GameManager"/>와 동일하게 씬을 넘어 유지된다(DontDestroyOnLoad).
-    ///
-    /// AudioMixer 없이 AudioSource를 직접 제어한다 — 카메라 고정 턴제라 2D 사운드로 충분하고,
-    /// 단순 볼륨 3단(Master/BGM/SFX) 조절에 믹서는 과하다.
-    /// 클립이 없거나(null) 관리자가 없는 상태에서도 조용히 넘어가도록 모든 재생 경로에 가드를 둔다.
+    /// BGM/SFX 재생과 볼륨을 총괄하는 전역 오디오 관리자
     /// </summary>
     public sealed class AudioManager : Singleton<AudioManager>
     {
         [SerializeField] private AudioLibrarySO _library;
-        [Tooltip("BGM 전환 크로스페이드 시간(초).")]
+
+        [Tooltip("BGM 전환 크로스페이드 시간(초)")]
         [SerializeField] private float _bgmCrossfadeDuration = 1f;
 
-        private AudioSource _bgmA;   // 크로스페이드용 BGM 소스 A/B
+        // 크로스페이드용 BGM 소스 A/B
+        private AudioSource _bgmA;
         private AudioSource _bgmB;
-        private AudioSource _sfx;    // PlayOneShot으로 동시 재생 가능 — 풀 불필요
+
+        private AudioSource _sfx;
         private AudioSource _activeBgm;
         private AudioClip _currentBgmClip;
 
-        // 크로스페이드가 겹칠 때(빠른 씬 전환 등) 이전 코루틴이 계속 볼륨을 만지지 않도록 세대 번호로 무효화한다.
+        // 크로스페이드가 겹칠 때(빠른 씬 전환 등) 이전 코루틴이 계속 볼륨을 만지지 않도록 세대 번호로 무효화
         private int _bgmGeneration;
 
         private float _masterVolume = 1f;
@@ -36,12 +34,17 @@ namespace Assets.MyAssets.Scripts.Systems
         public static AudioLibrarySO Library => Instance != null ? Instance._library : null;
         public static void Sfx(AudioClip clip) { if (Instance != null) Instance.PlaySfx(clip); }
         public static void Bgm(AudioClip clip) { if (Instance != null) Instance.PlayBgm(clip); }
+        /// <summary>UI 클릭음. 마우스 클릭(UiClickSfx)과 키보드 선택 양쪽에서 같은 소리를 낸다.</summary>
+        public static void UiClick() => Sfx(Library?.UiClick);
+        /// <summary>방향키로 선택지/카드를 옮길 때의 이동음.</summary>
+        public static void UiNavigate() => Sfx(Library?.UiNavigate);
+        /// <summary>배틀 타겟 확정 등 확정 순간의 소리.</summary>
+        public static void Confirm() => Sfx(Library?.Confirm);
 
         protected override void Awake()
         {
             base.Awake();
-            if (!IsValidInstance)
-                return; // 중복 인스턴스는 base.Awake에서 파괴 예약됨 — 소스 생성/구독을 하지 않는다
+            if (!IsValidInstance) return; // 중복 인스턴스는 base.Awake에서 파괴 예약됨 — 소스 생성/구독을 하지 않는다
 
             DontDestroyOnLoad(gameObject);
 
@@ -54,6 +57,7 @@ namespace Assets.MyAssets.Scripts.Systems
             _masterVolume = options.MasterVolume;
             _bgmVolume = options.BgmVolume;
             _sfxVolume = options.SfxVolume;
+
             ApplyBgmVolume();
             ApplySfxVolume();
 

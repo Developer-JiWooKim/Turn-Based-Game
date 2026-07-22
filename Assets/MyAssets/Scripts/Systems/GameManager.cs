@@ -1,5 +1,6 @@
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Progression.Run;
+using Assets.MyAssets.Scripts.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,18 +16,21 @@ namespace Assets.MyAssets.Scripts.Systems
         protected override void Awake()
         {
             base.Awake();
+
             DontDestroyOnLoad(this.gameObject);
+
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
+
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
         /// <summary>
-        /// 선택한 시작 캐릭터로 새 런을 시작 - BattleScene에서 선택한 파티로 게임 시작
+        /// 선택한 시작 캐릭터로 새 런을 시작 - 선택한 캐릭터로 BattleScene에서 게임 시작
         /// </summary>
         public void BeginRun(CharacterStatsSO starter)
         {

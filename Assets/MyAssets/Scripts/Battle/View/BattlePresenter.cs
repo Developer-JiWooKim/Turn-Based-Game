@@ -25,9 +25,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [Header("연출")]
         [Tooltip("공격 시작 후 타격이 적중하는 시점까지의 지연(초).")]
         [SerializeField] private float _impactDelay = 0.35f;
+        [Tooltip("현재 행동 중인 유닛에 씌울 레이어 이름(파랑 아웃라인). 렌더러만 이 레이어로 옮긴다.")]
+        [SerializeField] private string _activeLayerName = "ActiveUnit";
 
         private BattleSimulation _simulation;
         private CancellationToken _ct;
+
+        private int _activeLayer;
+        // 현재 파랑 강조 중인 행동 유닛 View(다음 행동 유닛으로 넘어갈 때 원복).
+        private UnitView _activeView;
+
+        private void Awake() => _activeLayer = LayerMask.NameToLayer(_activeLayerName);
 
         /// <summary>씬 종료 시 연출을 취소할 토큰을 받아둔다(전투 시작 전 1회)</summary>
         public void Initialize(CancellationToken ct) => _ct = ct;
@@ -69,6 +77,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _simulation.UnitDied -= OnUnitDied;
             _simulation.BattleEnded -= OnBattleEnded;
             _simulation = null;
+
+            ClearActive();
         }
 
         private void OnDestroy() => Unbind();
@@ -85,6 +95,27 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             if (_hud != null)
                 _hud.SetActiveUnit(e.Actor);
+
+            HighlightActive(e.Actor.Id);
+        }
+
+        /// <summary>이전 행동 유닛의 파랑 강조를 원복하고, 새 행동 유닛을 ActiveUnit 레이어로 옮긴다.</summary>
+        private void HighlightActive(int unitId)
+        {
+            ClearActive();
+
+            if (_activeLayer >= 0 && _registry != null && _registry.TryGet(unitId, out UnitView view))
+            {
+                view.SetOutlineLayer(_activeLayer);
+                _activeView = view;
+            }
+        }
+
+        private void ClearActive()
+        {
+            if (_activeView != null)
+                _activeView.ResetOutlineLayer();
+            _activeView = null;
         }
 
         // ── 연출 (연출 Task를 등록하면 시뮬레이션이 완료를 대기) ──
@@ -140,6 +171,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void OnBattleEnded(object sender, BattleEndedEventArgs e)
         {
+            ClearActive();
             Debug.Log($"[BattlePresenter] 전투 종료: {e.Outcome} (생존 아군 {e.Survivors.Count}명)");
         }
     }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Assets.MyAssets.Scripts.Systems
+namespace Assets.MyAssets.Scripts.UI
 {
     [RequireComponent(typeof(CanvasGroup))]
     public class FadeScreenEffect : MonoBehaviour

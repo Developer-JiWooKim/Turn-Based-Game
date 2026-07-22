@@ -15,9 +15,9 @@ MonoBehaviour:
   _title: Crit Up
   _description: 'HP +5
 
-    Crit Rate +0.05
+    Crit Rate +0.08
 
-    Crit Dmg +0.2'
+    Crit Dmg +0.4'
   _category: 3
   _hpFlat: 5
   _atkFlat: 0
@@ -25,5 +25,10 @@ MonoBehaviour:
   _defFlat: 0
   _healFlat: 0
   _resFlat: 0
-  _critRateFlat: 0.05
-  _critDmgFlat: 0.2
+  _critRateFlat: 0.08
+  _critDmgFlat: 0.4
+  _enemyHpMul: 1
+  _enemyAtkMul: 1
+  _enemySkipFirstTurn: 0
+  _weight: 1
+  _weightPerEmptySlot: 0

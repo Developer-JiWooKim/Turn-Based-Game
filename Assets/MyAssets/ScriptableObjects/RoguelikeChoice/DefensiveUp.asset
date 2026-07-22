@@ -27,3 +27,8 @@ MonoBehaviour:
   _resFlat: 0.1
   _critRateFlat: 0
   _critDmgFlat: 0
+  _enemyHpMul: 1
+  _enemyAtkMul: 1
+  _enemySkipFirstTurn: 0
+  _weight: 1
+  _weightPerEmptySlot: 0

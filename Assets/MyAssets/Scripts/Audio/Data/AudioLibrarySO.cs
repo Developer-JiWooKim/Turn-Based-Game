@@ -28,6 +28,10 @@ namespace Assets.MyAssets.Scripts.Audio.Data
 
         [Header("SFX")]
         [SerializeField] private AudioClip _uiClick;
+        [Tooltip("방향키로 선택지/카드를 옮길 때의 이동음(hover tick). 비우면 UI 클릭음으로 대체.")]
+        [SerializeField] private AudioClip _uiNavigate;
+        [Tooltip("배틀 타겟 확정 등 '확정' 순간의 소리. 비우면 UI 클릭음으로 대체.")]
+        [SerializeField] private AudioClip _confirm;
         [SerializeField] private AudioClip _victoryStinger;
         [SerializeField] private AudioClip _defeatStinger;
         [SerializeField] private AudioClip _critical;
@@ -35,6 +39,10 @@ namespace Assets.MyAssets.Scripts.Audio.Data
         public AudioClip BattleBgm => _battleBgm;
         public AudioClip BossBgm => _bossBgm;
         public AudioClip UiClick => _uiClick;
+        /// <summary>방향키 이동음. 전용 클립이 없으면 UI 클릭음으로 대체.</summary>
+        public AudioClip UiNavigate => _uiNavigate != null ? _uiNavigate : _uiClick;
+        /// <summary>확정음. 전용 클립이 없으면 UI 클릭음으로 대체.</summary>
+        public AudioClip Confirm => _confirm != null ? _confirm : _uiClick;
         public AudioClip VictoryStinger => _victoryStinger;
         public AudioClip DefeatStinger => _defeatStinger;
         public AudioClip Critical => _critical;

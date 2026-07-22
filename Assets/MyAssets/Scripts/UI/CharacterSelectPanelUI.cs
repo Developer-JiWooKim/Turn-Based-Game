@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Battle.Data;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -25,10 +26,13 @@ namespace Assets.MyAssets.Scripts.UI
 
         public event Action OnBackClicked;
         public event Action OnBattleClicked;
+        /// <summary>'성향' 버튼 클릭. GameUIController가 성향 포인트 배분 팝업을 연다.</summary>
+        public event Action OnAllocationClicked;
         /// <summary>선택이 바뀔 때(초기화 포함) 발생. CharacterPreview 등 연출이 구독한다.</summary>
         public event Action<int, CharacterStatsSO> OnSelectionChanged;
 
         private int _selectedIndex;
+        private bool _visible; // 방향키 입력을 이 패널이 보일 때만 받기 위한 플래그
         private Label _nameLabel;
         private List<VisualElement> _dots;
         private List<VisualElement> _statFills;
@@ -59,9 +63,24 @@ namespace Assets.MyAssets.Scripts.UI
             Root.Q<Button>("prev-button").clicked += () => Cycle(-1);
             Root.Q<Button>("next-button").clicked += () => Cycle(1);
             Root.Q<Button>("select-back-button").clicked += () => OnBackClicked?.Invoke();
+            Root.Q<Button>("allocation-button").clicked += () => OnAllocationClicked?.Invoke();
             Root.Q<Button>("battle-button").clicked += () => OnBattleClicked?.Invoke();
 
             ApplySelection(); // 초기 선택(0) 반영 + 프리뷰 통지
+        }
+
+        private void Update()
+        {
+            // 패널이 보일 때만 방향키로 좌/우 순환(prev/next 버튼과 동일 동작)
+            if (!_visible) return;
+
+            InputManager input = InputManager.Instance;
+            if (input == null) return;
+
+            // 방향키 순환은 prev/next 버튼 클릭과 동등하므로 버튼과 같은 클릭음을 낸다
+            // (마우스 클릭은 UiClickSfx가 ClickEvent로 재생하고, 여기선 키보드 경로만 재생).
+            if (input.UiNavigateNextPressed) { Cycle(1); AudioManager.UiClick(); }
+            else if (input.UiNavigatePrevPressed) { Cycle(-1); AudioManager.UiClick(); }
         }
 
         private void Cycle(int direction)
@@ -132,12 +151,14 @@ namespace Assets.MyAssets.Scripts.UI
         public override void Show()
         {
             base.Show();
+            _visible = true;
             SetPreviewRigActive(true);
         }
 
         public override void Hide()
         {
             base.Hide();
+            _visible = false;
             SetPreviewRigActive(false);
         }
 
