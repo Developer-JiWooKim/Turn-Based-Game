@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
@@ -17,7 +16,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// 웨이브를 구성해 Core(BattleSimulation)를 돌리고, 결과를 <see cref="RunData"/>에 반영한 뒤
     /// 다음 스테이지로 넘어가는 흐름만 담당한다.
     ///
-    /// 실제 작업은 아래 셋에게 위임한다.
+    /// 실제 작업은 아래 넷에게 위임한다.
+    ///  - <see cref="MonsterSpawner"/>   : 웨이브 선택·몬스터 생성
     ///  - <see cref="UnitViewRegistry"/> : 프리팹 스폰·정리·체력바
     ///  - <see cref="BattlePresenter"/>  : Core 이벤트 구독 → 연출·HUD
     ///  - <see cref="RoguelikeRewardService"/> : 성장 선택지 제시·적용
@@ -30,29 +30,29 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [Header("전투 구성")]
         [Tooltip("Title→캐릭터 선택을 거치지 않고 BattleScene을 직접 플레이할 때 쓰는 테스트 파티(폴백)")]
         [SerializeField] private CharacterStatsSO[] _testParty;
-        [Tooltip("스테이지별 몬스터 웨이브(수동 설계). 인덱스 0 = 1스테이지. 이 배열 길이까지는 순서대로 진행하고,\n" +
-                 "그 이후 스테이지는 _randomWavePool에서 뽑는다.")]
-        [SerializeField] private SpawnWaveSO[] _monsterWaves;
         [Tooltip("스테이지가 오를수록 양측 스탯이 얼마나 강해지는지. 비워두면 성장 없이 진행한다.")]
         [SerializeField] private StageScalingSO _stageScaling;
 
-        [Header("랜덤 스폰 (수동 설계 웨이브 이후)")]
-        [Tooltip("보스/일반 풀을 나누지 않고 한 배열에 등록한다 — 각 웨이브의 Tier(Boss 포함 여부)로 자동 구분한다.")]
-        [SerializeField] private SpawnWaveSO[] _randomWavePool;
-        [Tooltip("이 배수 스테이지마다 보스 웨이브를 강제한다(수동 설계 구간에는 영향 없음). 0이면 보스 강제 없음.")]
-        [SerializeField] private int _bossStageInterval = 5;
-
         [Header("연결")]
         [SerializeField] private UnitViewRegistry _registry;
+        [SerializeField] private MonsterSpawner _spawner;
         [SerializeField] private BattlePresenter _presenter;
         [SerializeField] private RoguelikeRewardService _rewards;
         [SerializeField] private TargetingController _targeting;
         [Tooltip("전멸 시 도달 스테이지를 보여주는 결과 팝업. 비워두면 바로 씬을 전환한다.")]
         [SerializeField] private BattleResultPanel _resultPanel;
+        [Tooltip("ESC/HUD 버튼으로 여는 퍼즈 오버레이. 비워두면 퍼즈 없이 진행한다.")]
+        [SerializeField] private BattlePausePanel _pausePanel;
 
         private RunData _run;
         private StageScaling _scaling;
         private CancellationTokenSource _cts;
+
+        /// <summary>이번 스테이지 전용 취소원(씬 종료용 _cts와 링크). '배틀 중단'이 이걸 취소한다.</summary>
+        private CancellationTokenSource _stageCts;
+
+        /// <summary>플레이어가 배틀 중단을 선택했는지. 취소 사유를 씬 종료와 구분하는 데 쓴다.</summary>
+        private bool _aborted;
 
         private async void Start()
         {
@@ -75,9 +75,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _cts = new CancellationTokenSource();
             SystemRandom rng = new SystemRandom();
 
-            if (_registry == null || _presenter == null)
+            if (_registry == null || _presenter == null || _spawner == null)
             {
-                Debug.LogError("[BattleDirector] Registry/Presenter가 연결되지 않았습니다(인스펙터 확인).");
+                Debug.LogError("[BattleDirector] Registry/Presenter/Spawner가 연결되지 않았습니다(인스펙터 확인).");
                 return;
             }
 
@@ -91,6 +91,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
             // SO가 비어 있으면 성장률 0인 기본값 — 스케일링 없이 그대로 진행된다.
             _scaling = _stageScaling != null ? _stageScaling.Create() : default;
             _presenter.Initialize(_cts.Token);
+            _spawner.Initialize(_registry);
+
+            if (_pausePanel != null)
+            {
+                _pausePanel.AbortRequested += OnAbortRequested;
+                _pausePanel.SetBattleActive(false); // 전투 구간에 들어갈 때만 켠다
+            }
 
             foreach (RunMember member in _run.Members)
                 _registry.SpawnMember(member);
@@ -124,10 +131,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             int stage = _run.CurrentStage;
             _presenter.SetStage(stage);
+            if (_pausePanel != null)
+                _pausePanel.SetStage(stage);
             // 영입·교체·사망으로 파티 구성이 바뀌므로 시너지는 스테이지마다 다시 판정한다
             _presenter.SetSynergies(_run.GetActiveSynergies());
 
-            SpawnWaveSO wave = ResolveWave(stage, rng);
+            SpawnWaveSO wave = _spawner.ResolveWave(stage, rng);
             if (wave == null)
             {
                 Debug.LogError("[BattleDirector] 스폰할 몬스터 웨이브가 설정되지 않았습니다.");
@@ -143,13 +152,19 @@ namespace Assets.MyAssets.Scripts.Battle.View
             var synergyTracker = new PartySynergyTracker(_run);
             List<Unit> players = synergyTracker.CreateBattleUnits();
 
-            bool enemySkipFirstTurn = _run.PendingModifiers.EnemySkipFirstTurn;
-            List<Unit> enemies = SpawnWave(wave, stage);
+            // 상태이상은 전투 단위라 스테이지가 바뀌면 사라진다(파티 Unit이 새로 생성되므로).
+            // View는 런 내내 재사용되니 이전 스테이지의 표기를 여기서 지워준다.
+            _registry.RefreshStatuses(players);
+
+            List<Unit> enemies = _spawner.SpawnWave(wave, _run, _scaling, stage);
             await _registry.WhenSpawnPlayed(_registry.EnemyViews, _cts.Token);
+
+            // 인스펙터에 연결되지 않았으면 진짜 null을 넘긴다(Unity의 == 오버로드는 인터페이스 캐스트에서 사라지므로).
+            IPauseGate pauseGate = _pausePanel != null ? _pausePanel : null;
 
             var playerSelector = new PlayerActionSelector();
             var simulation = new BattleSimulation(new BattleState(players, enemies),
-                                                  playerSelector, new MonsterAiSelector(rng), rng, enemySkipFirstTurn);
+                                                  playerSelector, new MonsterAiSelector(rng), rng, pauseGate);
             _presenter.Bind(simulation);
             simulation.UnitDied += (_, e) =>
             {
@@ -163,10 +178,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (_targeting != null)
                 _targeting.Initialize(playerSelector, _registry);
 
-            BattleOutcome outcome = await simulation.RunAsync(_cts.Token);
+            BattleOutcome outcome = await RunSimulationAsync(simulation);
 
             _presenter.Unbind();
             _registry.ClearMonsters();
+            _registry.ClearStatuses(); // 상태이상은 전투와 함께 끝난다 — 선택지 화면에 표기가 남지 않도록 여기서 지운다
 
             // 전투 결과(HP)를 런 데이터에 반영하고, 쓰러진 파티원은 영구 추방한다(README 규칙)
             _run.SyncFromBattle(players);
@@ -176,26 +192,42 @@ namespace Assets.MyAssets.Scripts.Battle.View
             return outcome != BattleOutcome.Defeat;
         }
 
-        /// <summary>웨이브의 몬스터를 만들어 스폰한다. 스탯은 기준값 → 스테이지 배율 → 로그라이크 디버프 순.</summary>
-        private List<Unit> SpawnWave(SpawnWaveSO wave, int stage)
+        /// <summary>
+        /// 전투를 끝까지 돌린다. 이 구간에서만 퍼즈를 허용하며, '배틀 중단'으로 취소되면 패배로 처리해
+        /// 전멸과 같은 결과 화면 경로를 타게 한다(씬 종료로 인한 취소는 그대로 위로 던진다).
+        /// </summary>
+        private async Task<BattleOutcome> RunSimulationAsync(BattleSimulation simulation)
         {
-            var enemies = new List<Unit>();
-            for (int i = 0; i < wave.Monsters.Count; i++)
+            _aborted = false;
+            using CancellationTokenSource stageCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+            _stageCts = stageCts;
+
+            if (_pausePanel != null)
+                _pausePanel.SetBattleActive(true);
+
+            try
             {
-                MonsterStatsSO so = wave.Monsters[i];
-                if (so == null) continue;
-
-                Stats stats = so.CreateStats();
-                _scaling.ApplyToMonster(stats, stage);
-                _run.PendingModifiers.ApplyTo(stats);
-
-                var unit = new Unit(_run.NextUnitId(), so.DisplayName, TeamSide.Enemy, stats, so.CreateSkill());
-                enemies.Add(unit);
-                _registry.SpawnMonster(unit, so.Prefab, i);
+                return await simulation.RunAsync(stageCts.Token);
             }
+            catch (OperationCanceledException) when (_aborted)
+            {
+                Debug.Log("[BattleDirector] 플레이어가 배틀을 중단했습니다.");
+                return BattleOutcome.Defeat;
+            }
+            finally
+            {
+                // Dispose(using 종료)보다 먼저 참조를 끊어야 중단 핸들러가 파기된 CTS를 취소하지 않는다.
+                _stageCts = null;
+                if (_pausePanel != null)
+                    _pausePanel.SetBattleActive(false);
+            }
+        }
 
-            _run.PendingModifiers.Consume(); // 이번 스테이지에 소모 — 다음 스테이지로 넘어가지 않는다
-            return enemies;
+        /// <summary>퍼즈 패널의 '배틀 중단' — 진행 중인 전투를 취소한다.</summary>
+        private void OnAbortRequested()
+        {
+            _aborted = true;
+            _stageCts?.Cancel();
         }
 
         /// <summary>성장 선택지를 제시하고, 영입되었으면(교체 포함) 파티원 View를 갱신한다.</summary>
@@ -234,38 +266,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
             return fallback;
         }
 
-        /// <summary>
-        /// 스테이지 번호에 대응하는 웨이브를 찾는다. 수동 설계 배열 범위 안이면 그대로 사용하고,
-        /// 그 이후는 보스 배수 여부에 따라 랜덤 풀에서 뽑는다. 풀이 비어 있으면 기존 배열을 순환한다.
-        /// </summary>
-        private SpawnWaveSO ResolveWave(int stage, IRandom rng)
-        {
-            if (_monsterWaves == null || _monsterWaves.Length == 0)
-                return null;
-
-            if (stage <= _monsterWaves.Length)
-                return _monsterWaves[stage - 1];
-
-            bool wantBoss = _bossStageInterval > 0 && stage % _bossStageInterval == 0;
-            return PickFromPool(wantBoss, rng)
-                ?? PickFromPool(!wantBoss, rng)
-                ?? _monsterWaves[(stage - 1) % _monsterWaves.Length];
-        }
-
-        /// <summary>랜덤 풀에서 보스 여부가 일치하는 웨이브 하나를 가중치 비례로 뽑는다.</summary>
-        private SpawnWaveSO PickFromPool(bool boss, IRandom rng)
-        {
-            if (_randomWavePool == null)
-                return null;
-
-            var candidates = _randomWavePool.Where(w => w != null && w.IsBossWave == boss).ToList();
-            if (candidates.Count == 0)
-                return null;
-
-            List<int> picked = WeightedPicker.PickDistinct(candidates.Select(c => c.Weight).ToList(), 1, rng);
-            return picked.Count > 0 ? candidates[picked[0]] : null;
-        }
-
         /// <summary>전멸 시 결과를 보여주고, 플레이어가 확인하면 타이틀로 돌아간다.</summary>
         private async Task HandleDefeatAsync()
         {
@@ -283,11 +283,20 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 await _resultPanel.PresentAsync(reachedStage, previousBest, isNewRecord, _cts.Token);
 
             if (GameManager.Instance != null)
+            {
                 GameManager.Instance.LoadScene(IntroSceneName);
+            }
+            else
+            {
+                Debug.Log("[BattleDirector] GameManager가 없어 씬 전환을 건너뜀");
+            }
         }
 
         private void OnDestroy()
         {
+            if (_pausePanel != null)
+                _pausePanel.AbortRequested -= OnAbortRequested;
+
             _cts?.Cancel();
             _cts?.Dispose();
         }

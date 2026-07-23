@@ -14,7 +14,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         EnemyStun,      // 다음 스테이지 몬스터 1턴 행동불가
         EnemyHpDown,    // 다음 스테이지 몬스터 HP 감소
         EnemyAtkDown,   // 다음 스테이지 몬스터 ATK 감소
-        Recruit         // 파티원 영입(랜덤 1명, 자리가 있을 때만 등장)
+        Recruit         // 파티원 영입
     }
 
     /// <summary>

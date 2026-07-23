@@ -2,6 +2,10 @@ using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.UI
 {
+    /// <summary>
+    /// 화면 Fade 연출 컴포넌트
+    /// CanvasGroup의 Alpha 값 0 ~ 1로 페이드 연출
+    /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public class FadeScreenEffect : MonoBehaviour
     {

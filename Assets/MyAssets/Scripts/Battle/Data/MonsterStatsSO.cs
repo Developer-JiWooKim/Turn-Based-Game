@@ -11,7 +11,9 @@ namespace Assets.MyAssets.Scripts.Battle.Data
     }
 
     /// <summary>
-    /// 몬스터 스탯 데이터. 보스(Tier=Boss)만 스킬을 가지며, 스킬은 준비되면 무조건 우선 사용된다.
+    /// 몬스터 스탯 데이터. Normal은 스킬이 없고, Elite/Boss는 스킬을 가지며 준비되면 무조건 우선 사용된다.
+    /// 스킬 내용은 <see cref="SkillSO"/> 에셋에 있고 여기서는 참조만 한다 —
+    /// 등급 차이는 그 에셋의 범위로 낸다(Elite=단일 대상, Boss=라인 = 적 진영 전체).
     /// </summary>
     [CreateAssetMenu(menuName = "Battle/Monster Stats", fileName = "MonsterStats")]
     public sealed class MonsterStatsSO : UnitStatsSO
@@ -19,19 +21,14 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         [Header("Monster")]
         [SerializeField] private MonsterTier _tier = MonsterTier.Normal;
 
-        [Header("Skill (보스 전용)")]
-        [Tooltip("체크 시 보스 스킬을 사용한다. Normal/Elite는 꺼둔다.")]
-        [SerializeField] private bool _hasSkill = false;
-        [Tooltip("스킬 재사용까지 대기 턴 수.")]
-        [SerializeField] private int _skillCooldown = 2;
-        [SerializeField] private TargetScope _skillScope = TargetScope.Single;
-        [Tooltip("일반 공격 대비 데미지 배율.")]
-        [SerializeField] private float _skillPowerMultiplier = 1.4f;
+        [Header("Skill (Elite/Boss)")]
+        [Tooltip("사용할 스킬 에셋. 비워두면 일반 공격만 한다(Normal은 비워둘 것).\n" +
+                 "관례상 Elite는 Scope=Single, Boss는 Scope=Line인 스킬을 연결한다.")]
+        [SerializeField] private SkillSO _skill;
 
         public MonsterTier Tier => _tier;
 
         /// <summary>스킬 정의를 만든다. 스킬이 없으면 null.</summary>
-        public SkillProfile CreateSkill() =>
-            _hasSkill ? new SkillProfile(_skillCooldown, _skillScope, _skillPowerMultiplier) : null;
+        public SkillProfile CreateSkill() => _skill != null ? _skill.Create() : null;
     }
 }

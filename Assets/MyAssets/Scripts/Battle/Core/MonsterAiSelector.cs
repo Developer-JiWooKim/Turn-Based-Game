@@ -6,8 +6,8 @@ namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
     /// 몬스터의 행동을 규칙 기반으로 즉시 결정하는 셀렉터.
-    /// - 노멀/엘리트: 살아있는 적 중 무작위 1명 일반 공격
-    /// - 보스(스킬 보유): 스킬이 준비되면 무조건 스킬 우선 사용, 아니면 일반 공격
+    /// - 스킬이 없는 유닛(Normal): 살아있는 적 중 무작위 1명 일반 공격
+    /// - 스킬이 있는 유닛(Elite/Boss): 스킬이 준비되면 무조건 스킬 우선 사용(단일/라인은 SkillProfile.Scope로 결정), 아니면 일반 공격
     /// </summary>
     public sealed class MonsterAiSelector : IActionSelector
     {

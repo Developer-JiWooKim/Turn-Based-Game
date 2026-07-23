@@ -33,8 +33,9 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// </summary>
         public static DamageResult Calculate(Unit attacker, Unit target, float powerMultiplier, IRandom rng)
         {
-            float mitigation = DefenseConstant / (DefenseConstant + target.Stats.Def);
-            float raw = attacker.Stats.Atk * mitigation * powerMultiplier;
+            // 감소형 상태이상(AtkDown/DefDown)이 반영된 유효 스탯을 쓴다.
+            float mitigation = DefenseConstant / (DefenseConstant + target.EffectiveDef);
+            float raw = attacker.EffectiveAtk * mitigation * powerMultiplier;
 
             bool isCrit = rng.Value01() < attacker.Stats.CritRate;
             if (isCrit)

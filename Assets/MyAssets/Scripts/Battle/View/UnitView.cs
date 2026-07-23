@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Audio.Data;
+using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 
@@ -38,16 +40,47 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _unitAnimator = GetComponentInChildren<UnitAnimator>();
             }
 
-            if (_unitHealthBar != null)
-            {
-                _unitHealthBar.Set(currentHp, maxHp);
-            }
-            else
+            if (_unitHealthBar == null)
             {
                 Debug.LogWarning("_unitHealthBar is null");
-                _unitHealthBar = GetComponentInChildren<UnitHealthBar>();
-                _unitHealthBar.Set(currentHp, maxHp);
+                // includeInactive: 사망 시 숨긴 채로 풀에 반납된 인스턴스는 체력바가 비활성 상태다.
+                _unitHealthBar = GetComponentInChildren<UnitHealthBar>(true);
             }
+
+            _unitHealthBar.SetVisible(true); // 사망으로 숨겨진 채 재사용된 경우 복구
+            _unitHealthBar.Set(currentHp, maxHp);
+
+            // 풀에서 재사용된 인스턴스에 이전 전투의 표기가 남지 않도록 둘 다 초기화한다.
+            // 상태이상을 먼저 비워야 뒤이은 스폰 디버프 갱신이 이전 유닛의 목록을 다시 그리지 않는다.
+            _unitHealthBar.SetStatuses(null);
+            _unitHealthBar.SetSpawnDebuff(null);
+        }
+
+        /// <summary>걸려 있는 상태이상 표기를 갱신한다.</summary>
+        public void RefreshStatuses(IReadOnlyList<ActiveStatus> statuses)
+        {
+            if (_unitHealthBar != null)
+                _unitHealthBar.SetStatuses(statuses);
+        }
+
+        /// <summary>스폰 시 적용된 로그라이크 디버프를 표기한다(이번 전투 내내 유지).</summary>
+        public void SetSpawnDebuff(string label)
+        {
+            if (_unitHealthBar != null)
+                _unitHealthBar.SetSpawnDebuff(label);
+        }
+
+        /// <summary>
+        /// 풀에서 재사용되기 직전에 이전 전투의 흔적을 지운다(사망 포즈, 겨냥 아웃라인).
+        /// <see cref="Initialize"/>가 렌더러의 "원래 레이어"를 다시 캐싱하므로 반드시 그보다 먼저 호출해야 한다
+        /// — 아웃라인이 걸린 채로 캐싱되면 그 레이어가 원본으로 굳어버린다.
+        /// </summary>
+        public void ResetForSpawn()
+        {
+            ResetOutlineLayer();
+
+            if (_unitAnimator != null)
+                _unitAnimator.ResetToSpawn();
         }
 
         /// <summary>
@@ -116,6 +149,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public async Task PlayDieAsync(CancellationToken ct = default)
         {
             AudioManager.Sfx(_sfx?.Die);
+
+            // 쓰러진 유닛 위에 0/N 게이지와 상태이상 표기가 계속 떠 있지 않도록 사망 연출과 함께 숨긴다.
+            if (_unitHealthBar != null)
+                _unitHealthBar.SetVisible(false);
+
             await Awaitable.WaitForSecondsAsync(_unitAnimator.PlayDie(), ct);
         }
     }

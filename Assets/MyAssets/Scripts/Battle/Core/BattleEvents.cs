@@ -55,6 +55,37 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public UnitDiedEventArgs(Unit unit) => Unit = unit;
     }
 
+    /// <summary>
+    /// 상태이상이 붙거나(Applied) 저항되거나(Resisted) 풀렸다(Expired).
+    /// View는 <see cref="Unit"/>.Statuses를 다시 읽어 표시를 갱신하면 된다.
+    /// </summary>
+    public sealed class StatusChangedEventArgs : EventArgs
+    {
+        public readonly Unit Unit;
+        public readonly StatusKind Kind;
+        public readonly StatusChangeReason Reason;
+
+        public StatusChangedEventArgs(Unit unit, StatusKind kind, StatusChangeReason reason)
+        {
+            Unit = unit;
+            Kind = kind;
+            Reason = reason;
+        }
+    }
+
+    /// <summary>도트 피해가 들어갔다(자기 차례 시작 시). 피격 연출을 기다린다.</summary>
+    public sealed class StatusTickedEventArgs : PlaybackEventArgs
+    {
+        public readonly Unit Unit;
+        public readonly int Damage;
+
+        public StatusTickedEventArgs(Unit unit, int damage)
+        {
+            Unit = unit;
+            Damage = damage;
+        }
+    }
+
     public sealed class BattleEndedEventArgs : EventArgs
     {
         public readonly BattleOutcome Outcome;

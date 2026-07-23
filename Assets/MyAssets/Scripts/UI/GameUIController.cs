@@ -10,6 +10,8 @@ namespace Assets.MyAssets.Scripts.UI
         [Header("UI Panels")]
         [SerializeField] private TitlePanelUI _titlePanel;
         [SerializeField] private CharacterSelectPanelUI _characterSelectPanel;
+
+        [Header("UI Popup")]
         [SerializeField] private OptionPopupUI _optionPopup;
         [SerializeField] private PointAllocationPopupUI _allocationPopup;
 

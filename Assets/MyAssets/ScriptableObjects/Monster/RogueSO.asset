@@ -22,7 +22,4 @@ MonoBehaviour:
   _critDmg: 2
   _res: 0.1
   _tier: 1
-  _hasSkill: 1
-  _skillCooldown: 5
-  _skillScope: 0
-  _skillPowerMultiplier: 1.1
+  _skill: {fileID: 11400000, guid: b594b24f803fb9745b268e7a1238ea7a, type: 2}

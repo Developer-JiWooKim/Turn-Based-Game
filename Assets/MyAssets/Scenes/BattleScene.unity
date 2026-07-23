@@ -436,6 +436,65 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.CameraShake
   _duration: 0.2
   _magnitude: 0.15
+--- !u!1 &342534114
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 342534116}
+  - component: {fileID: 342534115}
+  m_Layer: 0
+  m_Name: MonsterSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &342534115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342534114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd06cab0a34e02f4ea8794acf3d6eb72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.MonsterSpawner
+  _monsterWaves:
+  - {fileID: 11400000, guid: 3ace7d69541a2ae47b1da88ac37c1170, type: 2}
+  - {fileID: 11400000, guid: f2954a44eb34e944398630efc8670355, type: 2}
+  - {fileID: 11400000, guid: 1ca0df5e14d93094194b9431ac37da2a, type: 2}
+  - {fileID: 11400000, guid: 58e8bf93c7077204e9234f7d17794f39, type: 2}
+  - {fileID: 11400000, guid: 722110988a065be47b14bea705fc1d08, type: 2}
+  _randomWavePool:
+  - {fileID: 11400000, guid: 55300e53739e43aaa2a024813880511e, type: 2}
+  - {fileID: 11400000, guid: 0a4e87f609d144afbdb655ee1a9cc3c2, type: 2}
+  - {fileID: 11400000, guid: 494b07cb38cc46b18b925c743ad98411, type: 2}
+  - {fileID: 11400000, guid: 3bba7a93e9d84c5ba521f95513bb7751, type: 2}
+  - {fileID: 11400000, guid: a14f0d53e12847f8a8e4dfc4c940c7a0, type: 2}
+  - {fileID: 11400000, guid: 1e0f8592d8084f8e9a1c11b76c3e724b, type: 2}
+  - {fileID: 11400000, guid: 2f0bc01884e64a369567157c10ac2f20, type: 2}
+  _bossStageInterval: 5
+--- !u!4 &342534116
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342534114}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1846023251}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &355134179
 GameObject:
   m_ObjectHideFlags: 0
@@ -982,6 +1041,7 @@ Transform:
   - {fileID: 1185081540}
   - {fileID: 61136177}
   - {fileID: 2105543750}
+  - {fileID: 1221640480}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1101142484
@@ -1088,6 +1148,74 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!1 &1221640479
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1221640480}
+  - component: {fileID: 1221640482}
+  - component: {fileID: 1221640481}
+  m_Layer: 0
+  m_Name: BattlePause
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1221640480
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1221640479}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1024962851}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1221640481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1221640479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9546bdfabb28e44c91f108769aba4a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Audio.View.UiClickSfx
+--- !u!114 &1221640482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1221640479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: b6c15c0b8eda61d4ba05d2fcab39bc20, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 5671eda00d672aa4f82b07508ce74b56, type: 3}
+  m_SortingOrder: 30
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1 &1447600472
 GameObject:
   m_ObjectHideFlags: 0
@@ -1186,6 +1314,7 @@ RectTransform:
   - {fileID: 1101142486}
   - {fileID: 423765100}
   - {fileID: 664465933}
+  - {fileID: 1968191387}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1560,27 +1689,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 24f0c13aeaa7a634296ecd746dc0014f, type: 2}
   - {fileID: 11400000, guid: 85840ed0ebc567042a15e3fb877518ef, type: 2}
   - {fileID: 11400000, guid: 29986ac0b07afc046a96f578f6e7c68f, type: 2}
-  _monsterWaves:
-  - {fileID: 11400000, guid: 3ace7d69541a2ae47b1da88ac37c1170, type: 2}
-  - {fileID: 11400000, guid: f2954a44eb34e944398630efc8670355, type: 2}
-  - {fileID: 11400000, guid: 1ca0df5e14d93094194b9431ac37da2a, type: 2}
-  - {fileID: 11400000, guid: 58e8bf93c7077204e9234f7d17794f39, type: 2}
-  - {fileID: 11400000, guid: 722110988a065be47b14bea705fc1d08, type: 2}
   _stageScaling: {fileID: 11400000, guid: dffcdf89d4ed4614aa471abf80b9cd3b, type: 2}
-  _randomWavePool:
-  - {fileID: 11400000, guid: 55300e53739e43aaa2a024813880511e, type: 2}
-  - {fileID: 11400000, guid: 0a4e87f609d144afbdb655ee1a9cc3c2, type: 2}
-  - {fileID: 11400000, guid: 494b07cb38cc46b18b925c743ad98411, type: 2}
-  - {fileID: 11400000, guid: 3bba7a93e9d84c5ba521f95513bb7751, type: 2}
-  - {fileID: 11400000, guid: a14f0d53e12847f8a8e4dfc4c940c7a0, type: 2}
-  - {fileID: 11400000, guid: 2f0bc01884e64a369567157c10ac2f20, type: 2}
-  - {fileID: 11400000, guid: 1e0f8592d8084f8e9a1c11b76c3e724b, type: 2}
-  _bossStageInterval: 5
   _registry: {fileID: 1938415132}
+  _spawner: {fileID: 342534115}
   _presenter: {fileID: 1699088944}
   _rewards: {fileID: 2004449482}
   _targeting: {fileID: 2124535029}
   _resultPanel: {fileID: 664465934}
+  _pausePanel: {fileID: 1968191386}
 --- !u!4 &1846023251
 Transform:
   m_ObjectHideFlags: 0
@@ -1597,6 +1713,7 @@ Transform:
   - {fileID: 1699088943}
   - {fileID: 1938415131}
   - {fileID: 2004449481}
+  - {fileID: 342534116}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1938415130
@@ -1653,6 +1770,56 @@ MonoBehaviour:
   - {fileID: 658967192}
   - {fileID: 1589100979}
   - {fileID: 417730225}
+--- !u!1 &1968191385
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1968191387}
+  - component: {fileID: 1968191386}
+  m_Layer: 5
+  m_Name: BattlePausePanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1968191386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968191385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0650a9af878875049b82c36854383be9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.View.BattlePausePanel
+  _document: {fileID: 1221640482}
+  _hud: {fileID: 1101142485}
+--- !u!224 &1968191387
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1968191385}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1447600476}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2004449480
 GameObject:
   m_ObjectHideFlags: 0

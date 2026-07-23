@@ -1,0 +1,91 @@
+/* 화면 전체를 덮는 반투명 오버레이 (BattleResult와 동일한 톤) */
+.pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.78);
+}
+
+.pause-box {
+    width: 420px;
+    padding: 36px;
+    border-radius: 16px;
+    border-width: 3px;
+    border-color: rgba(255, 214, 92, 0.5);
+    background-color: rgba(48, 40, 32, 0.96);
+    align-items: center;
+}
+
+.pause-title {
+    font-size: 40px;
+    -unity-font-style: bold;
+    color: rgb(255, 244, 200);
+    margin-bottom: 28px;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.pause-caption {
+    font-size: 15px;
+    color: rgb(190, 184, 172);
+    margin-bottom: 2px;
+}
+
+.pause-stage {
+    font-size: 72px;
+    -unity-font-style: bold;
+    color: rgb(255, 214, 92);
+    margin-bottom: 8px;
+}
+
+.pause-best {
+    font-size: 16px;
+    color: rgb(220, 214, 200);
+    margin-bottom: 8px;
+}
+
+.pause-button {
+    width: 200px;
+    height: 52px;
+    margin-top: 16px;
+    font-size: 18px;
+    -unity-font-style: bold;
+    border-radius: 10px;
+    border-width: 2px;
+    transition-property: scale, border-color;
+    transition-duration: 0.12s;
+}
+
+.pause-button:hover {
+    scale: 1.05 1.05;
+}
+
+.pause-button--primary {
+    border-color: rgba(255, 214, 92, 0.5);
+    background-color: rgba(80, 66, 48, 0.96);
+    color: rgb(255, 244, 200);
+}
+
+.pause-button--primary:hover {
+    border-color: rgb(255, 214, 92);
+}
+
+/* 되돌릴 수 없는 동작이라 톤을 확실히 구분한다 */
+.pause-button--danger {
+    border-color: rgba(200, 90, 80, 0.5);
+    background-color: rgba(72, 40, 38, 0.96);
+    color: rgb(246, 200, 194);
+}
+
+.pause-button--danger:hover {
+    border-color: rgb(214, 96, 84);
+}
+
+.pause-hint {
+    margin-top: 20px;
+    font-size: 13px;
+    color: rgb(160, 154, 144);
+}
