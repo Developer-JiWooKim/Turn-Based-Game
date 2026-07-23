@@ -23,15 +23,30 @@
 - **사운드**: BGM 크로스페이드(씬 전환·전투/보스 전환) + 유닛 전투음/크리티컬/UI클릭·이동·확정/승리·패배 스팅어 SFX + 옵션 팝업 볼륨 슬라이더(마스터/BGM/SFX)
 - **입력 허브 (`InputManager`)**: 흩어진 플레이어 입력을 한곳으로 통합(생성된 `InputSystem_Actions` 래퍼 소유, 구 `PlayerInput`/`PlayerInputAction` 제거). 마우스/배틀 방향키/UI 방향키를 분리해 노출, `TargetingController`가 `Mouse.current` 직접 사용 대신 허브 경유
 - **키보드 조작**: 배틀 타겟팅(좌/우 방향키 순환=화면 좌→우 정렬, Enter/Space 확정), 캐릭터 선택(방향키=prev/next), 로그라이크 선택지(방향키 카드 겨냥+Enter/Space 선택). 마우스와 병행, 각 조작음 재생
+- **배틀 퍼즈**: ESC 키 / HUD 우상단 버튼으로 열고 닫음. 퍼즈 화면에 현재 스테이지·이전 최고 기록 표시, '계속하기'와 '배틀 중단'(즉시 결과 화면) 제공. `Time.timeScale` 대신 Core의 `IPauseGate`를 유닛 행동 직전에 await하는 방식
+- **스폰 구조 분리**: 웨이브 선택·몬스터 생성을 `BattleDirector`에서 `MonsterSpawner`로 분리
+- **오브젝트 풀링**: 유닛 View를 파괴하지 않고 프리팹별 `ObjectPool`에 반납·재사용(무한 스테이지 대비). 재사용 시 애니메이터/아웃라인 초기화
 
 ---
 
 ## 🔴 1순위 — 핵심 시스템 완성
 
-### 1-1. 보스 실체화  (상태: 부분구현)
-- 애니메이터에 `Skill` 스테이트는 있으나 **현재 Attack과 같은 클립**(임시). 보스 전용 스킬 애니 클립 준비 시 교체
-- 보스 프리팹/`MonsterStatsSO`(Tier=Boss, HasSkill) 실제 세팅
-- 보스 스킬 연출(단일/라인) 이펙트
+### 1-1. 보스/엘리트 스킬 실체화  (상태: 부분구현 — 이펙트만 남음)
+- 설계: **Elite=단일 대상 스킬, Boss=전체(라인) 대상 스킬**, Normal은 스킬 없음(2026-07-23 확정)
+- ✅ 스킬 전용 애니 클립 준비 및 연결 완료 — `Skill_SkeletonMage`/`Skill_SkeletonRogue`/`Skill_SkeletonWarrior`가 각 override 컨트롤러에 물려 있음(더 이상 Attack 클립 공유 아님)
+- ✅ `MonsterStatsSO` 세팅 완료 — `MinionSO`=Normal·스킬 없음, `MageSO`/`RogueSO`=Elite·단일 스킬, `WarriorSO`=Boss·전체 스킬
+- ⬜ **남은 것: 스킬 연출(단일/라인) 이펙트** — 외부 파티클 에셋 필요, 4-1과 같은 에셋으로 처리 가능
+- 참고: `SpawnWaveSO.IsBossWave`(보스 BGM·보스 웨이브 강제 판정)는 `Tier==Boss`만 보므로, Elite만으로 구성된 웨이브는 스킬을 써도 "보스 웨이브" 취급은 아니다(의도된 동작)
+
+### 1-2. 상태이상 시스템  (상태: 코드 완료 — 에셋 세팅 남음)
+- 계기: `Stats.Res`(디버프 저항)가 선택지·시너지로 값은 쌓이지만 소비하는 곳이 없어 사실상 죽은 스탯이었음(2026-07-23 확인) → **이제 RES가 상태이상 저항으로 소비된다**
+- ✅ `StatusKind` 5종(Stun/Poison/AtkDown/DefDown/SpdDown), 부여 정의·진행 상태·저항 판정, 턴 루프 처리(도트→감소→기절), 체력바 상태 표기까지 구현
+- ✅ **확장성**: 스킬 데이터를 `SkillSO`(유닛 종류에 안 묶인 별도 에셋)로 분리 — 캐릭터 스킬 추가 시 `CharacterStatsSO`에 참조 필드 하나만 더하면 되고 상태이상 코드는 그대로 재사용
+- ⬜ **남은 것: 에디터에서 `SkillSO` 에셋 3개 생성 + 몬스터 SO에 연결**(아래 값 참고). 연결 전까지 Elite/Boss가 일반 공격만 한다
+  - `Skill_MageBolt` — 쿨타임 5 / Single / 배율 1.2 / 중독(Poison), 지속 3턴, 크기 0.05, 부여 확률 0.6
+  - `Skill_RogueSlash` — 쿨타임 5 / Single / 배율 1.1 / 공격력 감소(AtkDown), 지속 2턴, 크기 0.3, 부여 확률 0.6
+  - `Skill_WarriorSmash` — 쿨타임 3 / **Line** / 배율 1.2 / 기절(Stun), 지속 1턴, 크기 0, 부여 확률 0.4
+- ⬜ 상태이상 아이콘 표시(현재는 체력바 옆 짧은 한글 약어 텍스트) — 아이콘 에셋 확보 시 3-1/3-3과 함께
 
 ---
 
@@ -72,6 +87,7 @@
 ## 🔧 기술 부채 / 알려진 이슈
 
 - **UXML `<Style src>` 링크**: 에디터 밖에서 파일 생성 시 임포트 순서 때문에 USS 링크가 안 걸릴 수 있음 → 해당 UXML Reimport(또는 에디터 재시작)로 해결. 신규 UI 추가 시 주의
+- **BattleScene 직접 실행 시 씬 전환 없음**: `GameManager`가 없어 `LoadScene`이 조용히 건너뛰어진다(결과 화면까지는 정상). 테스트 파티 폴백과 짝을 이루는 의도된 동작이지만 로그가 없어 원인 파악이 늦어질 수 있음
 - **연출 시간 하드코딩**: `UnitView`의 spawn/attack/skill/hit/die 지속시간이 인스펙터 수동 값. 애니 클립 길이 자동 추출을 고려할 수 있음(선택)
 - **밸런싱 수치 전반 TBD**: 아래 참고
 

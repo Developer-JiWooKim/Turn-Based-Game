@@ -50,5 +50,23 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _animator.SetTrigger(SkillHash);
             return _skillDuration;
         }
+
+        /// <summary>
+        /// 풀에서 재사용될 때 애니메이터를 초기 상태(기본 진입 상태 = Spawned)로 되돌린다.
+        /// 이걸 빼먹으면 사망 포즈 그대로 다음 웨이브에 등장한다.
+        ///
+        /// Rebind()가 상태와 파라미터를 초기화하지만, 아직 소비되지 않은 트리거가 남아 있으면
+        /// 복귀 직후 그 연출이 한 번 재생될 수 있어 명시적으로 먼저 지운다.
+        /// Update(0f)는 초기화 결과를 이번 프레임에 바로 반영해 한 프레임짜리 잔상 포즈를 막는다.
+        /// </summary>
+        public void ResetToSpawn()
+        {
+            _animator.ResetTrigger(AttackHash);
+            _animator.ResetTrigger(SkillHash);
+            _animator.ResetTrigger(HitHash);
+            _animator.ResetTrigger(DieHash);
+            _animator.Rebind();
+            _animator.Update(0f);
+        }
     }
 }

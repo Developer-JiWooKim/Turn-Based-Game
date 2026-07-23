@@ -3,8 +3,9 @@ using UnityEngine.UIElements;
 
 namespace Assets.MyAssets.Scripts.UI
 {
-  public class TitlePanelUI : BasePanelUI
+  public sealed class TitlePanelUI : BasePanelUI
   {
+    // Button Click Events
     public event Action OnPlayClicked;
     public event Action OnOptionClicked;
     public event Action OnQuitClicked;

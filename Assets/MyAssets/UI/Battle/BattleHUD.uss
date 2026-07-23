@@ -73,6 +73,29 @@
     opacity: 0.35;
 }
 
+/* 우상단 퍼즈 버튼 */
+.pause-hud-button {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+    -unity-font-style: bold;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: rgba(255, 214, 92, 0.5);
+    background-color: rgba(40, 34, 28, 0.85);
+    color: rgb(255, 244, 200);
+    transition-property: scale, border-color;
+    transition-duration: 0.12s;
+}
+
+.pause-hud-button:hover {
+    scale: 1.08 1.08;
+    border-color: rgb(255, 214, 92);
+}
+
 /* 하단 중앙 플레이어 차례 프롬프트 */
 .player-prompt {
     position: absolute;

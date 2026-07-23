@@ -24,6 +24,8 @@ namespace Assets.MyAssets.Scripts.Systems
         private InputAction _uiNavigateNext; // 오른쪽 방향키: 다음 항목
         private InputAction _uiSubmit;       // Enter/Space: 확정/선택
 
+        private InputAction _pauseToggle;    // ESC: 배틀 퍼즈 열기/닫기
+
         /// <summary>
         /// 퍼즈/팝업 중 게임플레이 입력(타겟팅 등)을 막을지 여부.
         /// false면 아래 게임플레이 입력 질의가 모두 false를 돌려준다(UI 입력은 영향 없음).
@@ -59,6 +61,12 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <summary>이번 프레임에 UI 확정(Enter/Space)이 눌렸는지. 게임플레이 게이트와 무관.</summary>
         public bool UiSubmitPressed => _uiSubmit?.WasPressedThisFrame() ?? false;
 
+        /// <summary>
+        /// 이번 프레임에 퍼즈 토글(ESC)이 눌렸는지. 게임플레이 게이트와 **무관**하다 —
+        /// 여기 묶으면 퍼즈 중에 게이트가 닫혀 있어 ESC로 퍼즈를 풀 수 없다.
+        /// </summary>
+        public bool PauseTogglePressed => _pauseToggle?.WasPressedThisFrame() ?? false;
+
         protected override void Awake()
         {
             base.Awake();
@@ -81,14 +89,17 @@ namespace Assets.MyAssets.Scripts.Systems
             _uiSubmit.AddBinding("<Keyboard>/enter");
             _uiSubmit.AddBinding("<Keyboard>/space");
 
+            _pauseToggle = new InputAction("PauseToggle", InputActionType.Button, "<Keyboard>/escape");
+
             _battleCyclePrev.Enable();
             _battleCycleNext.Enable();
             _battleConfirm.Enable();
             _uiNavigatePrev.Enable();
             _uiNavigateNext.Enable();
             _uiSubmit.Enable();
+            _pauseToggle.Enable();
 
-            // TODO#: ESC(Cancel)로 팝업 닫기/배틀 퍼즈는 Pause 기능을 넣을 때 여기 배틀 입력 그룹에 추가할 것.
+            // TODO#: ESC로 일반 팝업(옵션/성향) 닫기까지 묶는 건 추후 — 지금은 배틀 퍼즈 전용이다.
         }
 
         protected override void OnDestroy()
@@ -102,6 +113,7 @@ namespace Assets.MyAssets.Scripts.Systems
             _uiNavigatePrev?.Dispose();
             _uiNavigateNext?.Dispose();
             _uiSubmit?.Dispose();
+            _pauseToggle?.Dispose();
         }
     }
 }

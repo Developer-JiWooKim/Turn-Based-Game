@@ -7,5 +7,8 @@
         <ui:Label name="synergy-label" class="synergy-label" text="" picking-mode="Ignore" />
         <ui:VisualElement name="turn-order" class="turn-order" picking-mode="Ignore" />
         <ui:Label name="player-prompt" class="player-prompt" text="" picking-mode="Ignore" />
+        <!-- 우상단 퍼즈. 루트가 picking-mode=Ignore여도 자식 버튼은 정상적으로 클릭된다 -->
+        <!-- 기본은 숨김. 전투 구간에 들어갈 때 BattlePausePanel이 켠다 -->
+        <ui:Button name="pause-button" class="pause-hud-button" text="II" style="display: none;" />
     </ui:VisualElement>
 </ui:UXML>

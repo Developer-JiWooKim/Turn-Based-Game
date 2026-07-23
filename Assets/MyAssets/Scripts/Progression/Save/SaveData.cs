@@ -92,12 +92,13 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         /// <summary>효과음 볼륨(0~1)</summary>
         public float SfxVolume = 1f;
 
-        /// <summary>창모드 해상도 선택 인덱스. -1이면 아직 고른 적 없음(현재 해상도 유지).</summary>
+        /// <summary>창모드 해상도 선택 인덱스, -1이면 아직 고른 적 없음(현재 해상도 유지).</summary>
         public int ResolutionIndex = -1;
 
         public bool Fullscreen = true;
 
-        /// <summary>언어 코드. 기본값은 한글</summary>
+        //TODO#:언어 설정 기능 뺄 것 같음
+        /// <summary>언어 코드, Default = ko</summary>
         public string Language = "ko";
     }
 }

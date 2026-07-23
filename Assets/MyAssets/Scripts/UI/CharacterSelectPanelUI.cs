@@ -9,7 +9,8 @@ using UnityEngine.UIElements;
 namespace Assets.MyAssets.Scripts.UI
 {
     /// <summary>
-    /// 캐릭터 선택 패널 뷰. 이 패널이 보이는 동안에만 3D 프리뷰 리그를 켜고,
+    /// 캐릭터 선택 패널 뷰
+    /// 이 패널이 보이는 동안에만 3D 프리뷰 리그를 켜고,
     /// 프리뷰 카메라의 RenderTexture를 프리뷰 영역의 background-image로 배선한다.
     /// prev/next로 로스터 6종을 순환하며, 현재 선택 캐릭터를 외부(전투 시작)에서 참조한다.
     /// </summary>

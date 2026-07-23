@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.MyAssets.Scripts.Battle.Core;
@@ -20,8 +21,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private Label _synergyLabel;
         private VisualElement _turnOrder;
         private Label _playerPrompt;
+        private Button _pauseButton;
 
         private readonly Dictionary<int, VisualElement> _chips = new();
+
+        /// <summary>우상단 퍼즈 버튼이 눌렸다(구독자는 <see cref="BattlePausePanel"/>).</summary>
+        public event Action PauseClicked;
 
         private void Awake()
         {
@@ -30,7 +35,19 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _synergyLabel = root.Q<Label>("synergy-label");
             _turnOrder = root.Q<VisualElement>("turn-order");
             _playerPrompt = root.Q<Label>("player-prompt");
+
+            _pauseButton = root.Q<Button>("pause-button");
+            if (_pauseButton != null)
+                _pauseButton.clicked += () => PauseClicked?.Invoke();
+
             HidePrompt();
+        }
+
+        /// <summary>퍼즈 버튼 노출 여부. 전투 중이 아닐 때(선택지·결과 화면) 숨긴다.</summary>
+        public void SetPauseButtonVisible(bool visible)
+        {
+            if (_pauseButton != null)
+                _pauseButton.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         public void SetStage(int stage)

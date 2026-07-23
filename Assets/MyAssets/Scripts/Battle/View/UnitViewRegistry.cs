@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Progression.Run;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Assets.MyAssets.Scripts.Battle.View
 {
@@ -14,15 +15,30 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// "누가 어디에 서 있는가"만 알며, 전투 진행이나 연출 타이밍은 전혀 모른다.
     ///
     /// 파티 View는 런 내내 유지되고(Unit.Id = RunMember.UnitId 고정), 몬스터 View는 웨이브마다 스폰·정리된다.
+    ///
+    /// 스테이지가 무한히 이어지므로 인스턴스는 파괴하지 않고 프리팹별 풀에 반납해 재사용한다.
+    /// 재사용 인스턴스는 이전 전투 상태를 그대로 들고 오기 때문에 스폰 시 <see cref="UnitView.ResetForSpawn"/>로 초기화한다.
     /// </summary>
     public sealed class UnitViewRegistry : MonoBehaviour
     {
+        /// <summary>프리팹 1종당 미리 잡아두는 풀 용량(슬롯 수 수준이면 충분하다).</summary>
+        private const int PoolCapacityPerPrefab = 4;
+
+        /// <summary>풀이 무한정 커지지 않도록 하는 상한. 넘긴 인스턴스는 반납 시 그냥 파괴된다.</summary>
+        private const int PoolMaxPerPrefab = 8;
+
         [Header("배치 슬롯 (가로 일렬)")]
         [SerializeField] private Transform[] _playerSlots;
         [SerializeField] private Transform[] _enemySlots;
 
         private readonly Dictionary<int, UnitView> _views = new();
         private readonly List<UnitView> _enemyViews = new();
+
+        /// <summary>프리팹별 인스턴스 풀. 무한 타워라 등장 몬스터 종류가 계속 바뀌므로 프리팹 단위로 캐시한다.</summary>
+        private readonly Dictionary<GameObject, ObjectPool<UnitView>> _pools = new();
+
+        /// <summary>살아 있는 View가 어느 프리팹에서 나왔는지(반납할 풀을 찾는 용도).</summary>
+        private readonly Dictionary<UnitView, GameObject> _sourcePrefab = new();
 
         /// <summary>플레이어 슬롯 점유 현황(추방으로 중간이 비면 영입 시 그 자리를 재사용).</summary>
         private RunMember[] _slotOccupants;
@@ -85,6 +101,33 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _enemyViews.Clear();
         }
 
+        /// <summary>
+        /// 유닛들의 현재 상태이상을 View에 반영한다.
+        /// 파티 View는 런 내내 재사용되는데 파티 <see cref="Unit"/>은 스테이지마다 새로 만들어지므로,
+        /// 스테이지 시작 시 이걸 호출하지 않으면 이전 스테이지의 상태 표기가 화면에 남는다(효과는 이미 사라졌는데도).
+        /// </summary>
+        public void RefreshStatuses(IEnumerable<Unit> units)
+        {
+            foreach (Unit unit in units)
+            {
+                if (_views.TryGetValue(unit.Id, out UnitView view))
+                    view.RefreshStatuses(unit.Statuses);
+            }
+        }
+
+        /// <summary>
+        /// 전투가 끝나 상태이상이 소멸했음을 모든 View에 반영한다.
+        /// 전투 종료 직후에 호출해야 이어지는 성장 선택지 화면에 이전 전투의 표기가 남지 않는다.
+        /// </summary>
+        public void ClearStatuses()
+        {
+            foreach (UnitView view in _views.Values)
+            {
+                if (view != null)
+                    view.RefreshStatuses(null);
+            }
+        }
+
         /// <summary>성장 등으로 최대 HP/현재 HP가 바뀐 뒤 파티 체력바를 다시 그린다.</summary>
         public void RefreshHealth(IEnumerable<RunMember> members)
         {
@@ -111,19 +154,21 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 return null;
             }
 
-            Transform slot = (slots != null && index < slots.Length && slots[index] != null) ? slots[index] : transform;
-            GameObject go = Instantiate(prefab, slot.position, slot.rotation);
-
-            UnitView view = go.GetComponentInChildren<UnitView>();
-            if (view == null)
-            {
-                Debug.LogError($"[UnitViewRegistry] '{displayName}' 프리팹에 UnitView가 없습니다.");
-                Destroy(go);
+            ObjectPool<UnitView> pool = GetPool(prefab, displayName);
+            if (pool == null)
                 return null;
-            }
 
+            UnitView view = pool.Get();
+
+            Transform slot = (slots != null && index < slots.Length && slots[index] != null) ? slots[index] : transform;
+            view.transform.SetPositionAndRotation(slot.position, slot.rotation);
+
+            // 재사용 인스턴스에 남은 이전 전투 흔적을 지운 뒤 초기화한다(순서 이유는 ResetForSpawn 주석 참고).
+            view.ResetForSpawn();
             view.Initialize(unitId, currentHp, maxHp);
+
             _views[unitId] = view;
+            _sourcePrefab[view] = prefab;
             return view;
         }
 
@@ -133,8 +178,47 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 return;
 
             _views.Remove(unitId);
-            if (view != null)
-                Destroy(view.gameObject);
+            if (view == null)
+                return;
+
+            if (_sourcePrefab.TryGetValue(view, out GameObject prefab))
+            {
+                _sourcePrefab.Remove(view);
+                if (_pools.TryGetValue(prefab, out ObjectPool<UnitView> pool))
+                {
+                    pool.Release(view); // 파괴 대신 비활성화 후 재사용 대기
+                    return;
+                }
+            }
+
+            Destroy(view.gameObject);
+        }
+
+        /// <summary>
+        /// 프리팹 1종에 대응하는 풀을 가져온다(없으면 생성).
+        /// UnitView가 없는 프리팹은 풀을 만들 가치가 없으므로 이 시점에 한 번 걸러낸다.
+        /// </summary>
+        private ObjectPool<UnitView> GetPool(GameObject prefab, string displayName)
+        {
+            if (_pools.TryGetValue(prefab, out ObjectPool<UnitView> pool))
+                return pool;
+
+            if (prefab.GetComponentInChildren<UnitView>(true) == null)
+            {
+                Debug.LogError($"[UnitViewRegistry] '{displayName}' 프리팹에 UnitView가 없습니다.");
+                return null;
+            }
+
+            pool = new ObjectPool<UnitView>(
+                createFunc: () => Instantiate(prefab).GetComponentInChildren<UnitView>(true),
+                actionOnGet: v => v.gameObject.SetActive(true),
+                actionOnRelease: v => v.gameObject.SetActive(false),
+                actionOnDestroy: v => { if (v != null) Destroy(v.gameObject); },
+                defaultCapacity: PoolCapacityPerPrefab,
+                maxSize: PoolMaxPerPrefab);
+
+            _pools[prefab] = pool;
+            return pool;
         }
     }
 }

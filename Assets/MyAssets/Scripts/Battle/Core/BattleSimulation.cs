@@ -21,7 +21,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         private readonly IActionSelector _playerSelector;
         private readonly IActionSelector _enemySelector;
         private readonly IRandom _rng;
-        private readonly bool _enemySkipFirstTurn;
+        private readonly IPauseGate _pauseGate;
 
         public BattleState State => _state;
 
@@ -31,19 +31,19 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public event EventHandler<ActorTurnEventArgs> ActorTurnStarted;
         public event EventHandler<ActionResolvedEventArgs> ActionResolved;
         public event EventHandler<UnitDiedEventArgs> UnitDied;
+        public event EventHandler<StatusChangedEventArgs> StatusChanged;
+        public event EventHandler<StatusTickedEventArgs> StatusTicked;
         public event EventHandler<BattleEndedEventArgs> BattleEnded;
 
-        /// <param name="enemySkipFirstTurn">
-        /// 로그라이크 '몬스터 행동불가' 선택지 — 1턴째 몬스터 전원이 행동을 건너뛴다.
-        /// </param>
+        /// <param name="pauseGate">퍼즈 게이트. null이면 퍼즈 없이 그대로 진행한다.</param>
         public BattleSimulation(BattleState state, IActionSelector playerSelector, IActionSelector enemySelector, IRandom rng,
-                                bool enemySkipFirstTurn = false)
+                                IPauseGate pauseGate = null)
         {
             _state = state;
             _playerSelector = playerSelector;
             _enemySelector = enemySelector;
             _rng = rng;
-            _enemySkipFirstTurn = enemySkipFirstTurn;
+            _pauseGate = pauseGate;
         }
 
         /// <summary>전투를 끝까지 진행하고 결과를 반환한다. 씬 종료 등으로 취소되면 OperationCanceledException.</summary>
@@ -64,11 +64,16 @@ namespace Assets.MyAssets.Scripts.Battle.Core
 
                 foreach (Unit actor in order)
                 {
+                    // 퍼즈는 행동 "직전"에만 걸린다 — 진행 중인 연출을 자르지 않기 위함.
+                    if (_pauseGate != null)
+                        await _pauseGate.WaitWhilePausedAsync(cancellationToken);
+
                     if (!actor.IsAlive) continue;      // 이번 턴에 먼저 사망한 유닛은 건너뜀
                     if (_state.IsBattleOver) break;
 
-                    // 행동불가 선택지: 1턴째 몬스터는 턴 시작 알림 없이 그대로 넘어간다
-                    if (_enemySkipFirstTurn && turnNumber == 1 && actor.Team == TeamSide.Enemy) continue;
+                    // 상태이상 처리(도트 → 지속시간 감소 → 기절 판정). 행동할 수 없으면 이번 차례는 넘어간다.
+                    // 로그라이크 '몬스터 행동불가' 선택지도 스폰 시 부여된 Stun이라 여기서 함께 처리된다.
+                    if (!await ResolveStatusesAsync(actor)) continue;
 
                     ActorTurnStarted?.Invoke(this, new ActorTurnEventArgs(actor));
 
@@ -101,6 +106,50 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             return outcome;
         }
 
+        /// <summary>
+        /// 자기 차례 시작 시 상태이상을 처리한다. 도트 피해 → 지속 턴 감소 → 기절 판정 순.
+        /// 행동할 수 있으면 true, 기절했거나 도트로 쓰러졌으면 false.
+        /// </summary>
+        private async Task<bool> ResolveStatusesAsync(Unit actor)
+        {
+            if (!actor.HasAnyStatus) return true;
+
+            int dot = actor.GetDotDamage();
+            if (dot > 0)
+            {
+                int applied = actor.ApplyDamage(dot);
+
+                var tickArgs = new StatusTickedEventArgs(actor, applied);
+                StatusTicked?.Invoke(this, tickArgs);
+                await tickArgs.WhenPlaybackComplete();
+
+                if (!actor.IsAlive)
+                {
+                    var deathArgs = new UnitDiedEventArgs(actor);
+                    UnitDied?.Invoke(this, deathArgs);
+                    await deathArgs.WhenPlaybackComplete();
+                    return false;
+                }
+            }
+
+            // 기절 여부는 감소 "전"에 읽는다 — 그래야 1턴짜리 기절이 한 번의 행동을 실제로 막는다.
+            bool stunned = actor.IsStunned;
+
+            List<StatusKind> expired = actor.TickStatuses();
+            if (expired != null)
+            {
+                foreach (StatusKind kind in expired)
+                    StatusChanged?.Invoke(this, new StatusChangedEventArgs(actor, kind, StatusChangeReason.Expired));
+            }
+
+            // 남아 있는 상태도 턴 수가 줄었으므로 알린다 — 이게 없으면 표시가 부여 시점 값에 멈춘다.
+            IReadOnlyList<ActiveStatus> remaining = actor.Statuses;
+            for (int i = 0; i < remaining.Count; i++)
+                StatusChanged?.Invoke(this, new StatusChangedEventArgs(actor, remaining[i].Kind, StatusChangeReason.Ticked));
+
+            return !stunned;
+        }
+
         /// <summary>계획된 행동의 데미지를 실제로 계산·적용한다(순수). 라인 스킬은 대상별로 순차 처리.</summary>
         private ActionResult ResolveAction(ActionPlan plan)
         {
@@ -112,8 +161,23 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 DamageResult dmg = DamageCalculator.Calculate(plan.Actor, target, plan.PowerMultiplier, _rng);
                 int applied = target.ApplyDamage(dmg.Amount);
                 hits.Add(new HitResult(target, applied, dmg.IsCritical, !target.IsAlive));
+
+                // 스킬에 딸린 상태이상은 살아남은 대상에게만 부여를 시도한다(저항 판정은 Unit이 담당).
+                if (plan.Kind == ActionKind.Skill && target.IsAlive)
+                    TryApplySkillStatus(plan.Actor.Skill, target);
             }
             return new ActionResult(plan.Actor, plan.Kind, hits);
+        }
+
+        private void TryApplySkillStatus(SkillProfile skill, Unit target)
+        {
+            if (skill?.Status == null) return;
+
+            StatusEffect effect = skill.Status.Value;
+            bool applied = target.TryApplyStatus(effect, _rng);
+
+            StatusChanged?.Invoke(this, new StatusChangedEventArgs(
+                target, effect.Kind, applied ? StatusChangeReason.Applied : StatusChangeReason.Resisted));
         }
     }
 }

@@ -63,6 +63,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _simulation.ActorTurnStarted += OnActorTurnStarted;
             _simulation.ActionResolved += OnActionResolved;
             _simulation.UnitDied += OnUnitDied;
+            _simulation.StatusChanged += OnStatusChanged;
+            _simulation.StatusTicked += OnStatusTicked;
             _simulation.BattleEnded += OnBattleEnded;
         }
 
@@ -75,6 +77,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _simulation.ActorTurnStarted -= OnActorTurnStarted;
             _simulation.ActionResolved -= OnActionResolved;
             _simulation.UnitDied -= OnUnitDied;
+            _simulation.StatusChanged -= OnStatusChanged;
+            _simulation.StatusTicked -= OnStatusTicked;
             _simulation.BattleEnded -= OnBattleEnded;
             _simulation = null;
 
@@ -135,6 +139,23 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             if (_registry.TryGet(e.Unit.Id, out UnitView view))
                 e.RegisterPlayback(view.PlayDieAsync(_ct));
+        }
+
+        /// <summary>상태이상이 붙거나 풀렸을 때 체력바 옆 표기를 다시 그린다(저항은 표기 변화가 없다).</summary>
+        private void OnStatusChanged(object sender, StatusChangedEventArgs e)
+        {
+            if (e.Reason == StatusChangeReason.Resisted)
+                return;
+
+            if (_registry.TryGet(e.Unit.Id, out UnitView view))
+                view.RefreshStatuses(e.Unit.Statuses);
+        }
+
+        /// <summary>도트 피해는 일반 피격과 같은 연출을 재사용한다(체력바 갱신 포함).</summary>
+        private void OnStatusTicked(object sender, StatusTickedEventArgs e)
+        {
+            if (_registry.TryGet(e.Unit.Id, out UnitView view))
+                e.RegisterPlayback(view.PlayHitAsync(e.Unit.CurrentHp, e.Unit.Stats.MaxHp, _ct));
         }
 
         private async Task PlayActionAsync(ActionResult result)

@@ -5,6 +5,7 @@ namespace Assets.MyAssets.Scripts.UI
 {
     public abstract class BasePanelUI : MonoBehaviour
     {
+        [Header("UI Document Root")]
         [SerializeField] protected UIDocument _document;
         [SerializeField] protected string _rootElementName;
 
