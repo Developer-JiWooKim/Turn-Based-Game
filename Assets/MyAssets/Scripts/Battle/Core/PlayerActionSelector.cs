@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,34 +15,34 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// <summary>지금 행동할 유닛과 선택 가능한 대상 목록을 View에 알린다.</summary>
         public event Action<Unit, IReadOnlyList<Unit>> ActionRequested;
 
-        private TaskCompletionSource<Unit> _pending;
-        private IReadOnlyList<Unit> _validTargets;
+        private readonly PendingSignal<Unit> _pending = new();
+
+        /// <summary>
+        /// 이번 선택의 유효 대상. <see cref="BattleState.AliveEnemiesOf"/>가 돌려주는 재사용 버퍼를 그대로 들면
+        /// 입력 대기(await) 중에 다른 질의가 그 버퍼를 덮어쓸 수 있으므로 자체 리스트에 복사해 소유한다.
+        /// </summary>
+        private readonly List<Unit> _validTargets = new();
 
         public async Task<ActionPlan> SelectAsync(Unit actor, BattleState state, CancellationToken cancellationToken)
         {
-            _validTargets = state.AliveEnemiesOf(actor);
-            _pending = new TaskCompletionSource<Unit>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _validTargets.Clear();
+            _validTargets.AddRange(state.AliveEnemiesOf(actor));
 
             ActionRequested?.Invoke(actor, _validTargets);
 
-            using (cancellationToken.Register(() => _pending.TrySetCanceled(cancellationToken)))
-            {
-                Unit target = await _pending.Task;
-                _pending = null;
-                _validTargets = null;
-                return new ActionPlan(actor, ActionKind.Attack, new[] { target }, 1f);
-            }
+            Unit target = await _pending.WaitAsync(cancellationToken);
+            _validTargets.Clear();
+            return new ActionPlan(actor, ActionKind.Attack, new[] { target }, 1f);
         }
 
         /// <summary>View가 클릭한 대상을 제출한다. 대기 중이 아니거나 유효하지 않은 대상은 무시한다.</summary>
         public void SubmitTarget(Unit target)
         {
-            var pending = _pending;
-            if (pending == null) return;
+            if (!_pending.IsWaiting) return;
             if (target == null || !target.IsAlive) return;
-            if (_validTargets == null || !_validTargets.Contains(target)) return;
+            if (!_validTargets.Contains(target)) return;
 
-            pending.TrySetResult(target);
+            _pending.Complete(target);
         }
     }
 }

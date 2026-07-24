@@ -5,7 +5,7 @@ namespace Assets.MyAssets.Scripts.UI
 {
     public class GameUIController : MonoBehaviour
     {
-        private const string BattleSceneName = "BattleScene";
+        private const string BattleSceneName = "BattleScene"; // 실제 턴제 전투가 일어날 씬 이름
 
         [Header("UI Panels")]
         [SerializeField] private TitlePanelUI _titlePanel;

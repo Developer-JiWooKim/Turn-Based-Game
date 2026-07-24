@@ -10,17 +10,16 @@ namespace Assets.MyAssets.Scripts.UI
 {
     /// <summary>
     /// 캐릭터 선택 패널 뷰
-    /// 이 패널이 보이는 동안에만 3D 프리뷰 리그를 켜고,
-    /// 프리뷰 카메라의 RenderTexture를 프리뷰 영역의 background-image로 배선한다.
     /// prev/next로 로스터 6종을 순환하며, 현재 선택 캐릭터를 외부(전투 시작)에서 참조한다.
+    ///
+    /// 3D 프리뷰(리그·렌더 텍스처·모델)는 <see cref="CharacterPreview"/>가 전부 소유하고,
+    /// 이 패널은 "무엇을 보여줄지"만 지시한다 — UXML 배선만 여기서 한다(UXML의 주인이 패널이므로).
     /// </summary>
     public class CharacterSelectPanelUI : BasePanelUI
     {
-        [Header("3D 캐릭터 프리뷰 → RenderTexture")]
-        [Tooltip("프리뷰 카메라 + 조명을 묶은 루트. 이 패널이 보일 때만 활성화된다.")]
-        [SerializeField] private GameObject _previewRig;
-        [Tooltip("프리뷰 카메라의 Target Texture. 프리뷰 영역의 background-image로 배선된다.")]
-        [SerializeField] private RenderTexture _previewTexture;
+        [Header("3D 캐릭터 프리뷰")]
+        [Tooltip("프리뷰 리그·모델을 소유하는 컴포넌트. 비워두면 프리뷰 없이 동작한다.")]
+        [SerializeField] private CharacterPreview _preview;
 
         [Header("로스터")]
         [SerializeField] private CharacterRosterSO _roster;
@@ -29,8 +28,6 @@ namespace Assets.MyAssets.Scripts.UI
         public event Action OnBattleClicked;
         /// <summary>'성향' 버튼 클릭. GameUIController가 성향 포인트 배분 팝업을 연다.</summary>
         public event Action OnAllocationClicked;
-        /// <summary>선택이 바뀔 때(초기화 포함) 발생. CharacterPreview 등 연출이 구독한다.</summary>
-        public event Action<int, CharacterStatsSO> OnSelectionChanged;
 
         private int _selectedIndex;
         private bool _visible; // 방향키 입력을 이 패널이 보일 때만 받기 위한 플래그
@@ -47,10 +44,11 @@ namespace Assets.MyAssets.Scripts.UI
 
         protected override void Start()
         {
-            if (_previewTexture != null)
+            // 프리뷰 카메라가 그리는 텍스처를 프리뷰 영역 배경으로 배선한다(UXML의 주인이 패널이라 여기서 처리).
+            if (_preview != null && _preview.Texture != null)
             {
                 Root.Q<VisualElement>("character-preview").style.backgroundImage =
-                    Background.FromRenderTexture(_previewTexture);
+                    Background.FromRenderTexture(_preview.Texture);
             }
 
             _nameLabel = Root.Q<Label>("character-name");
@@ -106,7 +104,9 @@ namespace Assets.MyAssets.Scripts.UI
             }
 
             RefreshStats(character.CreateStats());
-            OnSelectionChanged?.Invoke(_selectedIndex, character);
+
+            if (_preview != null)
+                _preview.Show(character);
         }
 
         /// <summary>
@@ -153,20 +153,20 @@ namespace Assets.MyAssets.Scripts.UI
         {
             base.Show();
             _visible = true;
-            SetPreviewRigActive(true);
+            SetPreviewActive(true);
         }
 
         public override void Hide()
         {
             base.Hide();
             _visible = false;
-            SetPreviewRigActive(false);
+            SetPreviewActive(false);
         }
 
-        private void SetPreviewRigActive(bool active)
+        private void SetPreviewActive(bool active)
         {
-            if (_previewRig != null)
-                _previewRig.SetActive(active);
+            if (_preview != null)
+                _preview.SetVisible(active);
         }
     }
 }

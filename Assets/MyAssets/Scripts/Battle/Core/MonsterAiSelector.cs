@@ -24,8 +24,11 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             if (actor.IsSkillReady)
             {
                 SkillProfile skill = actor.Skill;
+
+                // 라인 스킬도 버퍼를 그대로 넘기지 않고 복사한다 —
+                // AliveEnemiesOf는 재사용 버퍼를 돌려주므로, ActionPlan이 들고 있는 동안 다른 질의가 덮어쓸 수 있다.
                 IReadOnlyList<Unit> targets = skill.Scope == TargetScope.Line
-                    ? enemies
+                    ? new List<Unit>(enemies)
                     : new[] { enemies[_rng.Range(0, enemies.Count)] };
 
                 actor.ConsumeSkill();

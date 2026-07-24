@@ -7,12 +7,13 @@ using UnityEngine.UIElements;
 namespace Assets.MyAssets.Scripts.UI
 {
     /// <summary>
-    /// 성향 포인트 배분 팝업.
+    /// 성향 포인트 배분 팝업
     /// 최고 스테이지 돌파로 얻은 영구 포인트를 로그라이크 카테고리별 선택지의 등장 가중치에 투자한다.
     /// 카테고리 행은 데이터(할당된 선택지 SO) 기반으로 C#에서 동적 생성하고, 파일 저장은 팝업을 닫을 때(Hide) 1회만 수행한다.
     /// </summary>
     public sealed class PointAllocationPopupUI : BasePanelUI
     {
+        [Header("로그라이크 선택지 SO")]
         [SerializeField] private RoguelikeChoiceSO[] _categories;
 
         [Tooltip("몇 스테이지마다 영구 포인트 1점을 획득하는지(밸런싱 값이라 인스펙터에서 조정)")]
@@ -59,16 +60,21 @@ namespace Assets.MyAssets.Scripts.UI
         /// <summary>카테고리별 행(이름 + 현재 포인트 + [-]/[+])을 데이터 기반으로 제작</summary>
         private void BuildRows()
         {
-            if (_rowsContainer is null || _categories is null)
+            if (_rowsContainer is null)
             {
-                Debug.LogError("[PointAllocationPopupUI] BuildRows(): _rowsContainer or _categories is null");
+                Debug.LogError("[PointAllocationPopupUI] BuildRows(): _rowsContainer is null");
+                return;
+            }
+
+            if (_categories is null)
+            {
+                Debug.LogError("[PointAllocationPopupUI] BuildRows(): _categoriesis null");
                 return;
             }
 
             foreach (RoguelikeChoiceSO category in _categories)
             {
-                if (category == null)
-                    continue;
+                if (category == null) continue;
 
                 var row = new VisualElement();
                 row.AddToClassList("allocation-row");

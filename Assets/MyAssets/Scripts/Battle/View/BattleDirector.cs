@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Progression.Run;
-using Assets.MyAssets.Scripts.Progression.Save;
 using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 
@@ -16,7 +15,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// 웨이브를 구성해 Core(BattleSimulation)를 돌리고, 결과를 <see cref="RunData"/>에 반영한 뒤
     /// 다음 스테이지로 넘어가는 흐름만 담당한다.
     ///
-    /// 실제 작업은 아래 넷에게 위임한다.
+    /// 실제 작업은 아래 다섯에게 위임한다.
+    ///  - <see cref="BattleRunFlow"/>    : 런 시작(파티 해석)·종료(기록 저장·결과·씬 전환)
     ///  - <see cref="MonsterSpawner"/>   : 웨이브 선택·몬스터 생성
     ///  - <see cref="UnitViewRegistry"/> : 프리팹 스폰·정리·체력바
     ///  - <see cref="BattlePresenter"/>  : Core 이벤트 구독 → 연출·HUD
@@ -24,23 +24,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// </summary>
     public sealed class BattleDirector : MonoBehaviour
     {
-        /// <summary>패배 시 되돌아갈 타이틀/캐릭터 선택 씬</summary>
-        private const string IntroSceneName = "IntroScene";
-
         [Header("전투 구성")]
-        [Tooltip("Title→캐릭터 선택을 거치지 않고 BattleScene을 직접 플레이할 때 쓰는 테스트 파티(폴백)")]
-        [SerializeField] private CharacterStatsSO[] _testParty;
         [Tooltip("스테이지가 오를수록 양측 스탯이 얼마나 강해지는지. 비워두면 성장 없이 진행한다.")]
         [SerializeField] private StageScalingSO _stageScaling;
 
         [Header("연결")]
+        [SerializeField] private BattleRunFlow _runFlow;
         [SerializeField] private UnitViewRegistry _registry;
         [SerializeField] private MonsterSpawner _spawner;
         [SerializeField] private BattlePresenter _presenter;
         [SerializeField] private RoguelikeRewardService _rewards;
         [SerializeField] private TargetingController _targeting;
-        [Tooltip("전멸 시 도달 스테이지를 보여주는 결과 팝업. 비워두면 바로 씬을 전환한다.")]
-        [SerializeField] private BattleResultPanel _resultPanel;
         [Tooltip("ESC/HUD 버튼으로 여는 퍼즈 오버레이. 비워두면 퍼즈 없이 진행한다.")]
         [SerializeField] private BattlePausePanel _pausePanel;
 
@@ -75,13 +69,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _cts = new CancellationTokenSource();
             SystemRandom rng = new SystemRandom();
 
-            if (_registry == null || _presenter == null || _spawner == null)
+            if (_registry == null || _presenter == null || _spawner == null || _runFlow == null)
             {
-                Debug.LogError("[BattleDirector] Registry/Presenter/Spawner가 연결되지 않았습니다(인스펙터 확인).");
+                Debug.LogError("[BattleDirector] Registry/Presenter/Spawner/RunFlow가 연결되지 않았습니다(인스펙터 확인).");
                 return;
             }
 
-            _run = ResolveRun();
+            _run = _runFlow.ResolveRun();
             if (_run == null || _run.Members.Count == 0)
             {
                 Debug.LogError("[BattleDirector] 파티가 비어 있어 전투를 시작할 수 없습니다.");
@@ -112,7 +106,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 bool survived = await RunStageAsync(rng);
                 if (!survived)
                 {
-                    await HandleDefeatAsync();
+                    await _runFlow.EndRunAsync(_run, _cts.Token);
                     return;
                 }
 
@@ -133,8 +127,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _presenter.SetStage(stage);
             if (_pausePanel != null)
                 _pausePanel.SetStage(stage);
-            // 영입·교체·사망으로 파티 구성이 바뀌므로 시너지는 스테이지마다 다시 판정한다
-            _presenter.SetSynergies(_run.GetActiveSynergies());
 
             SpawnWaveSO wave = _spawner.ResolveWave(stage, rng);
             if (wave == null)
@@ -151,6 +143,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
             // 파티 시너지는 트래커가 적용·추적한다 — 전투 중 대상 캐릭터가 죽으면 즉시 되돌리기 위함(README 규칙).
             var synergyTracker = new PartySynergyTracker(_run);
             List<Unit> players = synergyTracker.CreateBattleUnits();
+
+            // 영입·교체·사망으로 파티 구성이 바뀌므로 시너지는 스테이지마다 다시 판정한다.
+            // 표시도 트래커에서 받는다 — 전투 중 갱신과 같은 판정 기준을 쓰기 위함.
+            _presenter.SetSynergies(synergyTracker.GetActiveSynergies());
 
             // 상태이상은 전투 단위라 스테이지가 바뀌면 사라진다(파티 Unit이 새로 생성되므로).
             // View는 런 내내 재사용되니 이전 스테이지의 표기를 여기서 지워준다.
@@ -246,50 +242,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
             UnitView view = _registry.SpawnMember(result.Recruited);
             if (view != null)
                 await view.PlaySpawnAsync(_cts.Token);
-        }
-
-        /// <summary>런 데이터를 가져오고, 없으면(BattleScene 직접 플레이) 테스트 파티로 임시 런을 만든다.</summary>
-        private RunData ResolveRun()
-        {
-            RunData run = GameManager.Instance != null ? GameManager.Instance.CurrentRun : null;
-            if (run != null && run.Members.Count > 0)
-                return run;
-
-            if (_testParty == null || _testParty.Length == 0)
-                return null;
-
-            Debug.Log("[BattleDirector] RunData가 없어 인스펙터 테스트 파티로 진행합니다.");
-            var fallback = new RunData(_testParty[0]);
-            for (int i = 1; i < _testParty.Length; i++)
-                fallback.AddMember(_testParty[i]);
-
-            return fallback;
-        }
-
-        /// <summary>전멸 시 결과를 보여주고, 플레이어가 확인하면 타이틀로 돌아간다.</summary>
-        private async Task HandleDefeatAsync()
-        {
-            AudioManager.Sfx(AudioManager.Library?.DefeatStinger);
-
-            int reachedStage = _run.CurrentStage;
-            Debug.Log($"[BattleDirector] 파티 전멸 — {reachedStage}스테이지에서 리타이어");
-
-            // 패널에는 이번 런 이전까지의 기록을 보여줘야 하므로 저장(RecordStage)보다 먼저 읽어둔다.
-            // 신기록 여부는 저장 계층의 판정 결과를 그대로 쓴다(동점은 신기록이 아님).
-            int previousBest = SaveService.Current.BestStage;
-            bool isNewRecord = SaveService.RecordStage(reachedStage);
-
-            if (_resultPanel != null)
-                await _resultPanel.PresentAsync(reachedStage, previousBest, isNewRecord, _cts.Token);
-
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.LoadScene(IntroSceneName);
-            }
-            else
-            {
-                Debug.Log("[BattleDirector] GameManager가 없어 씬 전환을 건너뜀");
-            }
         }
 
         private void OnDestroy()

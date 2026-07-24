@@ -1,71 +1,78 @@
+using System;
+using Assets.MyAssets.Scripts.Progression.Save;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Assets.MyAssets.Scripts.Systems
 {
     /// <summary>
-    /// 흩어져 있던 플레이어 입력(마우스/키보드)을 한곳으로 모으는 허브.
-    /// 입력을 두 갈래로 분리한다:
-    ///  - UI 입력: 포인터/클릭/메뉴 네비게이션. 생성된 <see cref="InputSystem_Actions"/>의 UI 맵이 담당(메뉴 조작은 EventSystem).
-    ///  - 배틀 입력: 방향키 타겟 순환·확정 등 전투 전용 키. 아래 별도 액션 그룹으로 두어 UI 네비게이션과 충돌하지 않게 한다.
-    /// View(예: TargetingController)는 원시 디바이스(Mouse.current 등)를 만지지 않고 이 매니저만 참조한다.
+    /// 흩어져 있던 플레이어 입력(마우스/키보드)을 한곳으로 모으는 허브
+    ///  - <b>Battle</b> 맵: 타겟 순환(Cycle)·확정(Confirm). 전투 전용이라 <see cref="IsGameplayInputEnabled"/> 게이트를 탄다.
+    ///  - <b>Menu</b> 맵: 메뉴 방향키(Nav)·확정(Submit)·퍼즈(Pause). 게이트와 무관(퍼즈 중에도 메뉴 조작 허용).
+    ///  - <b>UI</b> 맵(템플릿 기본): 마우스 Point/Click. EventSystem의 InputSystemUIInputModule도 이 맵을 공유한다.
+    /// 방향키가 Battle·Menu에 겹치지만 두 맥락은 시간상 겹치지 않아(타겟팅=전투 턴, 메뉴=턴 밖) 충돌하지 않는다.
+    ///
+    /// 리바인딩: 플레이어가 키를 바꾸면 오버라이드를 <see cref="SaveData"/>에 JSON으로 저장하고, 시작 시 다시 적용한다.
     /// </summary>
     public sealed class InputManager : Singleton<InputManager>
     {
-        private InputSystem_Actions _actions;
-
-        // 배틀 전용 키(UI 입력과 분리). 방향키는 UI 네비게이션과 겹치므로 배틀 맥락 전용 액션으로 따로 잡는다.
-        private InputAction _battleCyclePrev; // 왼쪽 방향키: 이전 대상
-        private InputAction _battleCycleNext; // 오른쪽 방향키: 다음 대상
-        private InputAction _battleConfirm;   // Enter/Space: 겨냥 대상 공격 확정
-
-        // UI 네비게이션(메뉴/선택지). 배틀 입력과 분리하고 IsGameplayInputEnabled에 묶지 않는다(퍼즈 중에도 UI 조작 허용).
-        private InputAction _uiNavigatePrev; // 왼쪽 방향키: 이전 항목
-        private InputAction _uiNavigateNext; // 오른쪽 방향키: 다음 항목
-        private InputAction _uiSubmit;       // Enter/Space: 확정/선택
-
-        private InputAction _pauseToggle;    // ESC: 배틀 퍼즈 열기/닫기
+        [Tooltip("바인딩이 정의된 InputActionAsset(InputSystem_Actions)")]
+        [SerializeField] private InputActionAsset _actions;
 
         /// <summary>
-        /// 퍼즈/팝업 중 게임플레이 입력(타겟팅 등)을 막을지 여부.
+        /// 바인드 기능을 가진 모듈(순수 C#)
+        /// </summary>
+        private InputBindingSaver _saver;
+        private InputRebinder _rebinder;
+
+
+        // Battle 맵(게이트 적용)
+        private InputAction _battleCyclePrev;
+        private InputAction _battleCycleNext;
+        private InputAction _battleConfirm;
+
+        // Menu 맵(게이트 무관)
+        private InputAction _menuNavPrev;
+        private InputAction _menuNavNext;
+        private InputAction _menuSubmit;
+        private InputAction _menuPause;
+
+        // UI 맵(마우스)
+        private InputAction _point;
+        private InputAction _click;
+
+        /// <summary>
+        /// 퍼즈/팝업 중 게임플레이 입력(타겟팅 등)을 막을지 여부
         /// false면 아래 게임플레이 입력 질의가 모두 false를 돌려준다(UI 입력은 영향 없음).
         /// </summary>
         public bool IsGameplayInputEnabled { get; set; } = true;
 
-        /// <summary>현재 포인터(마우스) 화면 좌표.</summary>
-        public Vector2 PointerPosition =>
-            _actions != null ? _actions.UI.Point.ReadValue<Vector2>() : Vector2.zero;
+        /// <summary>현재 포인터(마우스) 화면 좌표</summary>
+        public Vector2 PointerPosition => _point?.ReadValue<Vector2>() ?? Vector2.zero;
 
         /// <summary>이번 프레임에 주 상호작용(좌클릭)이 눌렸는지. 게임플레이 입력이 꺼져 있으면 항상 false.</summary>
-        public bool PrimaryPressedThisFrame =>
-            IsGameplayInputEnabled && _actions != null && _actions.UI.Click.WasPressedThisFrame();
+        public bool PrimaryPressedThisFrame => IsGameplayInputEnabled && (_click?.WasPressedThisFrame() ?? false);
 
-        /// <summary>이번 프레임에 이전 대상(왼쪽 방향키)이 눌렸는지.</summary>
-        public bool BattleCyclePrevPressed =>
-            IsGameplayInputEnabled && (_battleCyclePrev?.WasPressedThisFrame() ?? false);
+        /// <summary>이번 프레임에 이전 대상(왼쪽 방향키)이 눌렸는지</summary>
+        public bool BattleCyclePrevPressed => IsGameplayInputEnabled && (_battleCyclePrev?.WasPressedThisFrame() ?? false);
 
-        /// <summary>이번 프레임에 다음 대상(오른쪽 방향키)이 눌렸는지.</summary>
-        public bool BattleCycleNextPressed =>
-            IsGameplayInputEnabled && (_battleCycleNext?.WasPressedThisFrame() ?? false);
+        /// <summary>이번 프레임에 다음 대상(오른쪽 방향키)이 눌렸는지</summary>
+        public bool BattleCycleNextPressed => IsGameplayInputEnabled && (_battleCycleNext?.WasPressedThisFrame() ?? false);
 
-        /// <summary>이번 프레임에 확정(Enter/Space)이 눌렸는지.</summary>
-        public bool BattleConfirmPressed =>
-            IsGameplayInputEnabled && (_battleConfirm?.WasPressedThisFrame() ?? false);
+        /// <summary>이번 프레임에 확정(Enter/Space)이 눌렸는지</summary>
+        public bool BattleConfirmPressed => IsGameplayInputEnabled && (_battleConfirm?.WasPressedThisFrame() ?? false);
 
-        /// <summary>이번 프레임에 UI 이전 항목(왼쪽 방향키)이 눌렸는지. 게임플레이 게이트와 무관.</summary>
-        public bool UiNavigatePrevPressed => _uiNavigatePrev?.WasPressedThisFrame() ?? false;
+        /// <summary>이번 프레임에 UI 이전 항목(왼쪽 방향키)이 눌렸는지. 게임플레이 게이트와 무관</summary>
+        public bool UiNavigatePrevPressed => _menuNavPrev?.WasPressedThisFrame() ?? false;
 
-        /// <summary>이번 프레임에 UI 다음 항목(오른쪽 방향키)이 눌렸는지. 게임플레이 게이트와 무관.</summary>
-        public bool UiNavigateNextPressed => _uiNavigateNext?.WasPressedThisFrame() ?? false;
+        /// <summary>이번 프레임에 UI 다음 항목(오른쪽 방향키)이 눌렸는지. 게임플레이 게이트와 무관</summary>
+        public bool UiNavigateNextPressed => _menuNavNext?.WasPressedThisFrame() ?? false;
 
-        /// <summary>이번 프레임에 UI 확정(Enter/Space)이 눌렸는지. 게임플레이 게이트와 무관.</summary>
-        public bool UiSubmitPressed => _uiSubmit?.WasPressedThisFrame() ?? false;
+        /// <summary>이번 프레임에 UI 확정(Enter/Space)이 눌렸는지. 게임플레이 게이트와 무관</summary>
+        public bool UiSubmitPressed => _menuSubmit?.WasPressedThisFrame() ?? false;
 
-        /// <summary>
-        /// 이번 프레임에 퍼즈 토글(ESC)이 눌렸는지. 게임플레이 게이트와 **무관**하다 —
-        /// 여기 묶으면 퍼즈 중에 게이트가 닫혀 있어 ESC로 퍼즈를 풀 수 없다.
-        /// </summary>
-        public bool PauseTogglePressed => _pauseToggle?.WasPressedThisFrame() ?? false;
+        /// <summary>이번 프레임에 퍼즈 토글(ESC)이 눌렸는지. 게임플레이 게이트와 무관</summary>
+        public bool PauseTogglePressed => _menuPause?.WasPressedThisFrame() ?? false;
 
         protected override void Awake()
         {
@@ -74,46 +81,95 @@ namespace Assets.MyAssets.Scripts.Systems
 
             DontDestroyOnLoad(gameObject);
 
-            _actions = new InputSystem_Actions();
-            _actions.UI.Enable();
+            if (_actions == null)
+            {
+                Debug.LogError("[InputManager] InputActionAsset이 할당되지 않았습니다(인스펙터의 _actions 확인)");
+                return;
+            }
 
-            _battleCyclePrev = new InputAction("BattleCyclePrev", InputActionType.Button, "<Keyboard>/leftArrow");
-            _battleCycleNext = new InputAction("BattleCycleNext", InputActionType.Button, "<Keyboard>/rightArrow");
-            _battleConfirm = new InputAction("BattleConfirm", InputActionType.Button);
-            _battleConfirm.AddBinding("<Keyboard>/enter");
-            _battleConfirm.AddBinding("<Keyboard>/space");
+            _saver = new InputBindingSaver(_actions);
+            _rebinder = new InputRebinder(_actions, _saver);
+            _saver.LoadBindings();
 
-            _uiNavigatePrev = new InputAction("UiNavigatePrev", InputActionType.Button, "<Keyboard>/leftArrow");
-            _uiNavigateNext = new InputAction("UiNavigateNext", InputActionType.Button, "<Keyboard>/rightArrow");
-            _uiSubmit = new InputAction("UiSubmit", InputActionType.Button);
-            _uiSubmit.AddBinding("<Keyboard>/enter");
-            _uiSubmit.AddBinding("<Keyboard>/space");
-
-            _pauseToggle = new InputAction("PauseToggle", InputActionType.Button, "<Keyboard>/escape");
-
-            _battleCyclePrev.Enable();
-            _battleCycleNext.Enable();
-            _battleConfirm.Enable();
-            _uiNavigatePrev.Enable();
-            _uiNavigateNext.Enable();
-            _uiSubmit.Enable();
-            _pauseToggle.Enable();
-
-            // TODO#: ESC로 일반 팝업(옵션/성향) 닫기까지 묶는 건 추후 — 지금은 배틀 퍼즈 전용이다.
+            CacheActions();
+            EnableActionMaps();
         }
 
+        /// <summary>키 액션 캐싱</summary>
+        private void CacheActions()
+        {
+            _battleCyclePrev = _actions.FindAction("Battle/CyclePrev", throwIfNotFound: true);
+            _battleCycleNext = _actions.FindAction("Battle/CycleNext", throwIfNotFound: true);
+            _battleConfirm = _actions.FindAction("Battle/Confirm", throwIfNotFound: true);
+
+            _menuNavPrev = _actions.FindAction("Menu/NavPrev", throwIfNotFound: true);
+            _menuNavNext = _actions.FindAction("Menu/NavNext", throwIfNotFound: true);
+            _menuSubmit = _actions.FindAction("Menu/Submit", throwIfNotFound: true);
+            _menuPause = _actions.FindAction("Menu/Pause", throwIfNotFound: true);
+
+            _point = _actions.FindAction("UI/Point", throwIfNotFound: true);
+            _click = _actions.FindAction("UI/Click", throwIfNotFound: true);
+        }
+
+        /// <summary>키 액션 활성화</summary>
+        private void EnableActionMaps()
+        {
+            _actions.FindActionMap("Battle").Enable();
+            _actions.FindActionMap("Menu").Enable();
+
+            // UI 맵의 마우스만 필요(방향키 Navigate는 Menu 맵이 담당). EventSystem이 UI 맵을 켜지만,
+            // 단독 실행 등으로 켜지지 않은 경우에도 마우스가 동작하도록 개별 액션을 확실히 켠다.
+            _point.Enable();
+            _click.Enable();
+        }
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            _actions?.Dispose();
-            _actions = null;
-            _battleCyclePrev?.Dispose();
-            _battleCycleNext?.Dispose();
-            _battleConfirm?.Dispose();
-            _uiNavigatePrev?.Dispose();
-            _uiNavigateNext?.Dispose();
-            _uiSubmit?.Dispose();
-            _pauseToggle?.Dispose();
+            _rebinder?.Dispose(); // 리바인딩 세션 정리
+        }
+
+        /// <summary>
+        /// 리바인딩 UI용 창구(InputBindingSaver, InputRebinder)
+        /// </summary>
+        public int RebindControlCount => Controls.Length; // 재설정 UI가 나열할 논리 컨트롤 개수
+
+        public string GetRebindLabel(int index) => Controls[index].Label;
+
+        /// <summary>논리 컨트롤에 현재 할당된 키의 표시 문자열(예: "Left Arrow")</summary>
+        public string GetRebindDisplay(int index)
+        {
+            if (_actions == null) return "-";
+
+            InputAction action = _actions.FindAction(Controls[index].ActionPaths[0]);
+            return action != null ? action.GetBindingDisplayString(0) : "-";
+        }
+        public void StartRebind(int index, Action onFinished) => _rebinder.StartRebind(Controls[index], onFinished);
+
+        /// <summary>모든 리바인딩을 기본값으로 되돌리고 저장</summary>
+        public void ResetBindings()
+        {
+            _rebinder.Cancel();
+            _saver.ResetAllBindings();
+        }
+
+        private static readonly RebindControl[] Controls =
+        {
+            new("이전", new[] { "Battle/CyclePrev", "Menu/NavPrev" }),
+            new("다음", new[] { "Battle/CycleNext", "Menu/NavNext" }),
+            new("확정", new[] { "Battle/Confirm", "Menu/Submit" }),
+            new("퍼즈", new[] { "Menu/Pause" }),
+        };
+    }
+
+    public readonly struct RebindControl
+    {
+        public readonly string Label;
+        public readonly string[] ActionPaths; // 이 컨트롤이 함께 재설정할 액션들(첫 번째가 대표)
+
+        public RebindControl(string label, string[] actionPaths)
+        {
+            Label = label;
+            ActionPaths = actionPaths;
         }
     }
 }

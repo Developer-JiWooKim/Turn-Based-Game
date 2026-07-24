@@ -21,11 +21,13 @@
 - **로컬 영구 저장**: `SaveData`/`SaveService`(최고 스테이지, 카테고리별 포인트, 옵션값을 `save.json`으로 영속화)
 - **성향 포인트 배분**: 캐릭터 선택 화면의 '성향' 버튼 → 오버레이 팝업에서 카테고리별(9종) 영구 포인트 투자/리스펙, `RoguelikeRewardService`의 선택지 추첨 가중치에 실시간 반영
 - **사운드**: BGM 크로스페이드(씬 전환·전투/보스 전환) + 유닛 전투음/크리티컬/UI클릭·이동·확정/승리·패배 스팅어 SFX + 옵션 팝업 볼륨 슬라이더(마스터/BGM/SFX)
-- **입력 허브 (`InputManager`)**: 흩어진 플레이어 입력을 한곳으로 통합(생성된 `InputSystem_Actions` 래퍼 소유, 구 `PlayerInput`/`PlayerInputAction` 제거). 마우스/배틀 방향키/UI 방향키를 분리해 노출, `TargetingController`가 `Mouse.current` 직접 사용 대신 허브 경유
+- **입력 허브 (`InputManager`)**: 흩어진 플레이어 입력을 한곳으로 통합. 바인딩은 `.inputactions` 에셋의 액션맵(Battle/Menu/UI)에서 오고(코드 하드코딩·생성 래퍼 제거), `TargetingController`가 `Mouse.current` 직접 사용 대신 허브 경유. 키 리바인딩 + 세이브 저장, 옵션 팝업 키설정 UI 포함
 - **키보드 조작**: 배틀 타겟팅(좌/우 방향키 순환=화면 좌→우 정렬, Enter/Space 확정), 캐릭터 선택(방향키=prev/next), 로그라이크 선택지(방향키 카드 겨냥+Enter/Space 선택). 마우스와 병행, 각 조작음 재생
 - **배틀 퍼즈**: ESC 키 / HUD 우상단 버튼으로 열고 닫음. 퍼즈 화면에 현재 스테이지·이전 최고 기록 표시, '계속하기'와 '배틀 중단'(즉시 결과 화면) 제공. `Time.timeScale` 대신 Core의 `IPauseGate`를 유닛 행동 직전에 await하는 방식
 - **스폰 구조 분리**: 웨이브 선택·몬스터 생성을 `BattleDirector`에서 `MonsterSpawner`로 분리
 - **오브젝트 풀링**: 유닛 View를 파괴하지 않고 프리팹별 `ObjectPool`에 반납·재사용(무한 스테이지 대비). 재사용 시 애니메이터/아웃라인 초기화
+- **어셈블리 분리(asmdef)**: `Game.Core`→`Data`→`Progression`→`Systems`→`View` 단방향. Core는 `noEngineReferences`라 UnityEngine 참조 시 **컴파일 에러로 차단**됨(Core/View 분리를 컴파일러가 강제). Core 유닛 테스트 도입의 전제조건도 해결
+- **리팩터링 패스**: `BattleRunFlow` 분리(런 경계 ↔ 스테이지 루프), 배틀 패널 3종 `BasePanelUI` 통합, `PendingSignal<T>`로 TCS 패턴 통합, 시너지 조회 이중 구현 제거. 성능은 `Camera.main` 캐싱·렌더러 1회 캐싱·`BattleState`/`TurnOrder` 버퍼 재사용·상태이상 이벤트 유닛당 1회로 정리
 
 ---
 
@@ -77,10 +79,11 @@
 - 타격 시 히트 이펙트 재생 (외부 에셋 구매/다운로드 예정)
 - `BattlePresenter.PlayActionAsync`에 이펙트 스폰 훅 추가 지점 있음
 
-### 4-2. 입력 시스템 정식화  (상태: 부분구현)
-- 입력은 `InputManager` 허브로 통합 완료(마우스/배틀 방향키/UI 방향키 분리 노출, 원시 디바이스 직접 접근 제거)
-- 남은 것: `Assets/InputSystem_Actions.inputactions`의 **Player 맵은 여전히 비어 있고**, 배틀 키(방향키/확정)는 asset 액션맵이 아니라 코드로 만든 `InputAction`. 커맨드 배틀용 액션맵으로 asset에 정식 재정의 + 리바인딩(키 변경) 지원은 추후
-- 씬 정리: 에디터에서 `InputManager` 오브젝트의 잔여 `PlayerInput` + Missing 스크립트(구 `PlayerInputAction`) 컴포넌트 제거 필요
+### 4-2. 입력 시스템 정식화  (상태: 완료 — 에디터 할당만 남음)
+- ✅ 바인딩을 `.inputactions` 에셋의 액션맵(Battle/Menu/UI)으로 이전, 코드 하드코딩 제거, 생성 래퍼 삭제
+- ✅ 키 리바인딩 + 세이브 저장(`SaveData.Options.InputBindingOverrides`), 옵션 팝업에 키설정 UI
+- ⬜ **에디터 할당**: 두 씬(Intro/Battle)의 InputManager 오브젝트에 `.inputactions` 에셋을 `_actions` 슬롯에 연결. 안 하면 Awake 에러
+- ⬜ 씬 정리: `InputManager` 오브젝트의 잔여 `PlayerInput` + Missing 스크립트(구 `PlayerInputAction`) 컴포넌트가 있으면 제거
 
 ---
 

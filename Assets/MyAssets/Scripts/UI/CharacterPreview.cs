@@ -5,15 +5,21 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.UI
 {
     /// <summary>
-    /// 캐릭터 선택 시 프리뷰 앵커 아래에 해당 캐릭터의 3D 모델을 보여주는 연출 컴포넌트
-    /// 프리뷰 카메라가 앵커를 비추고, 카메라의 RenderTexture가 UI로 배선된다.
+    /// 캐릭터 선택 화면의 3D 프리뷰 전담 컴포넌트.
+    /// "프리뷰 리그(카메라+조명) · 렌더 텍스처 · 모델 인스턴스"를 <b>전부</b> 소유하며,
+    /// <see cref="CharacterSelectPanelUI"/>는 이 컴포넌트에 "무엇을 보여줄지"만 지시한다(단방향 참조).
     ///
     /// 모델은 선택이 바뀔 때마다 만들었다 부수지 않고 캐릭터별로 <b>한 번만 생성해 캐시</b>하고 활성/비활성만 토글한다
     /// (후보가 로스터 6종으로 고정이라 상한이 명확하고, 리깅된 캐릭터 인스턴스화 비용이 방향키 연타에서 그대로 드러난다).
     /// </summary>
     public sealed class CharacterPreview : MonoBehaviour
     {
-        [SerializeField] private CharacterSelectPanelUI _panel;
+        [Tooltip("프리뷰 카메라 + 조명을 묶은 루트. 선택 화면이 보일 때만 활성화된다.\n" +
+                 "모델 앵커가 이 아래에 있으므로 리그를 끄면 캐시된 모델도 함께 멈춘다.")]
+        [SerializeField] private GameObject _previewRig;
+
+        [Tooltip("프리뷰 카메라의 Target Texture. 패널이 프리뷰 영역의 background-image로 배선한다.")]
+        [SerializeField] private RenderTexture _previewTexture;
 
         [Tooltip("프리뷰 모델이 생성될 위치(프리뷰 카메라 앞).")]
         [SerializeField] private Transform _modelAnchor;
@@ -23,31 +29,20 @@ namespace Assets.MyAssets.Scripts.UI
 
         private GameObject _current;
 
-        private void OnEnable()
-        {
-            if (_panel == null)
-            {
-                Debug.Log("[CharacterPreview] OnEnable(): _panel is null");
-                return;
-            }
+        /// <summary>UI에 배선할 렌더 텍스처(비어 있으면 null). 배선 자체는 UXML을 소유한 패널이 한다.</summary>
+        public RenderTexture Texture => _previewTexture;
 
-            _panel.OnSelectionChanged += OnSelectionChanged;
-            Refresh(_panel.SelectedCharacter); // 활성화 시점의 현재 선택으로 즉시 동기화
+        private void Awake() => SetVisible(false); // 패널이 열릴 때 켜지도록 초기 상태는 꺼둠
+
+        /// <summary>프리뷰 리그를 켜고 끈다(선택 화면 진입/이탈). 꺼진 동안에는 모델도 함께 멈춘다.</summary>
+        public void SetVisible(bool visible)
+        {
+            if (_previewRig != null)
+                _previewRig.SetActive(visible);
         }
 
-        private void OnDisable()
-        {
-            if (_panel != null)
-                _panel.OnSelectionChanged -= OnSelectionChanged;
-
-            // 화면을 벗어난 동안 모델과 Animator가 계속 갱신되지 않도록 꺼둔다(다시 켤 때 OnEnable이 되살린다).
-            if (_current != null)
-                _current.SetActive(false);
-        }
-
-        private void OnSelectionChanged(int index, CharacterStatsSO character) => Refresh(character);
-
-        private void Refresh(CharacterStatsSO character)
+        /// <summary>지정한 캐릭터의 모델을 보여준다(이전 모델은 숨김). null이면 아무것도 표시하지 않는다.</summary>
+        public void Show(CharacterStatsSO character)
         {
             if (_current != null)
                 _current.SetActive(false);

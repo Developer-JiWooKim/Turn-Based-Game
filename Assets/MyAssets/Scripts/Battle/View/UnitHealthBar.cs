@@ -107,9 +107,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void LateUpdate()
         {
             if (_billboardRoot == null) return;
-            Camera camera = Camera.main;
+
+            // Camera.main은 태그 검색이라 유닛마다 매 프레임 부르면 비용이 쌓인다 — 캐시를 통해 조회한다.
+            Transform camera = MainCameraCache.CurrentTransform;
             if (camera == null) return;
-            _billboardRoot.forward = camera.transform.forward;
+
+            _billboardRoot.forward = camera.forward;
         }
     }
 }

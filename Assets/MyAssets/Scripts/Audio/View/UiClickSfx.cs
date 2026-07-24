@@ -19,14 +19,21 @@ namespace Assets.MyAssets.Scripts.Audio.View
         private void OnEnable()
         {
             _document = GetComponent<UIDocument>();
-            VisualElement root = _document != null ? _document.rootVisualElement : null;
+            VisualElement root = _document.rootVisualElement;
             if (root != null)
+            {
                 root.RegisterCallback<ClickEvent>(OnClick);
+            }
+            else
+            {
+                Debug.LogWarning("[UiClickSfx] OnEnable(): UIDocument에서 rootVisualElement을 얻어오지 못했음");
+            }
+
         }
 
         private void OnDisable()
         {
-            if (_document != null && _document.rootVisualElement != null)
+            if (_document.rootVisualElement != null)
                 _document.rootVisualElement.UnregisterCallback<ClickEvent>(OnClick);
         }
 

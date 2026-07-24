@@ -56,16 +56,22 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     }
 
     /// <summary>
-    /// 상태이상이 붙거나(Applied) 저항되거나(Resisted) 풀렸다(Expired).
+    /// 상태이상이 붙거나(Applied) 저항되거나(Resisted) 풀렸거나(Expired) 지속 턴이 줄었다(Ticked).
     /// View는 <see cref="Unit"/>.Statuses를 다시 읽어 표시를 갱신하면 된다.
     /// </summary>
     public sealed class StatusChangedEventArgs : EventArgs
     {
         public readonly Unit Unit;
-        public readonly StatusKind Kind;
+
+        /// <summary>
+        /// 어떤 상태이상에 대한 변화인지. <see cref="StatusChangeReason.Ticked"/>는
+        /// "이 유닛의 상태가 한 턴 진행됐다"는 유닛 단위 알림이라 종류가 없다(null).
+        /// </summary>
+        public readonly StatusKind? Kind;
+
         public readonly StatusChangeReason Reason;
 
-        public StatusChangedEventArgs(Unit unit, StatusKind kind, StatusChangeReason reason)
+        public StatusChangedEventArgs(Unit unit, StatusKind? kind, StatusChangeReason reason)
         {
             Unit = unit;
             Kind = kind;

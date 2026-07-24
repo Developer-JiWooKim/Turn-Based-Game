@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Audio.Data
 {
     /// <summary>
-    /// 공용(씬 공통) 오디오 클립 모음. 하드코딩 대신 SO로 관리한다.
+    /// 공용(씬 공통) 오디오 클립 모음 SO
     /// 유닛별 전투음은 <see cref="UnitSfxSO"/>가 따로 담당한다.
     /// </summary>
     [CreateAssetMenu(menuName = "Audio/Audio Library", fileName = "AudioLibrary")]
@@ -39,18 +39,21 @@ namespace Assets.MyAssets.Scripts.Audio.Data
         public AudioClip BattleBgm => _battleBgm;
         public AudioClip BossBgm => _bossBgm;
         public AudioClip UiClick => _uiClick;
+
         /// <summary>방향키 이동음. 전용 클립이 없으면 UI 클릭음으로 대체.</summary>
-        public AudioClip UiNavigate => _uiNavigate != null ? _uiNavigate : _uiClick;
+        public AudioClip UiNavigate => _uiNavigate ?? _uiClick;
+
         /// <summary>확정음. 전용 클립이 없으면 UI 클릭음으로 대체.</summary>
-        public AudioClip Confirm => _confirm != null ? _confirm : _uiClick;
+        public AudioClip Confirm => _confirm ?? _uiClick;
+
         public AudioClip VictoryStinger => _victoryStinger;
         public AudioClip DefeatStinger => _defeatStinger;
         public AudioClip Critical => _critical;
 
-        /// <summary>보스 여부에 따라 전투 BGM을 고른다.</summary>
+        /// <summary>보스 여부에 따라 전투 BGM을 선택</summary>
         public AudioClip GetBattleBgm(bool boss) => boss ? _bossBgm : _battleBgm;
 
-        /// <summary>씬 이름에 대응하는 BGM(등록 안 됐으면 null).</summary>
+        /// <summary>씬 이름에 대응하는 BGM(등록 안 됐으면 null)</summary>
         public AudioClip GetSceneBgm(string sceneName)
         {
             if (_sceneBgm == null)

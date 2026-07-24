@@ -56,14 +56,21 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                List<Unit> order = TurnOrder.Build(_state.AliveUnits);
-                foreach (Unit u in order)
-                    u.TickCooldown();
+                // TurnOrder/BattleState는 재사용 버퍼를 돌려주므로 이 턴 안에서만 순회한다(보관 금지).
+                IReadOnlyList<Unit> order = TurnOrder.Build(_state.AliveUnits);
+                for (int i = 0; i < order.Count; i++)
+                    order[i].TickCooldown();
 
                 TurnStarted?.Invoke(this, new TurnStartedEventArgs(turnNumber, order));
 
-                foreach (Unit actor in order)
+                for (int i = 0; i < order.Count; i++)
                 {
+                    Unit actor = order[i];
+
+                    // 배틀 중단(취소)을 매 유닛 행동 직전에 확인한다 — 턴 시작 지점에서만 보면
+                    // 플레이어 차례 중 중단해도 이번 턴의 남은 몬스터 행동이 모두 끝난 뒤에야 반영된다.
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     // 퍼즈는 행동 "직전"에만 걸린다 — 진행 중인 연출을 자르지 않기 위함.
                     if (_pauseGate != null)
                         await _pauseGate.WaitWhilePausedAsync(cancellationToken);
@@ -142,10 +149,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                     StatusChanged?.Invoke(this, new StatusChangedEventArgs(actor, kind, StatusChangeReason.Expired));
             }
 
-            // 남아 있는 상태도 턴 수가 줄었으므로 알린다 — 이게 없으면 표시가 부여 시점 값에 멈춘다.
-            IReadOnlyList<ActiveStatus> remaining = actor.Statuses;
-            for (int i = 0; i < remaining.Count; i++)
-                StatusChanged?.Invoke(this, new StatusChangedEventArgs(actor, remaining[i].Kind, StatusChangeReason.Ticked));
+            // 남은 상태들도 턴 수가 줄었으므로 알린다 — 이게 없으면 표시가 부여 시점 값에 멈춘다.
+            // View가 목록 전체를 다시 읽으므로 상태 개수만큼이 아니라 유닛당 1회만 보낸다.
+            if (actor.HasAnyStatus)
+                StatusChanged?.Invoke(this, new StatusChangedEventArgs(actor, null, StatusChangeReason.Ticked));
 
             return !stunned;
         }

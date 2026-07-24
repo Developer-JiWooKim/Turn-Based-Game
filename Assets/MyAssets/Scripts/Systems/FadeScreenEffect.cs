@@ -1,10 +1,13 @@
 using UnityEngine;
 
-namespace Assets.MyAssets.Scripts.UI
+namespace Assets.MyAssets.Scripts.Systems
 {
     /// <summary>
     /// 화면 Fade 연출 컴포넌트
     /// CanvasGroup의 Alpha 값 0 ~ 1로 페이드 연출
+    ///
+    /// UI 패널이 아니라 씬 전환 인프라라서 Systems에 있다(GameManager가 소유하며, 그 자식으로 두어야
+    /// 씬 전환에도 파괴되지 않는다). UI 어셈블리에 두면 Systems→UI→Systems 순환 참조가 된다.
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public class FadeScreenEffect : MonoBehaviour
