@@ -1,6 +1,5 @@
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Progression.Run;
-using Assets.MyAssets.Scripts.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 

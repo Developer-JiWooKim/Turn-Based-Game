@@ -18,34 +18,29 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         /// <summary>최고 도달 스테이지(로컬에 영구 저장, 재접속 후에도 유지)</summary>
         public int BestStage;
 
-        /// <summary>
-        /// 로그라이크 선택지 카테고리별로 투자한 영구 포인트(성향 커스터마이징)
-        /// </summary>
+        /// <summary>로그라이크 선택지 카테고리별로 투자한 영구 포인트(성향 커스터마이징)</summary>
         public List<CategoryPoint> CategoryPoints = new List<CategoryPoint>();
 
-        /// <summary>옵션 메뉴 설정(사운드/해상도/언어)</summary>
+        /// <summary>옵션 메뉴 설정</summary>
         public OptionsData Options = new OptionsData();
 
         /// <summary>지금까지 획득한 영구 포인트 총량</summary>
-        public int GetEarnedPoints(int stagesPerPoint) =>
-            stagesPerPoint <= 0 ? 0 : BestStage / stagesPerPoint;
+        public int GetEarnedPoints(int stagesPerPoint) => stagesPerPoint <= 0 ? 0 : BestStage / stagesPerPoint;
 
         /// <summary>카테고리에 투자되어 이미 쓰인 포인트 합계</summary>
         public int GetSpentPoints()
         {
             int sum = 0;
             foreach (CategoryPoint entry in CategoryPoints)
+            {
                 sum += entry.Points;
+            }
 
             return sum;
         }
 
         /// <summary>해당 카테고리에 투자된 포인트(투자한 적 없으면 0)</summary>
-        public int GetPoints(RoguelikeCategory category)
-        {
-            CategoryPoint entry = Find(category);
-            return entry?.Points ?? 0;
-        }
+        public int GetPoints(RoguelikeCategory category) => Find(category)?.Points ?? 0;
 
         /// <summary>카테고리 투자 포인트를 설정(0이면 항목 자체를 제거해 세이브를 깔끔히 유지)</summary>
         public void SetPoints(RoguelikeCategory category, int points)
@@ -53,16 +48,22 @@ namespace Assets.MyAssets.Scripts.Progression.Save
             CategoryPoint entry = Find(category);
             if (points <= 0)
             {
-                if (entry != null)
+                if (entry is not null)
+                {
                     CategoryPoints.Remove(entry);
+                }
 
                 return;
             }
 
-            if (entry != null)
+            if (entry is not null)
+            {
                 entry.Points = points;
+            }
             else
+            {
                 CategoryPoints.Add(new CategoryPoint { Category = category, Points = points });
+            }
         }
 
         /// <summary>투자 내역을 전부 리셋</summary>
@@ -100,5 +101,7 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         //TODO#:언어 설정 기능 뺄 것 같음
         /// <summary>언어 코드, Default = ko</summary>
         public string Language = "ko";
+
+        public string InputBindingOverrides = string.Empty;
     }
 }

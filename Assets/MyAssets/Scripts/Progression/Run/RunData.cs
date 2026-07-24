@@ -142,27 +142,6 @@ namespace Assets.MyAssets.Scripts.Progression.Run
             return Recruit(source, scaling); // 자리가 방금 비었으므로 기존 영입 경로(소급 성장 포함)를 그대로 탄다
         }
 
-        /// <summary>
-        /// 현재 파티(전투 시작 전 기준)에서 발동 중인 시너지 목록(HUD 초기 표시용).
-        /// 전투 중 사망으로 조건이 깨지는 것까지는 반영하지 않는다 — 그건 <see cref="PartySynergyTracker"/>가 담당.
-        /// </summary>
-        public List<ActiveSynergy> GetActiveSynergies()
-        {
-            var active = new List<ActiveSynergy>();
-            foreach (CharacterStatsSO source in Members.Select(m => m.Source).Distinct())
-            {
-                if (source == null || !source.HasSynergy) continue;
-
-                int count = CountOf(source);
-                if (count >= source.SynergyThreshold)
-                    active.Add(new ActiveSynergy(source, count, source.CreateSynergy()));
-            }
-            return active;
-        }
-
-        /// <summary>파티에 있는 같은 캐릭터(원본 SO 기준)의 수.</summary>
-        public int CountOf(CharacterStatsSO source) => Members.Count(m => m.Source == source);
-
         /// <summary>전투 결과(각 Unit의 HP)를 파티에 반영한다.</summary>
         public void SyncFromBattle(IEnumerable<Unit> units)
         {

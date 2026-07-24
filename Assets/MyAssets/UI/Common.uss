@@ -136,3 +136,41 @@
     min-width: 120px;
     -unity-font-style: bold;
 }
+
+/* 키 설정 섹션 */
+.option-section-label {
+    color: var(--color-cream);
+    font-size: 22px;
+    -unity-font-style: bold;
+    margin-top: 6px;
+    margin-bottom: 8px;
+}
+
+.keybind-list {
+    margin-bottom: 12px;
+}
+
+.keybind-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.keybind-name {
+    color: var(--color-cream);
+    font-size: 20px;
+    -unity-font-style: bold;
+    min-width: 120px;
+}
+
+/* 현재 키 표시 겸 재설정 버튼 — 누르면 다음 입력을 대기한다 */
+.keybind-key {
+    min-width: 140px;
+    font-size: 18px;
+}
+
+/* 재설정 대기 중 강조 */
+.keybind-key--waiting {
+    color: var(--color-gold-light);
+}

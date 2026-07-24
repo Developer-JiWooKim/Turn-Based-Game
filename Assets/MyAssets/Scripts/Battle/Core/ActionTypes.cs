@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
+    /// <summary>유닛의 행동 계획을 정의</summary>
     public sealed class ActionPlan
     {
         public readonly Unit Actor;
@@ -25,7 +26,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public readonly Unit Target;
         public readonly int Damage;
         public readonly bool IsCritical;
-        public readonly bool WasLethal;
+        public readonly bool WasLethal; // 타격의 결과로 유닛이 죽었는지 체크
 
         public HitResult(Unit target, int damage, bool isCritical, bool wasLethal)
         {

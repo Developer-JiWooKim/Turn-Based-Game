@@ -1,0 +1,21 @@
+{
+    "name": "Game.View",
+    "rootNamespace": "Assets.MyAssets.Scripts",
+    "references": [
+        "Game.Core",
+        "Game.Data",
+        "Game.Progression",
+        "Game.Systems",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

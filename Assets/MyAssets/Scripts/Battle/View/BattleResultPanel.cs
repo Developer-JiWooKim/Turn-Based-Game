@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
+using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.UI;
 using UnityEngine.UIElements;
 
 namespace Assets.MyAssets.Scripts.Battle.View
@@ -12,27 +13,25 @@ namespace Assets.MyAssets.Scripts.Battle.View
     ///
     /// 무한 타워라 승리 조건이 없으므로 현재는 전멸(리타이어)에서만 뜬다.
     /// </summary>
-    public sealed class BattleResultPanel : MonoBehaviour
+    public sealed class BattleResultPanel : BasePanelUI
     {
-        [SerializeField] private UIDocument _document;
+        protected override string RootElementName => "result-panel";
 
-        private VisualElement _root;
         private Label _title;
         private Label _stage;
         private Label _best;
-        private TaskCompletionSource<bool> _pending;
+        private readonly PendingSignal<bool> _pending = new();
 
         private void Awake()
         {
             VisualElement root = _document.rootVisualElement;
-            _root = root.Q<VisualElement>("result-panel");
             _title = root.Q<Label>("result-title");
             _stage = root.Q<Label>("result-stage");
             _best = root.Q<Label>("result-best");
 
             Button confirm = root.Q<Button>("result-confirm");
             if (confirm != null)
-                confirm.clicked += () => _pending?.TrySetResult(true);
+                confirm.clicked += () => _pending.Complete(true);
 
             Hide();
         }
@@ -57,14 +56,14 @@ namespace Assets.MyAssets.Scripts.Battle.View
                     _best.text = isNewRecord ? "신기록!" : $"최고 기록 {bestStage}";
             }
 
-            _pending = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-
             Show();
-            using (ct.Register(() => _pending.TrySetCanceled(ct)))
+            try
             {
-                await _pending.Task;
-                _pending = null;
-                Hide();
+                await _pending.WaitAsync(ct);
+            }
+            finally
+            {
+                Hide(); // 취소(씬 종료 등)로 빠져나가도 패널이 열린 채 남지 않도록
             }
         }
 
@@ -74,8 +73,5 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (_title != null)
                 _title.text = text;
         }
-
-        private void Show() => _root.style.display = DisplayStyle.Flex;
-        private void Hide() => _root.style.display = DisplayStyle.None;
     }
 }

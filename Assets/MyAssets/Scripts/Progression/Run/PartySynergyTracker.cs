@@ -94,7 +94,12 @@ namespace Assets.MyAssets.Scripts.Progression.Run
             return GetActiveSynergies();
         }
 
-        private List<ActiveSynergy> GetActiveSynergies()
+        /// <summary>
+        /// 지금 발동 중인 시너지 목록(HUD 표시용). <see cref="CreateBattleUnits"/> 직후에는 전투 시작 상태를,
+        /// <see cref="OnAllyDied"/> 이후에는 갱신된 상태를 돌려준다 —
+        /// 판정 기준이 한 곳이라 "전투 시작 표시"와 "전투 중 갱신"이 어긋날 수 없다.
+        /// </summary>
+        public List<ActiveSynergy> GetActiveSynergies()
         {
             var active = new List<ActiveSynergy>();
             foreach (CharacterStatsSO source in _synergySourceByUnitId.Values.Distinct())

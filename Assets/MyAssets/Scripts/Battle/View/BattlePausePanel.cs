@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Progression.Save;
 using Assets.MyAssets.Scripts.Systems;
+using Assets.MyAssets.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -17,17 +18,23 @@ namespace Assets.MyAssets.Scripts.Battle.View
     ///  - 몬스터 차례: 시뮬레이션이 행동 직전에 <see cref="WaitWhilePausedAsync"/>에서 멈춘다
     ///  - 플레이어 차례: 셀렉터가 입력을 기다리는 중이므로, 입력 게이트만 닫으면 자연히 멈춘다
     /// </summary>
-    public sealed class BattlePausePanel : MonoBehaviour, IPauseGate
+    public sealed class BattlePausePanel : BasePanelUI, IPauseGate
     {
-        [SerializeField] private UIDocument _document;
+        protected override string RootElementName => "pause-panel";
+
         [Tooltip("우상단 퍼즈 버튼을 제공하는 HUD. 비워두면 ESC로만 퍼즈할 수 있다.")]
         [SerializeField] private BattleHUD _hud;
 
-        private VisualElement _root;
         private Label _stageLabel;
         private Label _bestLabel;
 
-        /// <summary>퍼즈 해제를 기다리는 신호. null이면 퍼즈 중이 아니다.</summary>
+        /// <summary>
+        /// 퍼즈 해제를 기다리는 신호. null이면 퍼즈 중이 아니다.
+        ///
+        /// 여기는 <see cref="PendingSignal{T}"/>를 쓰지 않는다 — 그쪽은 "기다리는 쪽이 신호를 연다"는 모델인데,
+        /// 이 게이트는 <b>퍼즈가 신호를 열고 시뮬레이션이 기다린다</b>(아예 기다리지 않을 수도 있다).
+        /// 소유 관계가 반대라 억지로 맞추면 오히려 흐려진다.
+        /// </summary>
         private TaskCompletionSource<bool> _resumeSignal;
 
         /// <summary>전투가 진행 중일 때만 퍼즈를 허용한다(선택지·결과 화면에서는 입력이 겹친다).</summary>
@@ -51,7 +58,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void Awake()
         {
             VisualElement root = _document.rootVisualElement;
-            _root = root.Q<VisualElement>("pause-panel");
             _stageLabel = root.Q<Label>("pause-stage");
             _bestLabel = root.Q<Label>("pause-best");
 
@@ -205,7 +211,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _bestLabel.text = $"이전 최고 기록 {best}";
         }
 
-        private void ShowOverlay() => _root.style.display = DisplayStyle.Flex;
-        private void HideOverlay() => _root.style.display = DisplayStyle.None;
+        // BasePanelUI의 Show/Hide를 그대로 쓰되, 이 패널에서는 "퍼즈 상태 전환"(Pause/Resume)과
+        // "오버레이 표시"를 구분해야 해서 표시 전용 별칭을 둔다.
+        private void ShowOverlay() => Show();
+        private void HideOverlay() => Hide();
     }
 }

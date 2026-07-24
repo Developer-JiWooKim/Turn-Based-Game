@@ -77,7 +77,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void HandleClick(Vector2 pointer)
         {
-            Camera cam = _camera != null ? _camera : Camera.main;
+            Camera cam = _camera != null ? _camera : MainCameraCache.Current;
             if (cam == null) return;
 
             Ray ray = cam.ScreenPointToRay(pointer);
@@ -127,7 +127,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _orderBuffer.Clear();
             if (_validTargets == null) return _orderBuffer;
 
-            Camera cam = _camera != null ? _camera : Camera.main;
+            Camera cam = _camera != null ? _camera : MainCameraCache.Current;
             for (int i = 0; i < _validTargets.Count; i++)
             {
                 Unit unit = _validTargets[i];

@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Systems;
+using Assets.MyAssets.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -28,23 +30,21 @@ namespace Assets.MyAssets.Scripts.Battle.View
     ///
     /// 성장 선택지와 동료 영입 후보가 같은 형태(제목 + 설명 카드)라 이 패널을 함께 쓴다.
     /// </summary>
-    public sealed class RoguelikeChoicePanel : MonoBehaviour
+    public sealed class RoguelikeChoicePanel : BasePanelUI
     {
         // 방향키로 겨냥한 카드에 씌우는 클래스(마우스 :hover와 같은 스타일을 USS에서 정의).
         private const string HoverClass = "choice-card--active";
 
-        [SerializeField] private UIDocument _document;
+        protected override string RootElementName => "roguelike-panel";
 
-        private VisualElement _root;
         private Label _header;
         private List<Button> _cards;
         private int _cardCount;
         private int _hoveredIndex = -1; // 방향키 겨냥 카드(-1 = 아직 없음)
-        private TaskCompletionSource<int> _pending;
+        private readonly PendingSignal<int> _pending = new();
 
         private void Awake()
         {
-            _root = _document.rootVisualElement.Q<VisualElement>("roguelike-panel");
             _header = _document.rootVisualElement.Q<Label>("panel-header");
             _cards = _document.rootVisualElement.Query<Button>(className: "choice-card").ToList();
 
@@ -75,7 +75,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _header.text = header;
 
             _cardCount = Mathf.Min(cards.Count, _cards.Count);
-            _pending = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             SetHover(-1); // 방향키 겨냥 초기화(첫 방향키 입력 전까지 겨냥 없음)
 
             for (int i = 0; i < _cards.Count; i++)
@@ -93,18 +92,19 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             Show();
-            using (ct.Register(() => _pending.TrySetCanceled(ct)))
+            try
             {
-                int picked = await _pending.Task;
-                _pending = null;
-                Hide();
-                return picked;
+                return await _pending.WaitAsync(ct);
+            }
+            finally
+            {
+                Hide(); // 취소(씬 종료 등)로 빠져나가도 패널이 열린 채 남지 않도록
             }
         }
 
         private void Update()
         {
-            if (_pending == null || _cardCount == 0) return;
+            if (!_pending.IsWaiting || _cardCount == 0) return;
 
             InputManager input = InputManager.Instance;
             if (input == null) return;
@@ -139,16 +139,14 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void OnPick(int index)
         {
-            if (_pending == null || index >= _cardCount) return;
-            _pending.TrySetResult(index);
+            if (!_pending.IsWaiting || index >= _cardCount) return;
+            _pending.Complete(index);
         }
 
-        private void Show() => _root.style.display = DisplayStyle.Flex;
-
-        private void Hide()
+        public override void Hide()
         {
             SetHover(-1); // 닫을 때 겨냥 하이라이트 정리
-            _root.style.display = DisplayStyle.None;
+            base.Hide();
         }
     }
 }

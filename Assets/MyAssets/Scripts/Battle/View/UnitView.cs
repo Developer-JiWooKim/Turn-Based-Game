@@ -20,19 +20,29 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         public int UnitId { get; private set; }
 
-        /// <summary>아웃라인 색을 결정하는 3D 모델 렌더러들과 원래 레이어(복원용).
-        /// 월드스페이스 체력바는 uGUI(CanvasRenderer)라 Renderer로 잡히지 않아 자동 제외된다.</summary>
+        /// <summary>아웃라인 색을 결정하는 3D 모델 렌더러들과 프리팹 원본 레이어(복원용).
+        /// 월드스페이스 체력바는 uGUI(CanvasRenderer)라 Renderer로 잡히지 않아 자동 제외된다.
+        ///
+        /// 인스턴스 계층은 변하지 않으므로 <b>인스턴스당 1회</b>만 수집한다. 스폰마다 다시 캐싱하면
+        /// 매번 계층 탐색과 배열 할당이 생기고, 무엇보다 "겨냥 레이어가 걸린 상태"에서 캐싱될 경우
+        /// 그 레이어가 원본으로 굳어버린다(풀 재사용 시 실제로 발생하던 함정).</summary>
         private Renderer[] _modelRenderers;
         private int[] _originalLayers;
 
-        public void Initialize(int unitId, int currentHp, int maxHp)
+        private void CacheRenderers()
         {
-            UnitId = unitId;
+            if (_modelRenderers != null) return;
 
             _modelRenderers = GetComponentsInChildren<Renderer>(true);
             _originalLayers = new int[_modelRenderers.Length];
             for (int i = 0; i < _modelRenderers.Length; i++)
                 _originalLayers[i] = _modelRenderers[i].gameObject.layer;
+        }
+
+        public void Initialize(int unitId, int currentHp, int maxHp)
+        {
+            UnitId = unitId;
+            CacheRenderers();
 
             if (_unitAnimator == null)
             {
@@ -72,11 +82,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         /// <summary>
         /// 풀에서 재사용되기 직전에 이전 전투의 흔적을 지운다(사망 포즈, 겨냥 아웃라인).
-        /// <see cref="Initialize"/>가 렌더러의 "원래 레이어"를 다시 캐싱하므로 반드시 그보다 먼저 호출해야 한다
-        /// — 아웃라인이 걸린 채로 캐싱되면 그 레이어가 원본으로 굳어버린다.
+        /// 원본 레이어는 인스턴스당 1회만 캐싱되므로 <see cref="Initialize"/>와의 호출 순서는 상관없다.
         /// </summary>
         public void ResetForSpawn()
         {
+            CacheRenderers(); // 첫 스폰(Initialize 전) 호출에도 대비
             ResetOutlineLayer();
 
             if (_unitAnimator != null)
