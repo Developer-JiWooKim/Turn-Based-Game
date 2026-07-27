@@ -28,6 +28,8 @@
 - **오브젝트 풀링**: 유닛 View를 파괴하지 않고 프리팹별 `ObjectPool`에 반납·재사용(무한 스테이지 대비). 재사용 시 애니메이터/아웃라인 초기화
 - **어셈블리 분리(asmdef)**: `Game.Core`→`Data`→`Progression`→`Systems`→`View` 단방향. Core는 `noEngineReferences`라 UnityEngine 참조 시 **컴파일 에러로 차단**됨(Core/View 분리를 컴파일러가 강제). Core 유닛 테스트 도입의 전제조건도 해결
 - **리팩터링 패스**: `BattleRunFlow` 분리(런 경계 ↔ 스테이지 루프), 배틀 패널 3종 `BasePanelUI` 통합, `PendingSignal<T>`로 TCS 패턴 통합, 시너지 조회 이중 구현 제거. 성능은 `Camera.main` 캐싱·렌더러 1회 캐싱·`BattleState`/`TurnOrder` 버퍼 재사용·상태이상 이벤트 유닛당 1회로 정리
+- **상태이상 + 몬스터 스킬 에셋**: `SkillSO` 3종 생성·연결 완료(Mage=DefDown / Rogue=Poison / Warrior=Line+Stun) — Elite/Boss가 실제로 스킬과 상태이상을 사용한다
+- **파티 시너지 수치**: 캐릭터 6종 전부 설정 완료(Knight=DEF+RES, Barbarian=ATK, Mage=CritDmg, Ranger=SPD+RES, Rogue_Dagger=CritRate, Rogue_Crossbow=ATK+SPD)
 
 ---
 
@@ -40,15 +42,15 @@
 - ⬜ **남은 것: 스킬 연출(단일/라인) 이펙트** — 외부 파티클 에셋 필요, 4-1과 같은 에셋으로 처리 가능
 - 참고: `SpawnWaveSO.IsBossWave`(보스 BGM·보스 웨이브 강제 판정)는 `Tier==Boss`만 보므로, Elite만으로 구성된 웨이브는 스킬을 써도 "보스 웨이브" 취급은 아니다(의도된 동작)
 
-### 1-2. 상태이상 시스템  (상태: 코드 완료 — 에셋 세팅 남음)
+### 1-2. 상태이상 시스템  (상태: 코드·에셋 완료 — 아이콘 표기만 남음)
 - 계기: `Stats.Res`(디버프 저항)가 선택지·시너지로 값은 쌓이지만 소비하는 곳이 없어 사실상 죽은 스탯이었음(2026-07-23 확인) → **이제 RES가 상태이상 저항으로 소비된다**
 - ✅ `StatusKind` 5종(Stun/Poison/AtkDown/DefDown/SpdDown), 부여 정의·진행 상태·저항 판정, 턴 루프 처리(도트→감소→기절), 체력바 상태 표기까지 구현
 - ✅ **확장성**: 스킬 데이터를 `SkillSO`(유닛 종류에 안 묶인 별도 에셋)로 분리 — 캐릭터 스킬 추가 시 `CharacterStatsSO`에 참조 필드 하나만 더하면 되고 상태이상 코드는 그대로 재사용
-- ⬜ **남은 것: 에디터에서 `SkillSO` 에셋 3개 생성 + 몬스터 SO에 연결**(아래 값 참고). 연결 전까지 Elite/Boss가 일반 공격만 한다
-  - `Skill_MageBolt` — 쿨타임 5 / Single / 배율 1.2 / 중독(Poison), 지속 3턴, 크기 0.05, 부여 확률 0.6
-  - `Skill_RogueSlash` — 쿨타임 5 / Single / 배율 1.1 / 공격력 감소(AtkDown), 지속 2턴, 크기 0.3, 부여 확률 0.6
-  - `Skill_WarriorSmash` — 쿨타임 3 / **Line** / 배율 1.2 / 기절(Stun), 지속 1턴, 크기 0, 부여 확률 0.4
-- ⬜ 상태이상 아이콘 표시(현재는 체력바 옆 짧은 한글 약어 텍스트) — 아이콘 에셋 확보 시 3-1/3-3과 함께
+- ✅ `SkillSO` 에셋 3개 생성 + 몬스터 SO 연결 완료(`ScriptableObjects/Skill/`). **현재 실제 수치**(설계 초안에서 밸런싱으로 조정됨):
+  - `Skill_SkeletonMage` (MageSO) — 쿨타임 5 / Single / 배율 1.4 / **방어력 감소(DefDown)**, 지속 2턴, 크기 0.5, 부여 확률 0.7
+  - `Skill_SkeletonRogue` (RogueSO) — 쿨타임 5 / Single / 배율 1.1 / **중독(Poison)**, 지속 3턴, 크기 0.05, 부여 확률 0.8
+  - `Skill_SkeltonWarrior` (WarriorSO) — 쿨타임 3 / **Line** / 배율 1.8 / 기절(Stun), 지속 1턴, 크기 0, 부여 확률 0.35
+- ⬜ 상태이상 아이콘 표시(현재는 체력바 옆 짧은 ASCII 약어 텍스트 `STUN`/`PSN`/`ATK-`) — 아이콘 에셋 확보 시 3-1/3-3과 함께
 
 ---
 
@@ -59,9 +61,10 @@
 - 이름 텍스트 폰트 크기를 절반 정도로 축소(카드 크기는 유지)
 - `RoguelikeRewardService.DescribeCandidate`와 `ChoiceCard`(현재 제목+설명 2필드)에 아이콘 필드 확장 필요
 
-### 3-2. 타겟팅 피드백  (상태: 부분구현, `TargetingController` 내 TODO)
+### 3-2. 타겟팅 피드백  (상태: 부분구현)
 - 마우스 2단계 클릭 + 방향키 순환/Enter·Space 확정은 구현 완료. 겨냥된 **단일** 대상은 빨강 아웃라인 표시
 - 남은 것: 플레이어 차례에 **유효 대상 전체** 하이라이트 / 커서 피드백(어디를 겨냥할 수 있는지)
+- `UnitView.SetOutlineLayer`/`ResetOutlineLayer`가 이미 있으므로 겨냥용(빨강)과 다른 레이어를 하나 더 두면 되는 구조
 
 ### 3-3. 캐릭터 선택 화면 폴리시  (상태: 부분구현)
 - 스탯 바(로스터 대비 비율)는 구현 완료
@@ -69,7 +72,13 @@
 
 ### 3-4. 옵션 메뉴 — 해상도/언어  (상태: 미착수)
 - 볼륨(마스터/BGM/SFX) 슬라이더는 구현 완료
-- 해상도(창모드 3종 + 전체화면), 언어(기본 영어)는 `SaveData.Options` 필드만 있고 UI·적용 로직 미구현
+- 해상도(창모드 3종 + 전체화면), 언어는 `SaveData.Options` 필드(`ResolutionIndex`/`Language`)만 있고 UI·적용 로직 미구현
+- ✅ 선행 준비 완료: `Systems/GameSettings`가 옵션 값의 단일 진입점이라, 해상도는 여기에 프로퍼티 + `ApplyDisplay()`를 추가하고 `GameManager.Awake`에서 한 번 부르면 된다. UI는 드롭다운/토글만 붙이면 끝
+- ❓ **선결 사항: 언어 설정을 뺄지 결정** — `SaveData.cs`의 `Language` 필드에 "언어 설정 기능 뺄 것 같음" 주석이 있다. 빼기로 하면 해상도만 구현하는 작은 작업이 되고, 외부 에셋이 필요 없어 **지금 바로 착수 가능한 유일한 기능 작업**이다
+
+### 3-5. UI 비주얼 폴리시  (상태: 미착수)
+- `UI_DesignReference.md`의 나무 텍스처·두꺼운 검은 아웃라인 스타일이 배틀 UI(HUD/퍼즈/결과)에 아직 적용되지 않았다 — 현재는 단순 골드-브라운 톤(해당 문서 말미에도 명시돼 있음)
+- 아이콘 작업(3-1/3-3)과 함께 처리하면 톤을 한 번에 맞출 수 있다
 
 ---
 
@@ -79,16 +88,20 @@
 - 타격 시 히트 이펙트 재생 (외부 에셋 구매/다운로드 예정)
 - `BattlePresenter.PlayActionAsync`에 이펙트 스폰 훅 추가 지점 있음
 
-### 4-2. 입력 시스템 정식화  (상태: 완료 — 에디터 할당만 남음)
+### 4-2. 입력 시스템 정식화  (상태: ✅ 완료)
 - ✅ 바인딩을 `.inputactions` 에셋의 액션맵(Battle/Menu/UI)으로 이전, 코드 하드코딩 제거, 생성 래퍼 삭제
 - ✅ 키 리바인딩 + 세이브 저장(`SaveData.Options.InputBindingOverrides`), 옵션 팝업에 키설정 UI
-- ⬜ **에디터 할당**: 두 씬(Intro/Battle)의 InputManager 오브젝트에 `.inputactions` 에셋을 `_actions` 슬롯에 연결. 안 하면 Awake 에러
-- ⬜ 씬 정리: `InputManager` 오브젝트의 잔여 `PlayerInput` + Missing 스크립트(구 `PlayerInputAction`) 컴포넌트가 있으면 제거
+- ✅ **에디터 할당 완료**: 두 씬(Intro/Battle)의 InputManager 오브젝트 `_actions` 슬롯에 `.inputactions` 에셋 연결됨
+- ✅ **씬 정리 완료**: 두 씬 모두 잔여 `PlayerInput` 컴포넌트 0건, Missing 스크립트(`m_Script: {fileID: 0}`) 0건
 
 ---
 
 ## 🔧 기술 부채 / 알려진 이슈
 
+- **에셋 이름 오타**: `ScriptableObjects/Skill/Skill_SkeltonWarrior.asset` — `Skeleton`이 `Skelton`으로 빠져 있다. 참조가 늘기 전에 고치는 편이 낫다
+- **`MinionSO.asset`에 구 필드 잔여**: `_skillCooldown`/`_skillScope`/`_skillPowerMultiplier` — `SkillSO` 분리 이전의 인라인 필드가 YAML에 남아 있다. Unity가 무시하므로 동작엔 무해하고, 에디터에서 해당 에셋을 한 번 수정·저장하면 사라진다
+- **Core 유닛 테스트 미도입**: asmdef 분리로 전제조건은 해결됐고 `com.unity.test-framework`도 설치돼 있으나 테스트 어셈블리가 아직 없다. 회귀 가치가 높은 후보 — `DamageCalculator`(비율 감소+크리), `TurnOrder`(SPD 정렬), `StageScaling.CreatePlayerGrowth`(반올림 누적 방지), `Unit.TryApplyStatus`(RES 저항 확률)
+- **패널 폴더 정리 미완**: 리팩터링 계획의 "배틀 패널 3종을 `Battle/View/Panels/`로 모은다" 중 `BasePanelUI` 상속만 적용됐고 폴더 이동은 안 했다(현재 `Battle/View/` 직속). 순수 정리 작업이라 우선순위 낮음
 - **UXML `<Style src>` 링크**: 에디터 밖에서 파일 생성 시 임포트 순서 때문에 USS 링크가 안 걸릴 수 있음 → 해당 UXML Reimport(또는 에디터 재시작)로 해결. 신규 UI 추가 시 주의
 - **BattleScene 직접 실행 시 씬 전환 없음**: `GameManager`가 없어 `LoadScene`이 조용히 건너뛰어진다(결과 화면까지는 정상). 테스트 파티 폴백과 짝을 이루는 의도된 동작이지만 로그가 없어 원인 파악이 늦어질 수 있음
 - **연출 시간 하드코딩**: `UnitView`의 spawn/attack/skill/hit/die 지속시간이 인스펙터 수동 값. 애니 클립 길이 자동 추출을 고려할 수 있음(선택)

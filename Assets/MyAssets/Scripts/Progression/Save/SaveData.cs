@@ -39,8 +39,27 @@ namespace Assets.MyAssets.Scripts.Progression.Save
             return sum;
         }
 
+        /// <summary>아직 투자하지 않고 남은 포인트 = 획득 총량 - 투자 합계</summary>
+        public int GetAvailablePoints(int stagesPerPoint) => GetEarnedPoints(stagesPerPoint) - GetSpentPoints();
+
         /// <summary>해당 카테고리에 투자된 포인트(투자한 적 없으면 0)</summary>
         public int GetPoints(RoguelikeCategory category) => Find(category)?.Points ?? 0;
+
+        /// <summary>
+        /// 카테고리 투자량을 <paramref name="delta"/>만큼 조정한다.
+        /// 남은 포인트가 없으면 늘릴 수 없고, 투자량이 0이면 더 뺄 수 없다 — 이 규칙을 UI가 아니라 여기서 지킨다.
+        /// </summary>
+        /// <returns>실제로 값이 바뀌었으면 true.</returns>
+        public bool TryAdjustPoints(RoguelikeCategory category, int delta, int stagesPerPoint)
+        {
+            int current = GetPoints(category);
+
+            if (delta > 0 && GetAvailablePoints(stagesPerPoint) <= 0) return false;
+            if (delta < 0 && current <= 0) return false;
+
+            SetPoints(category, current + delta);
+            return true;
+        }
 
         /// <summary>카테고리 투자 포인트를 설정(0이면 항목 자체를 제거해 세이브를 깔끔히 유지)</summary>
         public void SetPoints(RoguelikeCategory category, int points)

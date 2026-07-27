@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
-    /// 한 전투(스테이지)의 진행을 담당하는 비동기 상태 머신(순수 로직, UnityEngine 비의존).
+    /// 한 전투(스테이지)의 진행을 담당하는 비동기 상태 머신
     ///
     /// 흐름: BattleStarted → [턴: SPD 재정렬 → 각 유닛 행동(입력/AI 대기 → 데미지 해소 → 연출 대기 → 사망 처리)]
     ///       → 전투 종료 판정 → BattleEnded

@@ -1,8 +1,8 @@
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
-    /// 상태이상 종류. 종류를 늘릴 때는 여기에 값을 추가하고 소비 지점만 손보면 된다
-    /// (스탯 감소형은 <see cref="Unit"/>의 유효 스탯 계산, 그 외는 <see cref="BattleSimulation"/>의 행동 루프).
+    /// 상태이상 종류
+    /// (스탯 감소형은 <see cref="Unit"/>의 유효 스탯 계산, 그 외는 <see cref="BattleSimulation"/>의 행동 루프)
     /// </summary>
     public enum StatusKind
     {
@@ -66,7 +66,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         }
     }
 
-    /// <summary>상태이상 변화 사유(View 피드백 구분용).</summary>
+    /// <summary>상태이상 변화 사유(View 피드백 구분용)</summary>
     public enum StatusChangeReason
     {
         Applied,

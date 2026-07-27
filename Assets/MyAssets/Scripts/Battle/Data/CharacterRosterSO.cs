@@ -1,3 +1,4 @@
+using Assets.MyAssets.Scripts.Battle.Core;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.Data
@@ -14,5 +15,29 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         public int Count => _characters != null ? _characters.Length : 0;
 
         public CharacterStatsSO this[int index] => _characters[index];
+
+        /// <summary>
+        /// 로스터 전체에서 스탯별 최댓값. 선택 화면의 스탯 바가 "이 로스터 안에서 얼마나 높은가"를
+        /// 그릴 때 기준으로 쓴다(밸런싱 값을 UI 코드에 박지 않기 위해 데이터에서 구한다).
+        ///
+        /// 최댓값이 곧 로스터의 성질이라 UI가 아니라 여기가 소유한다.
+        /// 비율 스탯(치명타·저항)은 그 자체가 0~1이라 계산 대상이 아니다.
+        /// </summary>
+        public Stats CreateStatCeiling()
+        {
+            var ceiling = new Stats(1, 1, 1, 1, 1f, 1f, 1f);
+            for (int i = 0; i < Count; i++)
+            {
+                if (_characters[i] == null) continue;
+
+                Stats s = _characters[i].CreateStats();
+                ceiling.MaxHp = Mathf.Max(ceiling.MaxHp, s.MaxHp);
+                ceiling.Atk = Mathf.Max(ceiling.Atk, s.Atk);
+                ceiling.Spd = Mathf.Max(ceiling.Spd, s.Spd);
+                ceiling.Def = Mathf.Max(ceiling.Def, s.Def);
+            }
+
+            return ceiling;
+        }
     }
 }

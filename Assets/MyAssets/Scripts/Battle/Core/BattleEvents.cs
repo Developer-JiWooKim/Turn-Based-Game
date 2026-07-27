@@ -21,7 +21,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     public sealed class TurnStartedEventArgs : EventArgs
     {
         public readonly int TurnNumber;
-        /// <summary>이번 턴의 SPD 기준 행동 순서.</summary>
+        /// <summary>이번 턴의 SPD 기준 행동 순서</summary>
         public readonly IReadOnlyList<Unit> Order;
 
         public TurnStartedEventArgs(int turnNumber, IReadOnlyList<Unit> order)

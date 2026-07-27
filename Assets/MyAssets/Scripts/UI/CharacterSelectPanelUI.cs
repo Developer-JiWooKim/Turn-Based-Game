@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
@@ -12,8 +11,9 @@ namespace Assets.MyAssets.Scripts.UI
     /// 캐릭터 선택 패널 뷰
     /// prev/next로 로스터 6종을 순환하며, 현재 선택 캐릭터를 외부(전투 시작)에서 참조한다.
     ///
-    /// 3D 프리뷰(리그·렌더 텍스처·모델)는 <see cref="CharacterPreview"/>가 전부 소유하고,
-    /// 이 패널은 "무엇을 보여줄지"만 지시한다 — UXML 배선만 여기서 한다(UXML의 주인이 패널이므로).
+    /// 화면의 각 부분은 전담 컴포넌트가 그린다 — 3D 프리뷰는 <see cref="CharacterPreview"/>,
+    /// 스탯 바는 <see cref="CharacterStatBarsView"/>. 이 패널은 "무엇을 보여줄지"만 지시하고
+    /// UXML 배선만 여기서 한다(UXML의 주인이 패널이므로).
     /// </summary>
     public class CharacterSelectPanelUI : BasePanelUI
     {
@@ -29,14 +29,12 @@ namespace Assets.MyAssets.Scripts.UI
         /// <summary>'성향' 버튼 클릭. GameUIController가 성향 포인트 배분 팝업을 연다.</summary>
         public event Action OnAllocationClicked;
 
+        private readonly CharacterStatBarsView _statBars = new();
+
         private int _selectedIndex;
         private bool _visible; // 방향키 입력을 이 패널이 보일 때만 받기 위한 플래그
         private Label _nameLabel;
         private List<VisualElement> _dots;
-        private List<VisualElement> _statFills;
-        private List<Label> _statValues;
-        /// <summary>바 길이의 기준이 되는 로스터 내 최댓값(HP/ATK/SPD/DEF 순). 비율 스탯은 0~1 고정이라 제외.</summary>
-        private Stats _statCeiling;
 
         /// <summary>현재 선택된 캐릭터. 로스터가 비어 있으면 null.</summary>
         public CharacterStatsSO SelectedCharacter =>
@@ -54,10 +52,9 @@ namespace Assets.MyAssets.Scripts.UI
             _nameLabel = Root.Q<Label>("character-name");
             _dots = Root.Q<VisualElement>("indicator").Query<VisualElement>(className: "dot").ToList();
 
-            VisualElement statPanel = Root.Q<VisualElement>("stat-panel");
-            _statFills = statPanel.Query<VisualElement>("stat-fill").ToList();
-            _statValues = statPanel.Query<Label>("stat-value").ToList();
-            _statCeiling = CreateStatCeiling();
+            // 바 길이의 기준은 로스터가 계산한다(밸런싱 값을 UI에 박지 않기 위함).
+            _statBars.Build(Root.Q<VisualElement>("stat-panel"),
+                            _roster != null ? _roster.CreateStatCeiling() : null);
 
             Root.Q<Button>("prev-button").clicked += () => Cycle(-1);
             Root.Q<Button>("next-button").clicked += () => Cycle(1);
@@ -89,6 +86,7 @@ namespace Assets.MyAssets.Scripts.UI
             ApplySelection();
         }
 
+        /// <summary>선택이 바뀌었을 때 화면 각 부분에 새 캐릭터를 통지한다.</summary>
         private void ApplySelection()
         {
             CharacterStatsSO character = SelectedCharacter;
@@ -103,50 +101,10 @@ namespace Assets.MyAssets.Scripts.UI
                     _dots[i].EnableInClassList("dot-active", i == _selectedIndex);
             }
 
-            RefreshStats(character.CreateStats());
+            _statBars.Refresh(character.CreateStats());
 
             if (_preview != null)
                 _preview.Show(character);
-        }
-
-        /// <summary>
-        /// 스탯 바를 현재 캐릭터 수치로 갱신한다. HP/ATK/SPD/DEF는 로스터 최댓값 대비 비율,
-        /// 치명타·저항은 그 자체가 0~1 비율이라 % 로 표시한다(UXML의 행 순서와 같은 순서).
-        /// </summary>
-        private void RefreshStats(Stats s)
-        {
-            SetStatRow(0, s.MaxHp, _statCeiling.MaxHp, s.MaxHp.ToString());
-            SetStatRow(1, s.Atk, _statCeiling.Atk, s.Atk.ToString());
-            SetStatRow(2, s.Spd, _statCeiling.Spd, s.Spd.ToString());
-            SetStatRow(3, s.Def, _statCeiling.Def, s.Def.ToString());
-            SetStatRow(4, s.CritRate, 1f, $"{s.CritRate * 100f:0}%");
-            SetStatRow(5, s.Res, 1f, $"{s.Res * 100f:0}%");
-        }
-
-        private void SetStatRow(int index, float value, float ceiling, string text)
-        {
-            if (index < _statFills.Count)
-                _statFills[index].style.width = Length.Percent(ceiling > 0f ? Mathf.Clamp01(value / ceiling) * 100f : 0f);
-
-            if (index < _statValues.Count)
-                _statValues[index].text = text;
-        }
-
-        /// <summary>바 길이의 기준을 로스터 전체의 최댓값에서 구한다(밸런싱 값을 코드에 박지 않기 위함).</summary>
-        private Stats CreateStatCeiling()
-        {
-            var ceiling = new Stats(1, 1, 1, 1, 1f, 1f, 1f);
-            for (int i = 0; i < (_roster != null ? _roster.Count : 0); i++)
-            {
-                if (_roster[i] == null) continue;
-
-                Stats s = _roster[i].CreateStats();
-                ceiling.MaxHp = Mathf.Max(ceiling.MaxHp, s.MaxHp);
-                ceiling.Atk = Mathf.Max(ceiling.Atk, s.Atk);
-                ceiling.Spd = Mathf.Max(ceiling.Spd, s.Spd);
-                ceiling.Def = Mathf.Max(ceiling.Def, s.Def);
-            }
-            return ceiling;
         }
 
         public override void Show()

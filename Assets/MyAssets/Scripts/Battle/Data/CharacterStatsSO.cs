@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Battle.Data
 {
     /// <summary>
-    /// 플레이어 캐릭터 6종의 스탯 데이터. 캐릭터는 공격만 하므로 스킬 필드가 없다.
+    /// 플레이어 캐릭터 6종의 스탯 데이터
     ///
     /// 파티 시너지는 "같은 캐릭터가 임계 인원 이상 모이면 그 캐릭터들에게만" 적용되며,
     /// 전투 중 대상이 죽어 조건이 깨지면 즉시 사라져야 하므로 런 데이터에 누적하지 않고
@@ -25,7 +25,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
 
         public int SynergyThreshold => _synergyThreshold;
 
-        /// <summary>시너지 수치가 하나라도 설정돼 있는지(전부 0이면 이 캐릭터는 시너지가 없다).</summary>
+        /// <summary>시너지 수치가 하나라도 설정돼 있는지(전부 0이면 이 캐릭터는 시너지가 없다)</summary>
         public bool HasSynergy => _synergyAtk != 0 || _synergySpd != 0 || _synergyDef != 0
                                || _synergyCritRate != 0f || _synergyCritDmg != 0f || _synergyRes != 0f;
 
@@ -33,9 +33,19 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         /// 시너지 효과. 스탯 증분 묶음이라는 점이 같아 <see cref="RoguelikeEffect"/>를 그대로 쓴다
         /// (<see cref="StageScaling.CreatePlayerGrowth"/>도 같은 방식). HP를 0으로 두므로 회복 부작용이 없다.
         /// </summary>
-        public RoguelikeEffect CreateSynergy() =>
-            new RoguelikeEffect(0, _synergyAtk, _synergySpd, _synergyDef, 0,
-                                _synergyRes, _synergyCritRate, _synergyCritDmg,
-                                1f, 1f, false, false);
+        public RoguelikeEffect CreateSynergy() => new(
+            hpFlat: 0,
+            atkFlat: _synergyAtk,
+            spdFlat: _synergySpd,
+            defFlat: _synergyDef,
+            healFlat: 0,
+            resFlat: _synergyRes,
+            critRateFlat: _synergyCritRate,
+            critDmgFlat: _synergyCritDmg,
+            enemyHpMul: 1f,
+            enemyAtkMul: 1f,
+            enemySkipFirstTurn: false,
+            recruit: false
+            );
     }
 }

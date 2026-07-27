@@ -1,5 +1,4 @@
 using Assets.MyAssets.Scripts.Audio.Data;
-using Assets.MyAssets.Scripts.Progression.Save;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -53,13 +52,9 @@ namespace Assets.MyAssets.Scripts.Systems
             _sfx = CreateSource("SFX", loop: false);
             _activeBgm = _bgmA;
 
-            OptionsData options = SaveService.Current.Options;
-            _masterVolume = options.MasterVolume;
-            _bgmVolume = options.BgmVolume;
-            _sfxVolume = options.SfxVolume;
-
-            ApplyBgmVolume();
-            ApplySfxVolume();
+            // 저장된 볼륨 적용. 값을 직접 읽지 않고 GameSettings에 맡겨,
+            // "저장값 → 실제 적용" 매핑이 옵션 변경 경로와 한곳에 모이게 한다.
+            GameSettings.ApplyAudio();
 
             SceneManager.sceneLoaded += OnSceneLoaded;
             // 관리자가 얹혀 있는 부팅 씬은 sceneLoaded가 이미 지나갔을 수 있으므로 직접 한 번 재생한다.

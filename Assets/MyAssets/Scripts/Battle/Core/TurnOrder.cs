@@ -21,8 +21,8 @@ namespace Assets.MyAssets.Scripts.Battle.Core
 
         /// <summary>
         /// 이번 턴의 행동 순서를 만든다.
-        /// 반환된 리스트는 <b>다음 호출 때 재사용</b>되므로 턴을 넘겨 보관하지 말 것
-        /// (<see cref="BattleSimulation"/>은 한 턴 안에서만 순회한다).
+        /// 반환된 리스트는 다음 호출 때 재사용되므로 턴을 넘겨 보관하지 말 것
+        /// (<see cref="BattleSimulation"/>은 한 턴 안에서만 순회)
         /// </summary>
         public static IReadOnlyList<Unit> Build(IReadOnlyList<Unit> aliveUnits)
         {
