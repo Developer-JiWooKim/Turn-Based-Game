@@ -10,7 +10,7 @@ namespace Assets.MyAssets.Scripts.Audio.Data
     [CreateAssetMenu(menuName = "Audio/Audio Library", fileName = "AudioLibrary")]
     public sealed class AudioLibrarySO : ScriptableObject
     {
-        /// <summary>씬 이름 하나에 대응하는 BGM.</summary>
+        /// <summary>씬 이름 하나에 대응하는 BGM</summary>
         [Serializable]
         public struct SceneBgmEntry
         {

@@ -5,7 +5,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
 {
     /// <summary>
     /// 캐릭터/몬스터가 공유하는 기준 스탯 + 프리팹 데이터의 베이스 SO.
-    /// 수치는 임시값이며 밸런싱 단계에서 조정한다(하드코딩 대신 이 SO로 관리).
+    /// 수치는 임시값이며 밸런싱 단계에서 조정한다.
     /// </summary>
     public abstract class UnitStatsSO : ScriptableObject
     {
@@ -26,6 +26,13 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         public string DisplayName => _displayName;
         public GameObject Prefab => _prefab;
 
-        public Stats CreateStats() => new Stats(_maxHp, _atk, _spd, _def, _critRate, _critDmg, _res);
+        public Stats CreateStats() => new Stats(
+            maxHp: _maxHp,
+            atk: _atk,
+            spd: _spd,
+            def: _def,
+            critRate: _critRate,
+            critDmg: _critDmg,
+            res: _res);
     }
 }

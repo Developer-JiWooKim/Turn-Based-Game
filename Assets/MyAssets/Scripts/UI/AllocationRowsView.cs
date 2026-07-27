@@ -1,0 +1,106 @@
+using System;
+using System.Collections.Generic;
+using Assets.MyAssets.Scripts.Battle.Data;
+using Assets.MyAssets.Scripts.Progression.Save;
+using UnityEngine.UIElements;
+
+namespace Assets.MyAssets.Scripts.UI
+{
+    /// <summary>
+    /// 성향 포인트 배분 목록 UI. 카테고리마다 "이름 + [-] + 현재 포인트 + [+]" 행을 만들고,
+    /// 세이브 값으로 숫자와 버튼 활성 상태를 다시 그린다.
+    ///
+    /// 얼마를 투자할 수 있는지(잔여 포인트 규칙)는 <see cref="SaveData"/>가 판정하고
+    /// 여기서는 결과를 화면에 옮기기만 한다. <see cref="KeybindListView"/>와 같은 방식.
+    /// </summary>
+    public sealed class AllocationRowsView
+    {
+        /// <summary>카테고리 1종의 행 UI</summary>
+        private sealed class CategoryRow
+        {
+            public RoguelikeCategory Category;
+            public Label PointsLabel;
+            public Button MinusButton;
+            public Button PlusButton;
+        }
+
+        private readonly List<CategoryRow> _rows = new();
+
+        /// <summary>
+        /// 카테고리 행을 컨테이너에 채운다. 행 순서·이름은 넘겨받은 선택지 SO에서 오므로
+        /// 카테고리를 늘려도 이 코드는 그대로다(하드코딩 없음).
+        /// </summary>
+        /// <param name="onAdjust">[-]/[+]를 눌렀을 때 호출(카테고리, ±1).</param>
+        public void Build(VisualElement container, RoguelikeChoiceSO[] categories, Action<RoguelikeCategory, int> onAdjust)
+        {
+            _rows.Clear();
+
+            // 인스펙터 연결 누락은 화면이 비는 것으로만 드러나 원인 파악이 늦어지므로 로그를 남긴다.
+            if (container == null)
+            {
+                UnityEngine.Debug.LogError("[AllocationRowsView] Build(): container is null");
+                return;
+            }
+
+            if (categories == null)
+            {
+                UnityEngine.Debug.LogError("[AllocationRowsView] Build(): categories is null");
+                return;
+            }
+
+            foreach (RoguelikeChoiceSO category in categories)
+            {
+                if (category == null) continue;
+
+                var row = new VisualElement();
+                row.AddToClassList("allocation-row");
+
+                var nameLabel = new Label(category.Title);
+                nameLabel.AddToClassList("allocation-name");
+
+                var minusButton = new Button { text = "-" };
+                minusButton.AddToClassList("btn");
+                minusButton.AddToClassList("allocation-step");
+
+                var pointsLabel = new Label("0");
+                pointsLabel.AddToClassList("allocation-value");
+
+                var plusButton = new Button { text = "+" };
+                plusButton.AddToClassList("btn");
+                plusButton.AddToClassList("allocation-step");
+
+                RoguelikeCategory cat = category.Category; // 클로저 캡처 고정
+                minusButton.clicked += () => onAdjust?.Invoke(cat, -1);
+                plusButton.clicked += () => onAdjust?.Invoke(cat, +1);
+
+                row.Add(nameLabel);
+                row.Add(minusButton);
+                row.Add(pointsLabel);
+                row.Add(plusButton);
+                container.Add(row);
+
+                _rows.Add(new CategoryRow
+                {
+                    Category = cat,
+                    PointsLabel = pointsLabel,
+                    MinusButton = minusButton,
+                    PlusButton = plusButton,
+                });
+            }
+        }
+
+        /// <summary>각 행의 현재 포인트와 버튼 활성 상태를 세이브 값으로 다시 그린다.</summary>
+        public void Refresh(SaveData save, int available)
+        {
+            if (save == null) return;
+
+            foreach (CategoryRow row in _rows)
+            {
+                int points = save.GetPoints(row.Category);
+                row.PointsLabel.text = points.ToString();
+                row.MinusButton.SetEnabled(points > 0);
+                row.PlusButton.SetEnabled(available > 0);
+            }
+        }
+    }
+}

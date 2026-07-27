@@ -6,11 +6,8 @@ namespace Assets.MyAssets.Scripts.UI
 {
     /// <summary>
     /// 캐릭터 선택 화면의 3D 프리뷰 전담 컴포넌트.
-    /// "프리뷰 리그(카메라+조명) · 렌더 텍스처 · 모델 인스턴스"를 <b>전부</b> 소유하며,
-    /// <see cref="CharacterSelectPanelUI"/>는 이 컴포넌트에 "무엇을 보여줄지"만 지시한다(단방향 참조).
-    ///
-    /// 모델은 선택이 바뀔 때마다 만들었다 부수지 않고 캐릭터별로 <b>한 번만 생성해 캐시</b>하고 활성/비활성만 토글한다
-    /// (후보가 로스터 6종으로 고정이라 상한이 명확하고, 리깅된 캐릭터 인스턴스화 비용이 방향키 연타에서 그대로 드러난다).
+    /// 프리뷰 리그(카메라+조명) · 렌더 텍스처 · 모델 인스턴스를 전부 소유하며,
+    /// <see cref="CharacterSelectPanelUI"/>는 이 컴포넌트에 "무엇을 보여줄지"만 지시한다.
     /// </summary>
     public sealed class CharacterPreview : MonoBehaviour
     {
@@ -38,14 +35,18 @@ namespace Assets.MyAssets.Scripts.UI
         public void SetVisible(bool visible)
         {
             if (_previewRig != null)
+            {
                 _previewRig.SetActive(visible);
+            }
         }
 
         /// <summary>지정한 캐릭터의 모델을 보여준다(이전 모델은 숨김). null이면 아무것도 표시하지 않는다.</summary>
         public void Show(CharacterStatsSO character)
         {
             if (_current != null)
+            {
                 _current.SetActive(false);
+            }
 
             _current = null;
 

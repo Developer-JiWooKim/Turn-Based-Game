@@ -12,7 +12,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     /// </summary>
     public readonly struct RoguelikeEffect
     {
-        // ── 1. 파티 강화(런 종료까지 유지) ──
+        // 파티 강화(런 종료까지 유지)
         public readonly int HpFlat;      // MaxHp 증가(증가분만큼 현재 HP도 회복)
         public readonly int AtkFlat;
         public readonly int SpdFlat;
@@ -22,7 +22,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public readonly float CritRateFlat;
         public readonly float CritDmgFlat;
 
-        // ── 2. 다음 스테이지 몬스터 디버프(일회성) ──
+        // 다음 스테이지 몬스터 디버프(일회성) 
         /// <summary>몬스터 MaxHp 배율. 1 = 변화 없음(0.7 = 30% 감소).</summary>
         public readonly float EnemyHpMul;
         /// <summary>몬스터 ATK 배율. 1 = 변화 없음.</summary>
@@ -30,7 +30,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// <summary>다음 스테이지 첫 턴에 몬스터 전체 행동 불가.</summary>
         public readonly bool EnemySkipFirstTurn;
 
-        // ── 3. 파티원 영입 ──
+        // 파티원 영입 
         public readonly bool Recruit;
 
         public RoguelikeEffect(int hpFlat, int atkFlat, int spdFlat, int defFlat, int healFlat,

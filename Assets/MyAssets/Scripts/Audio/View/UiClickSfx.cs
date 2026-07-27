@@ -28,20 +28,23 @@ namespace Assets.MyAssets.Scripts.Audio.View
             {
                 Debug.LogWarning("[UiClickSfx] OnEnable(): UIDocument에서 rootVisualElement을 얻어오지 못했음");
             }
-
         }
 
         private void OnDisable()
         {
             if (_document.rootVisualElement != null)
+            {
                 _document.rootVisualElement.UnregisterCallback<ClickEvent>(OnClick);
+            }
         }
 
         // 빈 공간 클릭까지 소리 내지 않도록 실제 버튼을 눌렀을 때만 재생한다.
         private void OnClick(ClickEvent evt)
         {
             if (evt.target is Button)
+            {
                 AudioManager.UiClick();
+            }
         }
     }
 }

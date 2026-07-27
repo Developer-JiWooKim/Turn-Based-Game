@@ -15,7 +15,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// 웨이브를 구성해 Core(BattleSimulation)를 돌리고, 결과를 <see cref="RunData"/>에 반영한 뒤
     /// 다음 스테이지로 넘어가는 흐름만 담당한다.
     ///
-    /// 실제 작업은 아래 다섯에게 위임한다.
+    /// 실제 작업은 아래 컴포넌트들에게 위임한다.
     ///  - <see cref="BattleRunFlow"/>    : 런 시작(파티 해석)·종료(기록 저장·결과·씬 전환)
     ///  - <see cref="MonsterSpawner"/>   : 웨이브 선택·몬스터 생성
     ///  - <see cref="UnitViewRegistry"/> : 프리팹 스폰·정리·체력바
@@ -69,11 +69,20 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _cts = new CancellationTokenSource();
             SystemRandom rng = new SystemRandom();
 
-            if (_registry == null || _presenter == null || _spawner == null || _runFlow == null)
+            bool LogIfNull(UnityEngine.Object target, string name)
             {
-                Debug.LogError("[BattleDirector] Registry/Presenter/Spawner/RunFlow가 연결되지 않았습니다(인스펙터 확인).");
-                return;
+                if (target != null) return false;
+
+                Debug.LogError($"[BattleDirector] {name}가 연결되지 않았습니다(인스펙터 확인).");
+                return true;
             }
+
+            bool hasError = false;
+            hasError |= LogIfNull(_registry, nameof(_registry));
+            hasError |= LogIfNull(_presenter, nameof(_presenter));
+            hasError |= LogIfNull(_spawner, nameof(_spawner));
+            hasError |= LogIfNull(_runFlow, nameof(_runFlow));
+            if (hasError) return;
 
             _run = _runFlow.ResolveRun();
             if (_run == null || _run.Members.Count == 0)

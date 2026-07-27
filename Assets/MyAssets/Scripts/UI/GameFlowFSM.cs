@@ -3,7 +3,7 @@ using Assets.MyAssets.Scripts.UI.States;
 namespace Assets.MyAssets.Scripts.UI
 {
     /// <summary>현재 활성 UI 상태를 관리하는 단순 상태 머신 (View 레이어 내비게이션)</summary>
-    public class GameFlowFSM
+    public sealed class GameFlowFSM
     {
         private readonly GameUIController _controller;
         private IGameFlowState _current;

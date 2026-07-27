@@ -5,25 +5,19 @@ namespace Assets.MyAssets.Scripts.Battle.Core
 {
     public sealed class Unit
     {
-        public readonly int Id; // View가 자신에 대응하는 프리팹 인스턴스를 찾기 위한 고유 식별자
+        /// <summary>View가 자신에 대응하는 프리팹 인스턴스를 찾기 위한 고유 식별자</summary>
+        public readonly int Id;
         public readonly string DisplayName;
         public readonly TeamSide Team;
         public readonly Stats Stats;
 
-        // 스킬 정의(현재 기획은 보스 몬스터만 스킬 사용, 추후 플레이어 캐릭터 측도 스킬 사용하게 되면 활성화 시키면 됨)
+        // 스킬 정의
         public readonly SkillProfile Skill;
 
         public int CurrentHp { get; private set; }
         public bool IsAlive => CurrentHp > 0;
 
-        private int _skillCooldownRemaining; // 남은 스킬 쿨타임(턴) - 0 이하이고 Skill이 있으면 사용 가능
-
-        /// <summary>
-        /// 현재 걸려 있는 상태이상. 종류당 최대 1건만 유지한다(재부여 시 갱신).
-        /// 스탯 감소형은 <see cref="Stats"/>를 직접 고치지 않고 읽는 시점에 반영한다 —
-        /// 파티 시너지가 이미 Stats를 스냅샷/복원 방식으로 조작하고 있어, 양쪽이 같은 필드를 쓰면 서로를 덮어쓴다.
-        /// </summary>
-        private readonly List<ActiveStatus> _statuses = new();
+        private int _skillCooldownRemaining; // 남은 스킬 쿨타임(턴) - 0 이하이고 Skill이 있으면 사용 가능        
 
         /// <param name="currentHp">
         /// 시작 HP. 0 이하를 주면 MaxHp로 시작한다(신규 스폰). 
@@ -36,19 +30,24 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             Team = team;
             Stats = stats;
             Skill = skill;
-            CurrentHp = currentHp > 0 ? System.Math.Min(currentHp, stats.MaxHp) : stats.MaxHp;
+            CurrentHp = currentHp > 0 ? Math.Min(currentHp, stats.MaxHp) : stats.MaxHp;
             _skillCooldownRemaining = 0;
         }
 
         public bool IsSkillReady => Skill != null && IsAlive && _skillCooldownRemaining <= 0;
 
-        // ── 상태이상 ──
+        /// <summary>
+        /// 현재 걸려 있는 상태이상. 종류당 최대 1건만 유지한다(재부여 시 갱신).
+        /// 스탯 감소형은 <see cref="Stats"/>를 직접 고치지 않고 읽는 시점에 반영한다 —
+        /// 파티 시너지가 이미 Stats를 스냅샷/복원 방식으로 조작하고 있어, 양쪽이 같은 필드를 쓰면 서로를 덮어쓴다.
+        /// </summary>
+        private readonly List<ActiveStatus> _statuses = new();
 
         public IReadOnlyList<ActiveStatus> Statuses => _statuses;
 
         public bool HasAnyStatus => _statuses.Count > 0;
 
-        /// <summary>이번 차례에 행동할 수 없는지.</summary>
+        /// <summary>이번 차례에 행동할 수 없는지</summary>
         public bool IsStunned => Find(StatusKind.Stun) != null;
 
         /// <summary>공격력/방어력/속도는 감소형 상태이상을 반영한 값을 쓴다(원본 <see cref="Stats"/>는 건드리지 않는다).</summary>
@@ -64,7 +63,9 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         {
             if (!IsAlive || !effect.IsValid) return false;
 
-            float chance = effect.ApplyChance * (1f - Stats.Res);
+            float effectiveRes = Math.Clamp(Stats.Res, 0f, 1f);
+            float chance = effect.ApplyChance * Math.Clamp(1f - effectiveRes, 0f, 1f);
+
             if (chance <= 0f || rng.Value01() >= chance)
                 return false;
 
@@ -102,7 +103,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             ActiveStatus poison = Find(StatusKind.Poison);
             if (poison == null) return 0;
 
-            return Math.Max(1, (int)Math.Round(Stats.MaxHp * poison.Magnitude));
+            return Math.Max(1, (int)Math.Round(Stats.MaxHp * poison.Magnitude, MidpointRounding.AwayFromZero));
         }
 
         /// <summary>
@@ -159,9 +160,11 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public int ApplyDamage(int amount)
         {
             if (amount < 0) amount = 0;
+
             int before = CurrentHp;
             CurrentHp = before - amount;
             if (CurrentHp < 0) CurrentHp = 0;
+
             return before - CurrentHp;
         }
 
