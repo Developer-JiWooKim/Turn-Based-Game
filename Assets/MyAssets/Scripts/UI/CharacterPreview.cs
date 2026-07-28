@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Assets.MyAssets.Scripts.Battle.Data;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.UI
@@ -47,19 +48,8 @@ namespace Assets.MyAssets.Scripts.UI
         private bool ValidateReferences()
         {
             bool hasError = false;
-
-            if (_previewRig == null)
-            {
-                Debug.LogError($"[CharacterPreview] {nameof(_previewRig)}가 연결되지 않았습니다(인스펙터 확인).", this);
-                hasError = true;
-            }
-
-            if (_modelAnchor == null)
-            {
-                Debug.LogError($"[CharacterPreview] {nameof(_modelAnchor)}가 연결되지 않았습니다(인스펙터 확인).", this);
-                hasError = true;
-            }
-
+            hasError |= InspectorCheck.LogIfMissing(_previewRig, nameof(_previewRig), this);
+            hasError |= InspectorCheck.LogIfMissing(_modelAnchor, nameof(_modelAnchor), this);
             return !hasError;
         }
 

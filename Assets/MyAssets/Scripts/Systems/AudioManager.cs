@@ -9,9 +9,10 @@ namespace Assets.MyAssets.Scripts.Systems
     /// </summary>
     public sealed class AudioManager : Singleton<AudioManager>
     {
+        [Header("Audio Clip이 모여 있는 에셋(ScriptableObject)")]
         [SerializeField] private AudioLibrarySO _library;
 
-        [Tooltip("BGM 전환 크로스페이드 시간(초)")]
+        [Header("BGM 전환 크로스페이드 시간(초)")]
         [SerializeField] private float _bgmCrossfadeDuration = 1f;
 
         // 크로스페이드용 BGM 소스 A/B
@@ -25,11 +26,12 @@ namespace Assets.MyAssets.Scripts.Systems
         // 크로스페이드가 겹칠 때(빠른 씬 전환 등) 이전 코루틴이 계속 볼륨을 만지지 않도록 세대 번호로 무효화
         private int _bgmGeneration;
 
+        // Volume Value
         private float _masterVolume = 1f;
         private float _bgmVolume = 1f;
         private float _sfxVolume = 1f;
 
-        // ── 정적 헬퍼: 호출부에서 매번 null 체크하지 않도록 관리자/클립이 없으면 조용히 무시 ──
+        // 정적 헬퍼: 호출부에서 매번 null 체크하지 않도록 관리자/클립이 없으면 조용히 무시
         public static AudioLibrarySO Library => Instance != null ? Instance._library : null;
         public static void Sfx(AudioClip clip) { if (Instance != null) Instance.PlaySfx(clip); }
         public static void Bgm(AudioClip clip) { if (Instance != null) Instance.PlayBgm(clip); }
@@ -43,7 +45,7 @@ namespace Assets.MyAssets.Scripts.Systems
         protected override void Awake()
         {
             base.Awake();
-            if (!IsValidInstance) return; // 중복 인스턴스는 base.Awake에서 파괴 예약됨 — 소스 생성/구독을 하지 않는다
+            if (!IsValidInstance) return;
 
             DontDestroyOnLoad(gameObject);
 
@@ -64,7 +66,6 @@ namespace Assets.MyAssets.Scripts.Systems
         protected override void OnDestroy()
         {
             // 유효 인스턴스만 구독했지만, 구독하지 않은(중복) 인스턴스의 -=는 무해한 no-op이라 무조건 해제한다.
-            // (base.OnDestroy가 Instance=null로 만들면 IsValidInstance가 false가 되어 조건 해제는 누락되므로.)
             SceneManager.sceneLoaded -= OnSceneLoaded;
             base.OnDestroy();
         }
@@ -72,7 +73,7 @@ namespace Assets.MyAssets.Scripts.Systems
         private AudioSource CreateSource(string sourceName, bool loop)
         {
             var go = new GameObject(sourceName);
-            go.transform.SetParent(transform, false);
+            go.transform.SetParent(transform, worldPositionStays: false);
 
             AudioSource source = go.AddComponent<AudioSource>();
             source.playOnAwake = false;
@@ -81,10 +82,10 @@ namespace Assets.MyAssets.Scripts.Systems
             return source;
         }
 
-        // ── BGM ──
 
         /// <summary>
-        /// BGM을 재생한다. 이미 같은 클립이 재생 중이면 무시해 스테이지마다 처음부터 다시 시작되는 것을 막는다.
+        /// BGM 재생.
+        /// 이미 같은 클립이 재생 중이면 무시해 스테이지마다 처음부터 다시 시작되는 것을 막는다.
         /// 다른 클립이면 크로스페이드로 부드럽게 전환한다.
         /// </summary>
         public void PlayBgm(AudioClip clip)
@@ -147,8 +148,6 @@ namespace Assets.MyAssets.Scripts.Systems
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => PlaySceneBgm(scene.name);
 
-        // ── SFX ──
-
         /// <summary>단일 소스에 PlayOneShot으로 재생 — 동시 재생이 기본 지원된다.</summary>
         public void PlaySfx(AudioClip clip)
         {
@@ -156,15 +155,6 @@ namespace Assets.MyAssets.Scripts.Systems
                 return;
 
             _sfx.PlayOneShot(clip);
-        }
-
-        // ── 볼륨(옵션 UI에서 즉시 반영) ──
-
-        public void SetMasterVolume(float value)
-        {
-            _masterVolume = Mathf.Clamp01(value);
-            ApplyBgmVolume();
-            ApplySfxVolume();
         }
 
         public void SetBgmVolume(float value)
@@ -176,6 +166,13 @@ namespace Assets.MyAssets.Scripts.Systems
         public void SetSfxVolume(float value)
         {
             _sfxVolume = Mathf.Clamp01(value);
+            ApplySfxVolume();
+        }
+
+        public void SetMasterVolume(float value)
+        {
+            _masterVolume = Mathf.Clamp01(value);
+            ApplyBgmVolume();
             ApplySfxVolume();
         }
 

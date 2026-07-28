@@ -13,6 +13,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// </summary>
     public sealed class UnitView : MonoBehaviour
     {
+        [Header("Reference Components")]
         [SerializeField] private UnitAnimator _unitAnimator;
         [SerializeField] private UnitHealthBar _unitHealthBar;
         [Tooltip("이 유닛의 전투음(등장/공격/스킬/피격/사망). 비워두면 소리 없이 진행한다.")]

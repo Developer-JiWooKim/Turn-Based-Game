@@ -64,25 +64,32 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
         }
 
+        /// <summary>
+        /// 필수 인스펙터 연결을 검사하고 누락을 보고한다.
+        /// (선택 항목인 _stageScaling·_rewards·_targeting·_pausePanel은 비어 있어도 동작하므로 대상이 아니다.)
+        /// </summary>
+        /// <returns>전부 연결돼 있으면 true.</returns>
+        private bool ValidateReferences()
+        {
+            bool hasError = false;
+            hasError |= InspectorCheck.LogIfMissing(_registry, nameof(_registry), this);
+            hasError |= InspectorCheck.LogIfMissing(_presenter, nameof(_presenter), this);
+            hasError |= InspectorCheck.LogIfMissing(_spawner, nameof(_spawner), this);
+            hasError |= InspectorCheck.LogIfMissing(_runFlow, nameof(_runFlow), this);
+            return !hasError;
+        }
+
+#if UNITY_EDITOR
+        /// <summary>플레이를 누르기 전에 인스펙터에서 바로 알 수 있도록 에디터에서도 검사한다(빌드에서는 호출되지 않는다).</summary>
+        private void OnValidate() => ValidateReferences();
+#endif
+
         private async Task BeginBattleAsync()
         {
+            if (!ValidateReferences()) return;
+
             _cts = new CancellationTokenSource();
             SystemRandom rng = new SystemRandom();
-
-            bool LogIfNull(UnityEngine.Object target, string name)
-            {
-                if (target != null) return false;
-
-                Debug.LogError($"[BattleDirector] {name}가 연결되지 않았습니다(인스펙터 확인).");
-                return true;
-            }
-
-            bool hasError = false;
-            hasError |= LogIfNull(_registry, nameof(_registry));
-            hasError |= LogIfNull(_presenter, nameof(_presenter));
-            hasError |= LogIfNull(_spawner, nameof(_spawner));
-            hasError |= LogIfNull(_runFlow, nameof(_runFlow));
-            if (hasError) return;
 
             _run = _runFlow.ResolveRun();
             if (_run is null || _run.Members.Count == 0)
@@ -93,7 +100,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             // SO가 비어 있으면 성장률 0인 기본값 — 스케일링 없이 그대로 진행된다.
             _scaling = _stageScaling != null ? _stageScaling.Create() : default;
-            _presenter.Initialize(_cts.Token);
+            _presenter.Initialize(_cts.Token, _registry);
             _spawner.Initialize(_registry);
 
             if (_pausePanel != null)

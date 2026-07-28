@@ -7,18 +7,34 @@ namespace Assets.MyAssets.Scripts.Systems
 {
     public class GameManager : Singleton<GameManager>
     {
-        [SerializeField] private FadeScreenEffect _fadeScreenEffect; // 씬 전환 시 Fade 효과를 연출할 컴포넌트
+        [Header("씬 전환 시 Fade 효과를 연출할 컴포넌트")]
+        [Tooltip("Fade Canvas는 GameManager의 자식으로 두어야 씬 전환에도 파괴되지 않는다.")]
+        [SerializeField] private FadeScreenEffect _fadeScreenEffect;
 
-        // 현재 진행 중인 런 데이터(파티/스테이지) 
+        // 현재 진행 중인 런 데이터(파티/스테이지)
         public RunData CurrentRun { get; private set; } // 캐릭터 선택 후 생성되어 씬을 넘어 유지
 
         protected override void Awake()
         {
             base.Awake();
+            if (!IsValidInstance) return; // 중복 인스턴스는 base.Awake에서 파괴 예약됨 — 구독/검증을 하지 않는다
+
+            ValidateReferences(); // 인스펙터 연결 누락을 시작 시 1회 보고한다.
 
             DontDestroyOnLoad(this.gameObject);
 
             SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        /// <summary>
+        /// 인스펙터 연결 누락을 보고한다. 페이드는 연출이라 없어도 씬 전환 자체는 진행하므로
+        /// 결과를 플래그로 남기지 않고, 사용처가 매번 null을 확인한다
+        /// (Fade Canvas를 자식으로 두지 않으면 씬 전환 때 파괴되는데, 캐싱한 플래그는 그걸 잡지 못한다).
+        /// </summary>
+        private void ValidateReferences()
+        {
+            InspectorCheck.LogIfMissing(_fadeScreenEffect, nameof(_fadeScreenEffect), this,
+                                        "페이드 없이 씬을 전환합니다");
         }
 
         protected override void OnDestroy()
@@ -41,7 +57,12 @@ namespace Assets.MyAssets.Scripts.Systems
         /// </summary>
         public async void LoadScene(string sceneName)
         {
-            await _fadeScreenEffect.FadeOutAsync();
+            // 페이드는 연출일 뿐이므로, 없더라도 씬 전환 자체는 반드시 진행한다.
+            if (_fadeScreenEffect != null)
+            {
+                await _fadeScreenEffect.FadeOutAsync();
+            }
+
             SceneManager.LoadScene(sceneName);
         }
 
@@ -50,7 +71,10 @@ namespace Assets.MyAssets.Scripts.Systems
         /// </summary>
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            _ = _fadeScreenEffect.FadeInAsync();
+            if (_fadeScreenEffect != null)
+            {
+                _ = _fadeScreenEffect.FadeInAsync();
+            }
         }
 
         public void GameExit()
@@ -61,5 +85,9 @@ namespace Assets.MyAssets.Scripts.Systems
         Application.Quit();
 #endif
         }
+
+#if UNITY_EDITOR
+        private void OnValidate() => ValidateReferences();
+#endif
     }
 }

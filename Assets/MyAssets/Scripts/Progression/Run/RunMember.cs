@@ -44,7 +44,7 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// 파티 시너지는 여기서 얹지 않는다 — <see cref="PartySynergyTracker"/>가 적용 전 스냅샷을
         /// 남겨야 사망으로 조건이 깨졌을 때 클램프 오차 없이 되돌릴 수 있기 때문.
         /// </summary>
-        public Unit CreateUnit() => new Unit(UnitId, DisplayName, TeamSide.Player, Stats.Clone(), null, CurrentHp);
+        public Unit CreateUnit() => new Unit(UnitId, DisplayName, TeamSide.Player, Stats.Clone(), skill: null, CurrentHp);
 
         /// <summary>전투가 끝난 뒤 Unit의 HP를 런 데이터에 반영한다.</summary>
         public void SyncFrom(Unit unit) => CurrentHp = unit.CurrentHp;

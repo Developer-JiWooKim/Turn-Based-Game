@@ -5,11 +5,11 @@ using Assets.MyAssets.Scripts.Battle.Data;
 
 namespace Assets.MyAssets.Scripts.Progression.Run
 {
-    /// <summary>발동 중인 파티 시너지 1건(HUD 표시용).</summary>
+    /// <summary>발동 중인 파티 시너지 1건(HUD 표시용)</summary>
     public readonly struct ActiveSynergy
     {
         public readonly CharacterStatsSO Source;
-        /// <summary>파티에 있는 해당 캐릭터 수.</summary>
+        /// <summary>파티에 있는 해당 캐릭터 수</summary>
         public readonly int Count;
         public readonly RoguelikeEffect Effect;
 
@@ -30,22 +30,22 @@ namespace Assets.MyAssets.Scripts.Progression.Run
     /// </summary>
     public sealed class RunData
     {
-        /// <summary>파티 최대 인원(1명으로 시작, 영입 선택지로 확장).</summary>
+        /// <summary>파티 최대 인원(1명으로 시작, 영입 선택지로 확장)</summary>
         public const int MaxPartySize = 4;
 
         /// <summary>현재 파티. HP가 0이 된 멤버는 스테이지 종료 시 영구 추방된다.</summary>
         public readonly List<RunMember> Members = new();
 
-        /// <summary>다음 스테이지 몬스터에게 1회 적용될 디버프 예약.</summary>
+        /// <summary>다음 스테이지 몬스터에게 1회 적용될 디버프 예약</summary>
         public readonly RunModifiers PendingModifiers = new();
 
-        /// <summary>현재 도전 중인 스테이지(1부터 시작).</summary>
+        /// <summary>현재 도전 중인 스테이지(1부터 시작)</summary>
         public int CurrentStage = 1;
 
-        /// <summary>파티에 자리가 남아 있는지(영입 선택지 등장 조건).</summary>
+        /// <summary>파티에 자리가 남아 있는지(영입 선택지 등장 조건)</summary>
         public bool CanRecruit => Members.Count < MaxPartySize;
 
-        /// <summary>런 전체에서 유일한 Unit 식별자 발급기(파티/몬스터 공용).</summary>
+        /// <summary>런 전체에서 유일한 Unit 식별자 발급기(파티/몬스터 공용)</summary>
         private int _nextUnitId;
 
         public RunData(CharacterStatsSO starter)

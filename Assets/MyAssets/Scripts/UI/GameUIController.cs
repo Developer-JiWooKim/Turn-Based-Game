@@ -40,31 +40,10 @@ namespace Assets.MyAssets.Scripts.UI
         private bool ValidateReferences()
         {
             bool hasError = false;
-
-            if (_titlePanel == null)
-            {
-                Debug.LogError($"[GameUIController] {nameof(_titlePanel)}가 연결되지 않았습니다(인스펙터 확인).", this);
-                hasError = true;
-            }
-
-            if (_characterSelectPanel == null)
-            {
-                Debug.LogError($"[GameUIController] {nameof(_characterSelectPanel)}가 연결되지 않았습니다(인스펙터 확인).", this);
-                hasError = true;
-            }
-
-            if (_optionPopup == null)
-            {
-                Debug.LogError($"[GameUIController] {nameof(_optionPopup)}가 연결되지 않았습니다(인스펙터 확인).", this);
-                hasError = true;
-            }
-
-            if (_allocationPopup == null)
-            {
-                Debug.LogError($"[GameUIController] {nameof(_allocationPopup)}가 연결되지 않았습니다(인스펙터 확인).", this);
-                hasError = true;
-            }
-
+            hasError |= InspectorCheck.LogIfMissing(_titlePanel, nameof(_titlePanel), this);
+            hasError |= InspectorCheck.LogIfMissing(_characterSelectPanel, nameof(_characterSelectPanel), this);
+            hasError |= InspectorCheck.LogIfMissing(_optionPopup, nameof(_optionPopup), this);
+            hasError |= InspectorCheck.LogIfMissing(_allocationPopup, nameof(_allocationPopup), this);
             return !hasError;
         }
 
