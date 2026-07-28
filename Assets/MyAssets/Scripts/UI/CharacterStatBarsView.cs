@@ -39,12 +39,12 @@ namespace Assets.MyAssets.Scripts.UI
         {
             if (_fills == null || _ceiling == null) return;
 
-            SetRow(0, s.MaxHp, _ceiling.MaxHp, s.MaxHp.ToString());
-            SetRow(1, s.Atk, _ceiling.Atk, s.Atk.ToString());
-            SetRow(2, s.Spd, _ceiling.Spd, s.Spd.ToString());
-            SetRow(3, s.Def, _ceiling.Def, s.Def.ToString());
-            SetRow(4, s.CritRate, 1f, $"{s.CritRate * 100f:0}%");
-            SetRow(5, s.Res, 1f, $"{s.Res * 100f:0}%");
+            SetRow(index: 0, value: s.MaxHp, ceiling: _ceiling.MaxHp, text: s.MaxHp.ToString());
+            SetRow(index: 1, value: s.Atk, ceiling: _ceiling.Atk, text: s.Atk.ToString());
+            SetRow(index: 2, value: s.Spd, ceiling: _ceiling.Spd, text: s.Spd.ToString());
+            SetRow(index: 3, value: s.Def, ceiling: _ceiling.Def, text: s.Def.ToString());
+            SetRow(index: 4, value: s.CritRate, ceiling: 1f, text: $"{s.CritRate * 100f:0}%");
+            SetRow(index: 5, value: s.Res, ceiling: 1f, text: $"{s.Res * 100f:0}%");
         }
 
         private void SetRow(int index, float value, float ceiling, string text)

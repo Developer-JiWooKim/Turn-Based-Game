@@ -2,15 +2,16 @@ using Assets.MyAssets.Scripts.UI.States;
 
 namespace Assets.MyAssets.Scripts.UI
 {
-    /// <summary>현재 활성 UI 상태를 관리하는 단순 상태 머신 (View 레이어 내비게이션)</summary>
+    /// <summary>현재 활성 UI 상태를 관리하는 상태 머신</summary>
     public sealed class GameFlowFSM
     {
-        private readonly GameUIController _controller;
         private IGameFlowState _current;
         public IGameFlowState Current => _current;
 
-        public readonly TitleState TitleState = new TitleState();
-        public readonly CharacterSelectState CharacterSelectState = new CharacterSelectState();
+        public readonly TitleState TitleState = new();
+        public readonly CharacterSelectState CharacterSelectState = new();
+
+        private readonly GameUIController _controller;
 
         public GameFlowFSM(GameUIController controller) => _controller = controller;
 

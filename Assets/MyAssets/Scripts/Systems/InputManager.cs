@@ -7,24 +7,22 @@ namespace Assets.MyAssets.Scripts.Systems
 {
     /// <summary>
     /// 흩어져 있던 플레이어 입력(마우스/키보드)을 한곳으로 모으는 허브
-    ///  - <b>Battle</b> 맵: 타겟 순환(Cycle)·확정(Confirm). 전투 전용이라 <see cref="IsGameplayInputEnabled"/> 게이트를 탄다.
-    ///  - <b>Menu</b> 맵: 메뉴 방향키(Nav)·확정(Submit)·퍼즈(Pause). 게이트와 무관(퍼즈 중에도 메뉴 조작 허용).
-    ///  - <b>UI</b> 맵(템플릿 기본): 마우스 Point/Click. EventSystem의 InputSystemUIInputModule도 이 맵을 공유한다.
+    ///  - Battle 맵: 타겟 순환(Cycle)·확정(Confirm). 전투 전용이라 <see cref="IsGameplayInputEnabled"/> 게이트를 탄다.
+    ///  - Menu 맵: 메뉴 방향키(Nav)·확정(Submit)·퍼즈(Pause). 게이트와 무관(퍼즈 중에도 메뉴 조작 허용).
+    ///  - UI 맵(템플릿 기본): 마우스 Point/Click. EventSystem의 InputSystemUIInputModule도 이 맵을 공유한다.
     /// 방향키가 Battle·Menu에 겹치지만 두 맥락은 시간상 겹치지 않아(타겟팅=전투 턴, 메뉴=턴 밖) 충돌하지 않는다.
     ///
     /// 리바인딩: 플레이어가 키를 바꾸면 오버라이드를 <see cref="SaveData"/>에 JSON으로 저장하고, 시작 시 다시 적용한다.
     /// </summary>
     public sealed class InputManager : Singleton<InputManager>
     {
+        [Header("InputSystem_Actions(에셋)")]
         [Tooltip("바인딩이 정의된 InputActionAsset(InputSystem_Actions)")]
         [SerializeField] private InputActionAsset _actions;
 
-        /// <summary>
-        /// 바인드 기능을 가진 모듈(순수 C#)
-        /// </summary>
+        /// <summary>바인드 기능을 가진 모듈(순수 C#)</summary>
         private InputBindingSaver _saver;
         private InputRebinder _rebinder;
-
 
         // Battle 맵(게이트 적용)
         private InputAction _battleCyclePrev;
@@ -95,27 +93,27 @@ namespace Assets.MyAssets.Scripts.Systems
             EnableActionMaps();
         }
 
-        /// <summary>키 액션 캐싱</summary>
+        /// <summary>키 액션 캐싱. 경로가 에셋과 어긋나면 여기서 즉시 예외로 드러난다.</summary>
         private void CacheActions()
         {
-            _battleCyclePrev = _actions.FindAction("Battle/CyclePrev", throwIfNotFound: true);
-            _battleCycleNext = _actions.FindAction("Battle/CycleNext", throwIfNotFound: true);
-            _battleConfirm = _actions.FindAction("Battle/Confirm", throwIfNotFound: true);
+            _battleCyclePrev = _actions.FindAction(InputControls.BattleCyclePrev, throwIfNotFound: true);
+            _battleCycleNext = _actions.FindAction(InputControls.BattleCycleNext, throwIfNotFound: true);
+            _battleConfirm = _actions.FindAction(InputControls.BattleConfirm, throwIfNotFound: true);
 
-            _menuNavPrev = _actions.FindAction("Menu/NavPrev", throwIfNotFound: true);
-            _menuNavNext = _actions.FindAction("Menu/NavNext", throwIfNotFound: true);
-            _menuSubmit = _actions.FindAction("Menu/Submit", throwIfNotFound: true);
-            _menuPause = _actions.FindAction("Menu/Pause", throwIfNotFound: true);
+            _menuNavPrev = _actions.FindAction(InputControls.MenuNavPrev, throwIfNotFound: true);
+            _menuNavNext = _actions.FindAction(InputControls.MenuNavNext, throwIfNotFound: true);
+            _menuSubmit = _actions.FindAction(InputControls.MenuSubmit, throwIfNotFound: true);
+            _menuPause = _actions.FindAction(InputControls.MenuPause, throwIfNotFound: true);
 
-            _point = _actions.FindAction("UI/Point", throwIfNotFound: true);
-            _click = _actions.FindAction("UI/Click", throwIfNotFound: true);
+            _point = _actions.FindAction(InputControls.UiPoint, throwIfNotFound: true);
+            _click = _actions.FindAction(InputControls.UiClick, throwIfNotFound: true);
         }
 
         /// <summary>키 액션 활성화</summary>
         private void EnableActionMaps()
         {
-            _actions.FindActionMap("Battle").Enable();
-            _actions.FindActionMap("Menu").Enable();
+            _actions.FindActionMap(InputControls.BattleMap).Enable();
+            _actions.FindActionMap(InputControls.MenuMap).Enable();
 
             // UI 맵의 마우스만 필요(방향키 Navigate는 Menu 맵이 담당). EventSystem이 UI 맵을 켜지만,
             // 단독 실행 등으로 켜지지 않은 경우에도 마우스가 동작하도록 개별 액션을 확실히 켠다.
@@ -131,45 +129,35 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <summary>
         /// 리바인딩 UI용 창구(InputBindingSaver, InputRebinder)
         /// </summary>
-        public int RebindControlCount => Controls.Length; // 재설정 UI가 나열할 논리 컨트롤 개수
+        public int RebindControlCount => InputControls.Rebindable.Length; // 재설정 UI가 나열할 논리 컨트롤 개수
 
-        public string GetRebindLabel(int index) => Controls[index].Label;
+        public string GetRebindLabel(int index) => InputControls.Rebindable[index].Label;
 
         /// <summary>논리 컨트롤에 현재 할당된 키의 표시 문자열(예: "Left Arrow")</summary>
         public string GetRebindDisplay(int index)
         {
             if (_actions == null) return "-";
 
-            InputAction action = _actions.FindAction(Controls[index].ActionPaths[0]);
-            return action != null ? action.GetBindingDisplayString(0) : "-";
+            string path = InputControls.Rebindable[index].ActionPaths[0];
+            InputAction action = _actions.FindAction(path);
+            if (action == null)
+            {
+                Debug.LogError($"[InputManager] 액션 '{path}'를 찾을 수 없습니다" +
+                               $"({nameof(InputControls)}와 .inputactions 에셋이 어긋났는지 확인).");
+                return "-";
+            }
+
+            return action.GetBindingDisplayString(bindingIndex: 0);
         }
-        public void StartRebind(int index, Action onFinished) => _rebinder.StartRebind(Controls[index], onFinished);
+
+        public void StartRebind(int index, Action onFinished)
+            => _rebinder.StartRebind(InputControls.Rebindable[index], onFinished);
 
         /// <summary>모든 리바인딩을 기본값으로 되돌리고 저장</summary>
         public void ResetBindings()
         {
             _rebinder.Cancel();
             _saver.ResetAllBindings();
-        }
-
-        private static readonly RebindControl[] Controls =
-        {
-            new("이전", new[] { "Battle/CyclePrev", "Menu/NavPrev" }),
-            new("다음", new[] { "Battle/CycleNext", "Menu/NavNext" }),
-            new("확정", new[] { "Battle/Confirm", "Menu/Submit" }),
-            new("퍼즈", new[] { "Menu/Pause" }),
-        };
-    }
-
-    public readonly struct RebindControl
-    {
-        public readonly string Label;
-        public readonly string[] ActionPaths; // 이 컨트롤이 함께 재설정할 액션들(첫 번째가 대표)
-
-        public RebindControl(string label, string[] actionPaths)
-        {
-            Label = label;
-            ActionPaths = actionPaths;
         }
     }
 }

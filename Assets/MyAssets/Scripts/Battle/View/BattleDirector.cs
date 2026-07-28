@@ -85,7 +85,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (hasError) return;
 
             _run = _runFlow.ResolveRun();
-            if (_run == null || _run.Members.Count == 0)
+            if (_run is null || _run.Members.Count == 0)
             {
                 Debug.LogError("[BattleDirector] 파티가 비어 있어 전투를 시작할 수 없습니다.");
                 return;

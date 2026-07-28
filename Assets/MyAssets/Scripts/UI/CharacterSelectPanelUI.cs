@@ -53,8 +53,8 @@ namespace Assets.MyAssets.Scripts.UI
             _dots = Root.Q<VisualElement>("indicator").Query<VisualElement>(className: "dot").ToList();
 
             // 바 길이의 기준은 로스터가 계산한다(밸런싱 값을 UI에 박지 않기 위함).
-            _statBars.Build(Root.Q<VisualElement>("stat-panel"),
-                            _roster != null ? _roster.CreateStatCeiling() : null);
+            _statBars.Build(statPanel: Root.Q<VisualElement>("stat-panel"),
+                            ceiling: _roster != null ? _roster.CreateStatCeiling() : null);
 
             Root.Q<Button>("prev-button").clicked += () => Cycle(-1);
             Root.Q<Button>("next-button").clicked += () => Cycle(1);
@@ -82,6 +82,7 @@ namespace Assets.MyAssets.Scripts.UI
         private void Cycle(int direction)
         {
             if (_roster == null || _roster.Count == 0) return;
+
             _selectedIndex = (_selectedIndex + direction + _roster.Count) % _roster.Count;
             ApplySelection();
         }
@@ -98,7 +99,7 @@ namespace Assets.MyAssets.Scripts.UI
             if (_dots != null)
             {
                 for (int i = 0; i < _dots.Count; i++)
-                    _dots[i].EnableInClassList("dot-active", i == _selectedIndex);
+                    _dots[i].EnableInClassList(className: "dot-active", enable: i == _selectedIndex);
             }
 
             _statBars.Refresh(character.CreateStats());
@@ -111,14 +112,14 @@ namespace Assets.MyAssets.Scripts.UI
         {
             base.Show();
             _visible = true;
-            SetPreviewActive(true);
+            SetPreviewActive(active: true);
         }
 
         public override void Hide()
         {
             base.Hide();
             _visible = false;
-            SetPreviewActive(false);
+            SetPreviewActive(active: false);
         }
 
         private void SetPreviewActive(bool active)

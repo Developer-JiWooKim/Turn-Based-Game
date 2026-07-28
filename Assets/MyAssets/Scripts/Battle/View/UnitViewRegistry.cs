@@ -37,10 +37,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>프리팹별 인스턴스 풀. 무한 타워라 등장 몬스터 종류가 계속 바뀌므로 프리팹 단위로 캐시한다.</summary>
         private readonly Dictionary<GameObject, ObjectPool<UnitView>> _pools = new();
 
-        /// <summary>살아 있는 View가 어느 프리팹에서 나왔는지(반납할 풀을 찾는 용도).</summary>
+        /// <summary>살아 있는 View가 어느 프리팹에서 나왔는지(반납할 풀을 찾는 용도)</summary>
         private readonly Dictionary<UnitView, GameObject> _sourcePrefab = new();
 
-        /// <summary>플레이어 슬롯 점유 현황(추방으로 중간이 비면 영입 시 그 자리를 재사용).</summary>
+        /// <summary>플레이어 슬롯 점유 현황(추방으로 중간이 비면 영입 시 그 자리를 재사용)</summary>
         private RunMember[] _slotOccupants;
 
         /// <summary>이번 웨이브에 살아 있는 몬스터 View들.</summary>

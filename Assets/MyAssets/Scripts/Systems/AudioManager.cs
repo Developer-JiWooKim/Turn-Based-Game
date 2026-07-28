@@ -104,7 +104,6 @@ namespace Assets.MyAssets.Scripts.Systems
             AudioSource to = _activeBgm == _bgmA ? _bgmB : _bgmA;
             _activeBgm = to;
 
-            float target = _masterVolume * _bgmVolume;
             to.clip = next;
             to.volume = 0f;
             to.Play();
@@ -115,6 +114,10 @@ namespace Assets.MyAssets.Scripts.Systems
             {
                 if (generation != _bgmGeneration)
                     return; // 더 최신 크로스페이드가 시작됨 — 이 코루틴은 손을 뗀다
+
+                // 목표 볼륨을 매 프레임 다시 읽는다. 시작 시점 값으로 고정하면 페이드가 도는 동안
+                // 옵션 슬라이더를 움직여도 매 프레임 옛 값으로 덮어써져 조절이 먹지 않는다.
+                float target = _masterVolume * _bgmVolume;
 
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);
@@ -128,7 +131,7 @@ namespace Assets.MyAssets.Scripts.Systems
             if (generation != _bgmGeneration)
                 return;
 
-            to.volume = target;
+            to.volume = _masterVolume * _bgmVolume;
             if (from != null)
             {
                 from.Stop();
