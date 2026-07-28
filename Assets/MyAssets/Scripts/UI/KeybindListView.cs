@@ -5,12 +5,12 @@ using UnityEngine.UIElements;
 namespace Assets.MyAssets.Scripts.UI
 {
     /// <summary>
-    /// 키 설정 목록 UI. <see cref="InputManager"/>의 논리 컨트롤(이전/다음/확정/퍼즈)마다
+    /// 키 설정 목록 UI.
+    /// 
+    /// <see cref="InputManager"/>의 논리 컨트롤(이전/다음/확정/퍼즈)마다
     /// "이름 + 현재 키 버튼" 행을 만들고, 재설정 대기 표시와 라벨 갱신을 담당한다.
     ///
-    /// 캡처·저장·초기화 같은 실제 동작은 전부 <see cref="InputManager"/>가 하고
-    /// 여기서는 화면 표현만 맡는다. MonoBehaviour가 아니라서 패널이 필드로 들고 쓰면 된다
-    /// (Unity 생명주기가 필요 없고, 컨테이너를 넘겨받아 그 안에서만 동작한다).
+    /// 캡처·저장·초기화 같은 실제 동작은 전부 <see cref="InputManager"/>가 하고 여기서는 화면 표현만 맡는다. 
     /// </summary>
     public sealed class KeybindListView
     {
@@ -68,7 +68,7 @@ namespace Assets.MyAssets.Scripts.UI
             keyButton.text = "...";
             keyButton.AddToClassList("keybind-key--waiting");
 
-            input.StartRebind(index, () =>
+            input.StartRebind(index, onFinished: () =>
             {
                 keyButton.RemoveFromClassList("keybind-key--waiting");
                 RefreshLabels();

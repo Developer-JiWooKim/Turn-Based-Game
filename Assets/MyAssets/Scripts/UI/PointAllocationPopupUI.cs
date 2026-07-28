@@ -32,7 +32,10 @@ namespace Assets.MyAssets.Scripts.UI
             Root.Q<Button>("allocation-reset-button").clicked += OnReset;
             Root.Q<Button>("allocation-close-button").clicked += Hide;
 
-            _rows.Build(Root.Q<VisualElement>("allocation-rows"), _categories, Adjust);
+            _rows.Build(container: Root.Q<VisualElement>("allocation-rows"),
+                        categories: _categories,
+                        onAdjust: Adjust);
+
             Refresh();
         }
 
@@ -49,10 +52,13 @@ namespace Assets.MyAssets.Scripts.UI
             SaveService.Save(); // 팝업을 숨기고 나서 값을 영구 저장
         }
 
+        /// <summary>값이 바뀌었으면 UI에 반영</summary>
         private void Adjust(RoguelikeCategory category, int delta)
         {
             if (SaveService.Current.TryAdjustPoints(category, delta, _stagesPerPoint))
+            {
                 Refresh();
+            }
         }
 
         private void OnReset()

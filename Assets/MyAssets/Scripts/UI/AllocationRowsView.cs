@@ -28,7 +28,7 @@ namespace Assets.MyAssets.Scripts.UI
 
         /// <summary>
         /// 카테고리 행을 컨테이너에 채운다. 행 순서·이름은 넘겨받은 선택지 SO에서 오므로
-        /// 카테고리를 늘려도 이 코드는 그대로다(하드코딩 없음).
+        /// 카테고리를 늘려도 이 코드는 그대로다.
         /// </summary>
         /// <param name="onAdjust">[-]/[+]를 눌렀을 때 호출(카테고리, ±1).</param>
         public void Build(VisualElement container, RoguelikeChoiceSO[] categories, Action<RoguelikeCategory, int> onAdjust)

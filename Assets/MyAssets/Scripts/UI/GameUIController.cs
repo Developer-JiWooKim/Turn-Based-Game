@@ -20,9 +20,52 @@ namespace Assets.MyAssets.Scripts.UI
 
         private GameFlowFSM _flowFSM;
 
+        private bool _isReady;
+
         private void Awake()
         {
             _flowFSM = new GameFlowFSM(this);
+
+            _isReady = ValidateReferences();
+            if (!_isReady)
+            {
+                enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// 필수 인스펙터 연결을 검사하고 누락을 보고한다.
+        /// </summary>
+        /// <returns>전부 연결돼 있으면 true</returns>
+        private bool ValidateReferences()
+        {
+            bool hasError = false;
+
+            if (_titlePanel == null)
+            {
+                Debug.LogError($"[GameUIController] {nameof(_titlePanel)}가 연결되지 않았습니다(인스펙터 확인).", this);
+                hasError = true;
+            }
+
+            if (_characterSelectPanel == null)
+            {
+                Debug.LogError($"[GameUIController] {nameof(_characterSelectPanel)}가 연결되지 않았습니다(인스펙터 확인).", this);
+                hasError = true;
+            }
+
+            if (_optionPopup == null)
+            {
+                Debug.LogError($"[GameUIController] {nameof(_optionPopup)}가 연결되지 않았습니다(인스펙터 확인).", this);
+                hasError = true;
+            }
+
+            if (_allocationPopup == null)
+            {
+                Debug.LogError($"[GameUIController] {nameof(_allocationPopup)}가 연결되지 않았습니다(인스펙터 확인).", this);
+                hasError = true;
+            }
+
+            return !hasError;
         }
 
         private void OnEnable()
@@ -38,6 +81,9 @@ namespace Assets.MyAssets.Scripts.UI
 
         private void OnDisable()
         {
+            // 연결이 빠졌으면 컴포넌트 자체를 끈다 — OnEnable·Start가 아예 호출되지 않지만 OnDisable은 해당되지 않으므로 가드
+            if (!_isReady) return;
+
             _titlePanel.OnPlayClicked -= GoToCharacterSelect;
             _titlePanel.OnOptionClicked -= _optionPopup.Show;
             _titlePanel.OnQuitClicked -= QuitGame;
@@ -67,5 +113,9 @@ namespace Assets.MyAssets.Scripts.UI
             GameManager.Instance.BeginRun(_characterSelectPanel.SelectedCharacter);
             GameManager.Instance.LoadScene(BattleSceneName);
         }
+
+#if UNITY_EDITOR
+        private void OnValidate() => ValidateReferences();
+#endif
     }
 }

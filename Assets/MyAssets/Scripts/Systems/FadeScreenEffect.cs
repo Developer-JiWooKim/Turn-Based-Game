@@ -25,14 +25,8 @@ namespace Assets.MyAssets.Scripts.Systems
             _canvasGroup.blocksRaycasts = false;
         }
 
-        public async Awaitable FadeOutAsync()
-        {
-            await FadeAsync(0f, 1f, _fadeOutDuration);
-        }
-        public async Awaitable FadeInAsync()
-        {
-            await FadeAsync(1f, 0f, _fadeInDuration);
-        }
+        public async Awaitable FadeOutAsync() => await FadeAsync(from: 0f, to: 1f, duration: _fadeOutDuration);
+        public async Awaitable FadeInAsync() => await FadeAsync(from: 1f, to: 0f, duration: _fadeInDuration);
 
         private async Awaitable FadeAsync(float from, float to, float duration)
         {
