@@ -18,9 +18,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
     public sealed class BattlePresenter : MonoBehaviour
     {
         [Header("연결")]
-        [SerializeField] private UnitViewRegistry _registry;
         [SerializeField] private BattleHUD _hud;
         [SerializeField] private CameraShake _cameraShake;
+
+        // 레지스트리는 인스펙터가 아니라 BattleDirector가 Initialize로 주입한다
+        // (MonsterSpawner·TargetingController와 같은 방식 — 슬롯을 중복으로 두면 둘이 다른 오브젝트를 가리켜도 알 수 없다).
+        private UnitViewRegistry _registry;
 
         [Header("연출")]
         [Tooltip("공격 시작 후 타격이 적중하는 시점까지의 지연(초).")]
@@ -37,8 +40,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Awake() => _activeLayer = LayerMask.NameToLayer(_activeLayerName);
 
-        /// <summary>씬 종료 시 연출을 취소할 토큰을 받아둔다(전투 시작 전 1회)</summary>
-        public void Initialize(CancellationToken ct) => _ct = ct;
+        /// <summary>씬 종료 시 연출을 취소할 토큰과 View 레지스트리를 받아둔다(전투 시작 전 1회).</summary>
+        public void Initialize(CancellationToken ct, UnitViewRegistry registry)
+        {
+            _ct = ct;
+            _registry = registry;
+        }
 
         public void SetStage(int stage)
         {
@@ -108,7 +115,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             ClearActive();
 
-            if (_activeLayer >= 0 && _registry != null && _registry.TryGet(unitId, out UnitView view))
+            if (_activeLayer >= 0 && _registry.TryGet(unitId, out UnitView view))
             {
                 view.SetOutlineLayer(_activeLayer);
                 _activeView = view;

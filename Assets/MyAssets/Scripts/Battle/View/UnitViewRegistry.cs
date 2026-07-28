@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Progression.Run;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -21,7 +22,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// </summary>
     public sealed class UnitViewRegistry : MonoBehaviour
     {
-        /// <summary>프리팹 1종당 미리 잡아두는 풀 용량(슬롯 수 수준이면 충분하다).</summary>
+        /// <summary>프리팹 1종당 미리 잡아두는 풀 용량(슬롯 수 수준이면 충분하다)</summary>
         private const int PoolCapacityPerPrefab = 4;
 
         /// <summary>풀이 무한정 커지지 않도록 하는 상한. 넘긴 인스턴스는 반납 시 그냥 파괴된다.</summary>
@@ -48,7 +49,21 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Awake()
         {
+            ValidateReferences(); // 배치 슬롯 누락을 시작 시 1회 보고한다.
+
             _slotOccupants = new RunMember[_playerSlots != null ? _playerSlots.Length : 0];
+        }
+
+        /// <summary>
+        /// 유닛 수만큼 로그가 쏟아지기 전에 원인을 먼저 알린다.
+        /// </summary>
+        private void ValidateReferences()
+        {
+            InspectorCheck.LogIfEmpty(_playerSlots, nameof(_playerSlots), this,
+                                      "파티원을 배치할 수 없습니다");
+
+            InspectorCheck.LogIfEmpty(_enemySlots, nameof(_enemySlots), this,
+                                      "몬스터가 한 자리에 겹쳐 스폰됩니다");
         }
 
         public bool TryGet(int unitId, out UnitView view) => _views.TryGetValue(unitId, out view);
@@ -160,7 +175,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             UnitView view = pool.Get();
 
-            Transform slot = (slots != null && index < slots.Length && slots[index] != null) ? slots[index] : transform;
+            Transform slot = ResolveSlot(slots, index, displayName);
             view.transform.SetPositionAndRotation(slot.position, slot.rotation);
 
             // 재사용 인스턴스에 남은 이전 전투 흔적을 지운 뒤 초기화한다(순서 이유는 ResetForSpawn 주석 참고).
@@ -170,6 +185,21 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _views[unitId] = view;
             _sourcePrefab[view] = prefab;
             return view;
+        }
+
+        /// <summary>
+        /// 배치할 슬롯을 고른다. 슬롯이 모자라면 레지스트리 위치로 폴백하는데,
+        /// 그러면 유닛들이 한 자리에 겹쳐 보이기만 하고 원인이 드러나지 않으므로 로그를 남긴다
+        /// (웨이브 SO에 슬롯 수보다 많은 몬스터를 넣으면 실제로 발생한다).
+        /// </summary>
+        private Transform ResolveSlot(Transform[] slots, int index, string displayName)
+        {
+            if (slots != null && index < slots.Length && slots[index] != null)
+                return slots[index];
+
+            Debug.LogError($"[UnitViewRegistry] '{displayName}'을 배치할 {index}번 슬롯이 없습니다" +
+                           $"(슬롯 {(slots != null ? slots.Length : 0)}개) — 겹쳐서 스폰됩니다.", this);
+            return transform;
         }
 
         private void DespawnById(int unitId)
@@ -220,5 +250,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _pools[prefab] = pool;
             return pool;
         }
+
+#if UNITY_EDITOR
+        private void OnValidate() => ValidateReferences();
+#endif
     }
 }
