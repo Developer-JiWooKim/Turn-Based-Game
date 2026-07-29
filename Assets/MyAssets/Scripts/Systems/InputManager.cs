@@ -79,11 +79,8 @@ namespace Assets.MyAssets.Scripts.Systems
 
             DontDestroyOnLoad(gameObject);
 
-            if (_actions == null)
-            {
-                Debug.LogError("[InputManager] InputActionAsset이 할당되지 않았습니다(인스펙터의 _actions 확인)");
+            if (NullCheck.LogIfMissing(_actions, nameof(_actions), this, "어떤 입력도 받을 수 없습니다"))
                 return;
-            }
 
             _saver = new InputBindingSaver(_actions);
             _rebinder = new InputRebinder(_actions, _saver);

@@ -11,6 +11,7 @@ namespace Assets.MyAssets.Scripts.Systems
         private readonly InputActionAsset _inputActions;
         private readonly InputBindingSaver _bindingSaver;
 
+        /// <summary>생성 시점에 협력 객체가 다 있었는지. 없으면 <see cref="StartRebind"/>가 조용히 넘어간다(보고는 생성자에서 1회).</summary>
         private readonly bool _isValid = true;
 
         public InputRebinder(InputActionAsset inputActions, InputBindingSaver bindingSaver)
@@ -18,8 +19,11 @@ namespace Assets.MyAssets.Scripts.Systems
             _inputActions = inputActions;
             _bindingSaver = bindingSaver;
 
-            if (_inputActions == null) { Debug.LogError("[InputRebinder] _inputActions is null"); _isValid = false; }
-            if (_bindingSaver == null) { Debug.LogError("[InputRebinder] _bindingSaver is null"); _isValid = false; }
+            // 에셋은 UnityEngine.Object라 LogIfMissing(== 오버로드 유지), saver는 순수 C# 클래스라 LogIfNull.
+            bool hasError = false;
+            hasError |= NullCheck.LogIfMissing(inputActions, nameof(inputActions), this, "키를 재설정할 수 없습니다");
+            hasError |= NullCheck.LogIfNull(bindingSaver, nameof(bindingSaver), this, "재설정한 키가 저장되지 않습니다");
+            _isValid = !hasError;
         }
 
         public void StartRebind(RebindControl control, Action onFinished)

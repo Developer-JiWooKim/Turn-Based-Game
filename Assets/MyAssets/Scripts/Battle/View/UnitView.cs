@@ -40,23 +40,32 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _originalLayers[i] = _modelRenderers[i].gameObject.layer;
         }
 
+        private void Awake()
+        {
+            // 인스펙터가 비어 있으면 자식에서 찾아 채운다 — 프리팹마다 일일이 연결하지 않아도 되도록.
+            // includeInactive: 사망 시 숨긴 채로 풀에 반납된 인스턴스는 체력바가 비활성 상태다.
+            if (_unitAnimator == null) _unitAnimator = GetComponentInChildren<UnitAnimator>(true);
+            if (_unitHealthBar == null) _unitHealthBar = GetComponentInChildren<UnitHealthBar>(true);
+
+            ValidateReferences();
+        }
+
+        /// <summary>
+        /// 자동 탐색까지 실패했으면 보고한다 — 인스펙터가 아니라 프리팹 계층에 컴포넌트가 없다는 뜻이다.
+        /// (인스펙터 공란은 정상이므로 <c>OnValidate</c>는 두지 않는다. 자동 탐색 전에는 항상 비어 보인다.)
+        /// </summary>
+        private void ValidateReferences()
+        {
+            NullCheck.LogIfMissing(_unitHealthBar, nameof(_unitHealthBar), this, "체력바를 갱신할 수 없습니다");
+            NullCheck.LogIfMissing(_unitAnimator, nameof(_unitAnimator), this, "연출 없이 즉시 진행됩니다");
+        }
+
         public void Initialize(int unitId, int currentHp, int maxHp)
         {
             UnitId = unitId;
             CacheRenderers();
 
-            if (_unitAnimator == null)
-            {
-                Debug.LogWarning("_unitAnimator is null");
-                _unitAnimator = GetComponentInChildren<UnitAnimator>();
-            }
-
-            if (_unitHealthBar == null)
-            {
-                Debug.LogWarning("_unitHealthBar is null");
-                // includeInactive: 사망 시 숨긴 채로 풀에 반납된 인스턴스는 체력바가 비활성 상태다.
-                _unitHealthBar = GetComponentInChildren<UnitHealthBar>(true);
-            }
+            if (_unitHealthBar == null) return; // 누락은 Awake에서 보고 완료
 
             _unitHealthBar.SetVisible(true); // 사망으로 숨겨진 채 재사용된 경우 복구
             _unitHealthBar.Set(currentHp, maxHp);

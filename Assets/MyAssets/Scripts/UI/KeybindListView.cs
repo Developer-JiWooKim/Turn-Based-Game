@@ -14,34 +14,35 @@ namespace Assets.MyAssets.Scripts.UI
     /// </summary>
     public sealed class KeybindListView
     {
-        // 현재 키를 표시하는 버튼들. 인덱스 = InputManager의 논리 컨트롤 인덱스
+        /// <summary>현재 키를 표시하는 버튼들</summary>
         private readonly List<Button> _keyButtons = new();
+
+        private InputManager _input;
 
         /// <summary>
         /// 컨테이너에 키 설정 행을 채우고 재설정 버튼을 연결한다.
-        /// <see cref="InputManager"/>가 없는 씬(테스트 등)에서는 빈 섹션이 남지 않도록 영역을 숨긴다.
         /// </summary>
         public void Build(VisualElement container, Button resetButton)
         {
             _keyButtons.Clear();
+            _input = InputManager.Instance;
 
-            InputManager input = InputManager.Instance;
-            if (container == null || input == null)
+            if (container == null || _input == null)
             {
                 if (container != null) container.style.display = DisplayStyle.None;
                 if (resetButton != null) resetButton.style.display = DisplayStyle.None;
                 return;
             }
 
-            for (int i = 0; i < input.RebindControlCount; i++)
+            for (int i = 0; i < _input.RebindControlCount; i++)
             {
                 var row = new VisualElement();
                 row.AddToClassList("keybind-row");
 
-                var nameLabel = new Label(input.GetRebindLabel(i));
+                var nameLabel = new Label(_input.GetRebindLabel(i));
                 nameLabel.AddToClassList("keybind-name");
 
-                var keyButton = new Button { text = input.GetRebindDisplay(i) };
+                var keyButton = new Button { text = _input.GetRebindDisplay(i) };
                 keyButton.AddToClassList("btn");
                 keyButton.AddToClassList("keybind-key");
 
@@ -55,20 +56,19 @@ namespace Assets.MyAssets.Scripts.UI
             }
 
             if (resetButton != null)
+            {
                 resetButton.clicked += ResetBindings;
+            }
         }
 
         /// <summary>버튼을 눌러 다음 키 입력을 대기한다(InputManager가 캡처·저장까지 처리).</summary>
         private void BeginRebind(int index)
         {
-            InputManager input = InputManager.Instance;
-            if (input == null) return;
-
             Button keyButton = _keyButtons[index];
             keyButton.text = "...";
             keyButton.AddToClassList("keybind-key--waiting");
 
-            input.StartRebind(index, onFinished: () =>
+            _input.StartRebind(index, onFinished: () =>
             {
                 keyButton.RemoveFromClassList("keybind-key--waiting");
                 RefreshLabels();
@@ -77,20 +77,16 @@ namespace Assets.MyAssets.Scripts.UI
 
         private void ResetBindings()
         {
-            InputManager input = InputManager.Instance;
-            if (input == null) return;
-
-            input.ResetBindings();
+            _input.ResetBindings();
             RefreshLabels();
         }
 
         private void RefreshLabels()
         {
-            InputManager input = InputManager.Instance;
-            if (input == null) return;
-
             for (int i = 0; i < _keyButtons.Count; i++)
-                _keyButtons[i].text = input.GetRebindDisplay(i);
+            {
+                _keyButtons[i].text = _input.GetRebindDisplay(i);
+            }
         }
     }
 }

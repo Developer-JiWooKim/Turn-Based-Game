@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Progression.Save;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine.UIElements;
 
 namespace Assets.MyAssets.Scripts.UI
@@ -35,18 +36,14 @@ namespace Assets.MyAssets.Scripts.UI
         {
             _rows.Clear();
 
-            // 인스펙터 연결 누락은 화면이 비는 것으로만 드러나 원인 파악이 늦어지므로 로그를 남긴다.
-            if (container == null)
-            {
-                UnityEngine.Debug.LogError("[AllocationRowsView] Build(): container is null");
+            // 누락은 화면이 비는 것으로만 드러나 원인 파악이 늦어지므로 로그를 남긴다.
+            if (NullCheck.LogIfNull(container, nameof(container), this, "UXML에서 행 컨테이너를 찾지 못했습니다"))
                 return;
-            }
 
-            if (categories == null)
-            {
-                UnityEngine.Debug.LogError("[AllocationRowsView] Build(): categories is null");
+            // 이 배열의 출처는 PointAllocationPopupUI의 인스펙터라 그쪽을 확인해야 한다.
+            if (NullCheck.LogIfEmpty(categories, nameof(categories), this,
+                                     $"{nameof(PointAllocationPopupUI)}의 카테고리 목록이 비어 있습니다"))
                 return;
-            }
 
             foreach (RoguelikeChoiceSO category in categories)
             {

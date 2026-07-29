@@ -5,8 +5,6 @@ namespace Assets.MyAssets.Scripts.UI
 {
     public class GameUIController : MonoBehaviour
     {
-        private const string BattleSceneName = "BattleScene"; // 실제 턴제 전투가 일어날 씬 이름
-
         [Header("UI Panels")]
         [SerializeField] private TitlePanelUI _titlePanel;
         [SerializeField] private CharacterSelectPanelUI _characterSelectPanel;
@@ -15,19 +13,20 @@ namespace Assets.MyAssets.Scripts.UI
         [SerializeField] private OptionPopupUI _optionPopup;
         [SerializeField] private PointAllocationPopupUI _allocationPopup;
 
-        public TitlePanelUI TitlePanel => _titlePanel;
-        public CharacterSelectPanelUI CharacterSelectPanel => _characterSelectPanel;
+        private const string BattleSceneName = "BattleScene"; // 실제 턴제 전투가 일어날 씬 이름
 
+        private bool _isValid;
         private GameFlowFSM _flowFSM;
 
-        private bool _isReady;
+        public TitlePanelUI TitlePanel => _titlePanel;
+        public CharacterSelectPanelUI CharacterSelectPanel => _characterSelectPanel;
 
         private void Awake()
         {
             _flowFSM = new GameFlowFSM(this);
 
-            _isReady = ValidateReferences();
-            if (!_isReady)
+            _isValid = ValidateReferences();
+            if (!_isValid)
             {
                 enabled = false;
             }
@@ -40,15 +39,19 @@ namespace Assets.MyAssets.Scripts.UI
         private bool ValidateReferences()
         {
             bool hasError = false;
-            hasError |= InspectorCheck.LogIfMissing(_titlePanel, nameof(_titlePanel), this);
-            hasError |= InspectorCheck.LogIfMissing(_characterSelectPanel, nameof(_characterSelectPanel), this);
-            hasError |= InspectorCheck.LogIfMissing(_optionPopup, nameof(_optionPopup), this);
-            hasError |= InspectorCheck.LogIfMissing(_allocationPopup, nameof(_allocationPopup), this);
+            hasError |= NullCheck.LogIfMissing(_titlePanel, nameof(_titlePanel), this);
+            hasError |= NullCheck.LogIfMissing(_characterSelectPanel, nameof(_characterSelectPanel), this);
+            hasError |= NullCheck.LogIfMissing(_optionPopup, nameof(_optionPopup), this);
+            hasError |= NullCheck.LogIfMissing(_allocationPopup, nameof(_allocationPopup), this);
+
             return !hasError;
         }
 
         private void OnEnable()
         {
+            // 검증 실패로 Awake에서 꺼진 뒤 외부에서 되살린 경우 — 참조가 없으므로 배선하지 않는다
+            if (!_isValid) return;
+
             _titlePanel.OnPlayClicked += GoToCharacterSelect;
             _titlePanel.OnOptionClicked += _optionPopup.Show;
             _titlePanel.OnQuitClicked += QuitGame;
@@ -60,8 +63,8 @@ namespace Assets.MyAssets.Scripts.UI
 
         private void OnDisable()
         {
-            // 연결이 빠졌으면 컴포넌트 자체를 끈다 — OnEnable·Start가 아예 호출되지 않지만 OnDisable은 해당되지 않으므로 가드
-            if (!_isReady) return;
+            // OnEnable에서 배선하지 않았으므로 해제할 것도 없다(가드를 양쪽에 대칭으로 둔다)
+            if (!_isValid) return;
 
             _titlePanel.OnPlayClicked -= GoToCharacterSelect;
             _titlePanel.OnOptionClicked -= _optionPopup.Show;

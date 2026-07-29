@@ -40,6 +40,17 @@ namespace Assets.MyAssets.Scripts.UI
         public CharacterStatsSO SelectedCharacter =>
             (_roster != null && _roster.Count > 0) ? _roster[_selectedIndex] : null;
 
+        private void Awake() => ValidateReferences();
+
+        /// <summary>
+        /// 로스터 누락을 보고한다.
+        /// (<see cref="_preview"/>는 비워두면 프리뷰 없이 동작하는 선택 항목이라 대상이 아니다.)
+        /// </summary>
+        private void ValidateReferences()
+        {
+            NullCheck.LogIfMissing(_roster, nameof(_roster), this, "선택할 캐릭터가 없습니다");
+        }
+
         protected override void Start()
         {
             // 프리뷰 카메라가 그리는 텍스처를 프리뷰 영역 배경으로 배선한다(UXML의 주인이 패널이라 여기서 처리).
@@ -99,7 +110,9 @@ namespace Assets.MyAssets.Scripts.UI
             if (_dots != null)
             {
                 for (int i = 0; i < _dots.Count; i++)
+                {
                     _dots[i].EnableInClassList(className: "dot-active", enable: i == _selectedIndex);
+                }
             }
 
             _statBars.Refresh(character.CreateStats());
@@ -127,5 +140,9 @@ namespace Assets.MyAssets.Scripts.UI
             if (_preview != null)
                 _preview.SetVisible(active);
         }
+
+#if UNITY_EDITOR
+        private void OnValidate() => ValidateReferences();
+#endif
     }
 }
