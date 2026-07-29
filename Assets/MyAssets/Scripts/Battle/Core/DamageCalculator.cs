@@ -16,8 +16,8 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     }
 
     /// <summary>
-    /// 비율 감소 방식 데미지 계산(순수 함수). 밸런싱 상수는 상단에 모아두고,
-    /// 확정되면 값만 조정한다(추후 SO/설정으로 이전 가능).
+    /// 비율 감소 방식 데미지 계산기
+    /// 밸런싱 상수는 상단에 모아두고, 확정되면 값만 조정한다(추후 SO/설정으로 이전 가능).
     /// </summary>
     public static class DamageCalculator
     {
@@ -38,8 +38,8 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             float raw = attacker.EffectiveAtk * mitigation * powerMultiplier;
 
             bool isCrit = rng.Value01() < attacker.Stats.CritRate;
-            if (isCrit)
-                raw *= attacker.Stats.CritDmg;
+            if (isCrit) raw *= attacker.Stats.CritDmg;
+
 
             int amount = (int)Math.Round(raw, MidpointRounding.AwayFromZero);
             if (amount < MinimumDamage) amount = MinimumDamage;

@@ -18,7 +18,7 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         public static SaveData Current => _current ??= Load();
 
         /// <summary>
-        /// 세이브를 둘 폴더
+        /// 세이브를 둘 폴더.
         /// 에디터에서는 확인·삭제가 쉽도록 프로젝트 루트의 <c>SaveData/</c>를 쓰고,
         /// 빌드에서는 <see cref="Application.persistentDataPath"/>(플랫폼별 사용자 데이터 폴더)를 쓴다.
         /// 빌드된 게임은 프로젝트 폴더와 무관하고 설치 경로가 읽기 전용일 수 있어 루트 방식을 쓸 수 없다.
@@ -44,10 +44,13 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         public static SaveData Load()
         {
             SaveData data = null;
+
             try
             {
                 if (File.Exists(FilePath))
+                {
                     data = JsonUtility.FromJson<SaveData>(File.ReadAllText(FilePath));
+                }
             }
             catch (Exception ex)
             {
@@ -81,8 +84,7 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         /// <returns>신기록이면 true</returns>
         public static bool RecordStage(int reachedStage)
         {
-            if (reachedStage <= Current.BestStage)
-                return false;
+            if (reachedStage <= Current.BestStage) return false;
 
             Current.BestStage = reachedStage;
             Save();
@@ -111,9 +113,9 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         /// </summary>
         private static SaveData Normalize(SaveData data)
         {
-            data ??= new();
-            data.CategoryPoints ??= new();
-            data.Options ??= new();
+            data ??= new SaveData();
+            data.CategoryPoints ??= new System.Collections.Generic.List<CategoryPoint>();
+            data.Options ??= new OptionsData();
 
             // 포맷이 바뀌면 여기서 data.Version을 보고 이전 버전 데이터를 변환한다.
             data.Version = SaveData.CurrentVersion;

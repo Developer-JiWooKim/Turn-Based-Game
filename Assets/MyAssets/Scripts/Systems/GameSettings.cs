@@ -27,7 +27,9 @@ namespace Assets.MyAssets.Scripts.Systems
             {
                 Options.MasterVolume = value;
                 if (AudioManager.Instance != null)
+                {
                     AudioManager.Instance.SetMasterVolume(value);
+                }
             }
         }
 
@@ -38,7 +40,9 @@ namespace Assets.MyAssets.Scripts.Systems
             {
                 Options.BgmVolume = value;
                 if (AudioManager.Instance != null)
+                {
                     AudioManager.Instance.SetBgmVolume(value);
+                }
             }
         }
 
@@ -49,14 +53,14 @@ namespace Assets.MyAssets.Scripts.Systems
             {
                 Options.SfxVolume = value;
                 if (AudioManager.Instance != null)
+                {
                     AudioManager.Instance.SetSfxVolume(value);
+                }
             }
         }
 
         /// <summary>
         /// 저장된 볼륨을 <see cref="AudioManager"/>에 일괄 적용한다.
-        /// <see cref="AudioManager"/>가 자기 <c>Awake</c> 끝에서 직접 호출하므로
-        /// 두 싱글턴의 초기화 순서에 의존하지 않는다(그래서 관리자가 세이브를 직접 읽지 않아도 된다).
         /// </summary>
         public static void ApplyAudio()
         {

@@ -66,9 +66,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         /// <summary>
         /// 필수 인스펙터 연결을 검사하고 누락을 보고한다.
-        /// (선택 항목인 _stageScaling·_rewards·_targeting·_pausePanel은 비어 있어도 동작하므로 대상이 아니다.)
         /// </summary>
-        /// <returns>전부 연결돼 있으면 true.</returns>
+        /// <returns>전부 연결돼 있으면 true</returns>
         private bool ValidateReferences()
         {
             bool hasError = false;
@@ -79,19 +78,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
             return !hasError;
         }
 
-#if UNITY_EDITOR
-        /// <summary>플레이를 누르기 전에 인스펙터에서 바로 알 수 있도록 에디터에서도 검사한다(빌드에서는 호출되지 않는다).</summary>
-        private void OnValidate() => ValidateReferences();
-#endif
-
         private async Task BeginBattleAsync()
         {
             if (!ValidateReferences()) return;
 
             _cts = new CancellationTokenSource();
-            SystemRandom rng = new SystemRandom();
+
+            SystemRandom rng = new();
 
             _run = _runFlow.ResolveRun();
+
             if (_run is null || _run.Members.Count == 0)
             {
                 Debug.LogError("[BattleDirector] 파티가 비어 있어 전투를 시작할 수 없습니다.");
@@ -100,6 +96,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             // SO가 비어 있으면 성장률 0인 기본값 — 스케일링 없이 그대로 진행된다.
             _scaling = _stageScaling != null ? _stageScaling.Create() : default;
+
             _presenter.Initialize(_cts.Token, _registry);
             _spawner.Initialize(_registry);
 
@@ -215,7 +212,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _stageCts = stageCts;
 
             if (_pausePanel != null)
+            {
                 _pausePanel.SetBattleActive(true);
+            }
 
             try
             {
@@ -231,7 +230,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 // Dispose(using 종료)보다 먼저 참조를 끊어야 중단 핸들러가 파기된 CTS를 취소하지 않는다.
                 _stageCts = null;
                 if (_pausePanel != null)
+                {
                     _pausePanel.SetBattleActive(false);
+                }
+
             }
         }
 
@@ -268,5 +270,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _cts?.Cancel();
             _cts?.Dispose();
         }
+
+#if UNITY_EDITOR
+        private void OnValidate() => ValidateReferences();
+#endif
     }
 }

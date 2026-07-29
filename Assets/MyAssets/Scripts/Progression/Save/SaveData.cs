@@ -19,10 +19,10 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         public int BestStage;
 
         /// <summary>로그라이크 선택지 카테고리별로 투자한 영구 포인트(성향 커스터마이징)</summary>
-        public List<CategoryPoint> CategoryPoints = new List<CategoryPoint>();
+        public List<CategoryPoint> CategoryPoints = new();
 
         /// <summary>옵션 메뉴 설정</summary>
-        public OptionsData Options = new OptionsData();
+        public OptionsData Options = new();
 
         /// <summary>지금까지 획득한 영구 포인트 총량</summary>
         public int GetEarnedPoints(int stagesPerPoint) => stagesPerPoint <= 0 ? 0 : BestStage / stagesPerPoint;
@@ -49,7 +49,7 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         /// 카테고리 투자량을 <paramref name="delta"/>만큼 조정한다.
         /// 남은 포인트가 없으면 늘릴 수 없고, 투자량이 0이면 더 뺄 수 없다 — 이 규칙을 UI가 아니라 여기서 지킨다.
         /// </summary>
-        /// <returns>실제로 값이 바뀌었으면 true.</returns>
+        /// <returns>실제로 값이 바뀌었으면 true</returns>
         public bool TryAdjustPoints(RoguelikeCategory category, int delta, int stagesPerPoint)
         {
             int current = GetPoints(category);

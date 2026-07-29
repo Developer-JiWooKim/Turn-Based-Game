@@ -37,7 +37,9 @@ namespace Assets.MyAssets.Scripts.Systems
 
             // 이미 재설정 대기 중이면 이전 세션을 취소하고 새로 시작한다(버튼 중복 클릭 방어).
             if (_activeRebind != null)
+            {
                 Cancel();
+            }
 
             InputAction primary = _inputActions.FindAction(control.ActionPaths[0]);
             if (primary == null)

@@ -7,7 +7,7 @@ namespace Assets.MyAssets.Scripts.Systems
     {
         private readonly InputActionAsset _inputActions;
 
-        /// <summary>생성 시점에 에셋이 있었는지. 없으면 아래 공개 메서드가 전부 조용히 넘어간다(보고는 생성자에서 1회).</summary>
+        /// <summary>생성 시점에 에셋이 있었는지</summary>
         private readonly bool _isValid;
 
         public InputBindingSaver(InputActionAsset inputActions)
@@ -15,6 +15,8 @@ namespace Assets.MyAssets.Scripts.Systems
             _inputActions = inputActions;
             _isValid = !NullCheck.LogIfMissing(inputActions, nameof(inputActions), this, "키 설정을 저장·복원할 수 없습니다");
         }
+
+        // 만약 인풋 액션이 null -> true리턴 -> ! 연산자로 false됨, isValid = false -> if
 
         /// <summary>저장소에서 바인딩 오버라이드 데이터를 불러와 적용</summary>
         public void LoadBindings()

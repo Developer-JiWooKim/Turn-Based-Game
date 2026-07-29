@@ -103,7 +103,9 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         {
             var active = new List<ActiveSynergy>();
             foreach (CharacterStatsSO source in _synergySourceByUnitId.Values.Distinct())
+            {
                 active.Add(new ActiveSynergy(source, _aliveCountBySource[source], source.CreateSynergy()));
+            }
 
             return active;
         }

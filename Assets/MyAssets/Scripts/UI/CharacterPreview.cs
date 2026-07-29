@@ -86,11 +86,11 @@ namespace Assets.MyAssets.Scripts.UI
         /// <summary>이 캐릭터의 프리뷰 인스턴스를 가져온다. 없으면(또는 파괴됐으면) 이때 한 번 만든다.</summary>
         private GameObject GetOrCreate(CharacterStatsSO character)
         {
-            if (_instances.TryGetValue(character, out GameObject instance) && instance != null)
-                return instance;
+            if (_instances.TryGetValue(character, out GameObject instance) && instance != null) return instance;
 
             instance = Instantiate(character.Prefab, _modelAnchor.position, _modelAnchor.rotation, _modelAnchor);
             _instances[character] = instance;
+
             return instance;
         }
 

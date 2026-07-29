@@ -92,6 +92,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             Show();
+
             try
             {
                 return await _pending.WaitAsync(ct);
@@ -134,12 +135,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             _hoveredIndex = index;
             for (int i = 0; i < _cards.Count; i++)
+            {
                 _cards[i].EnableInClassList(HoverClass, i == index);
+            }
         }
 
         private void OnPick(int index)
         {
             if (!_pending.IsWaiting || index >= _cardCount) return;
+
             _pending.Complete(index);
         }
 

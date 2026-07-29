@@ -86,8 +86,14 @@ namespace Assets.MyAssets.Scripts.UI
 
             // 방향키 순환은 prev/next 버튼 클릭과 동등하므로 버튼과 같은 클릭음을 낸다
             // (마우스 클릭은 UiClickSfx가 ClickEvent로 재생하고, 여기선 키보드 경로만 재생).
-            if (input.UiNavigateNextPressed) { Cycle(1); AudioManager.UiClick(); }
-            else if (input.UiNavigatePrevPressed) { Cycle(-1); AudioManager.UiClick(); }
+            if (input.UiNavigateNextPressed)
+            {
+                Cycle(1); AudioManager.UiClick();
+            }
+            else if (input.UiNavigatePrevPressed)
+            {
+                Cycle(-1); AudioManager.UiClick();
+            }
         }
 
         private void Cycle(int direction)
@@ -105,7 +111,9 @@ namespace Assets.MyAssets.Scripts.UI
             if (character == null) return;
 
             if (_nameLabel != null)
+            {
                 _nameLabel.text = character.DisplayName;
+            }
 
             if (_dots != null)
             {
@@ -118,7 +126,9 @@ namespace Assets.MyAssets.Scripts.UI
             _statBars.Refresh(character.CreateStats());
 
             if (_preview != null)
+            {
                 _preview.Show(character);
+            }
         }
 
         public override void Show()
@@ -138,7 +148,9 @@ namespace Assets.MyAssets.Scripts.UI
         private void SetPreviewActive(bool active)
         {
             if (_preview != null)
+            {
                 _preview.SetVisible(active);
+            }
         }
 
 #if UNITY_EDITOR

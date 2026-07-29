@@ -74,6 +74,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>
         /// 시너지 한 줄을 만든다. 문구를 SO에 따로 적어두면 수치를 조정할 때 설명이 어긋나므로
         /// 실제 효과 값에서 생성한다.
+        ///
+        /// 아래 6개 분기는 <c>CharacterStatsSO.CreateSynergy</c>가 채우는 6개 필드와 1:1이다.
+        /// <c>HpFlat</c>·<c>HealFlat</c>에 분기가 없는 건 빠뜨린 게 아니라 시너지가 그 둘을 항상 0으로 두기 때문 —
+        /// 조건이 깨지면 되돌려야 하는 효과라 최대 HP·회복은 시너지 대상에서 제외돼 있다.
+        /// ⚠️ 시너지 필드가 늘면 여기도 같이 늘려야 한다(컴파일러가 잡아주지 않는다).
         /// </summary>
         private static string DescribeSynergy(ActiveSynergy synergy)
         {

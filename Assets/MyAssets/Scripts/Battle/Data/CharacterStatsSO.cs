@@ -32,6 +32,11 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         /// <summary>
         /// 시너지 효과. 스탯 증분 묶음이라는 점이 같아 <see cref="RoguelikeEffect"/>를 그대로 쓴다
         /// (<see cref="StageScaling.CreatePlayerGrowth"/>도 같은 방식). HP를 0으로 두므로 회복 부작용이 없다.
+        ///
+        /// ⚠️ 시너지 필드를 늘릴 때 함께 고쳐야 하는 곳은 셋이다 — <see cref="HasSynergy"/>(발동 판정),
+        /// 아래 생성자 인자, 그리고 <c>BattleHUD.DescribeSynergy</c>(HUD 한 줄 표기).
+        /// 앞의 둘은 이 파일이라 눈에 띄지만 마지막은 다른 어셈블리(Game.View)라 컴파일러가 잡아주지 않는다 —
+        /// 빠뜨리면 효과는 정상 적용되는데 화면에만 안 나온다.
         /// </summary>
         public RoguelikeEffect CreateSynergy() => new(
             hpFlat: 0,

@@ -40,10 +40,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _selector.ActionRequested += OnActionRequested;
         }
 
-        private void Awake()
-        {
-            _targetLayer = LayerMask.NameToLayer(_targetLayerName);
-        }
+        private void Awake() => _targetLayer = LayerMask.NameToLayer(_targetLayerName);
 
         private void OnActionRequested(Unit actor, IReadOnlyList<Unit> validTargets)
         {
@@ -60,8 +57,14 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (input == null) return;
 
             // 방향키: 유효 대상을 순환 겨냥(대기 유지)
-            if (input.BattleCycleNextPressed) CycleTarget(+1);
-            else if (input.BattleCyclePrevPressed) CycleTarget(-1);
+            if (input.BattleCycleNextPressed)
+            {
+                CycleTarget(+1);
+            }
+            else if (input.BattleCyclePrevPressed)
+            {
+                CycleTarget(-1);
+            }
 
             // Enter/Space: 겨냥된 대상이 있으면 공격 확정
             if (input.BattleConfirmPressed && _selectedTarget != null)
@@ -72,7 +75,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             // 마우스 좌클릭: 2단계 클릭 타겟팅
             if (input.PrimaryPressedThisFrame)
+            {
                 HandleClick(input.PointerPosition);
+            }
         }
 
         private void HandleClick(Vector2 pointer)
@@ -115,7 +120,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             Unit target = ordered[next];
             if (_registry != null && _registry.TryGet(target.Id, out UnitView view))
+            {
                 SelectTarget(target, view);
+            }
         }
 
         /// <summary>
@@ -132,21 +139,23 @@ namespace Assets.MyAssets.Scripts.Battle.View
             {
                 Unit unit = _validTargets[i];
                 if (_registry != null && _registry.TryGet(unit.Id, out UnitView view) && view != null)
+                {
                     _orderBuffer.Add(unit);
+                }
             }
 
             if (cam != null)
+            {
                 _orderBuffer.Sort((a, b) => ScreenX(cam, a).CompareTo(ScreenX(cam, b)));
+            }
 
             return _orderBuffer;
         }
 
         private float ScreenX(Camera cam, Unit unit)
-        {
-            return _registry != null && _registry.TryGet(unit.Id, out UnitView view) && view != null
+        => _registry != null && _registry.TryGet(unit.Id, out UnitView view) && view != null
                 ? cam.WorldToScreenPoint(view.transform.position).x
                 : 0f;
-        }
 
         /// <summary>겨냥을 지우고 대기를 끝낸 뒤 공격 대상을 확정 제출한다(마우스 2차 클릭·키보드 확정 공통).</summary>
         private void ConfirmTarget(Unit target)
@@ -161,20 +170,26 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void SelectTarget(Unit target, UnitView view)
         {
             if (_selectedView != null)
+            {
                 _selectedView.ResetOutlineLayer();
+            }
 
             _selectedTarget = target;
             _selectedView = view;
 
             if (_targetLayer >= 0)
+            {
                 view.SetOutlineLayer(_targetLayer);
+            }
         }
 
         /// <summary>겨냥 표시를 지우고 대상 아웃라인을 원래대로 되돌린다.</summary>
         private void ClearSelection()
         {
             if (_selectedView != null)
+            {
                 _selectedView.ResetOutlineLayer();
+            }
 
             _selectedTarget = null;
             _selectedView = null;
@@ -184,15 +199,22 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             if (_validTargets == null) return null;
             for (int i = 0; i < _validTargets.Count; i++)
+            {
                 if (_validTargets[i].Id == unitId)
+                {
                     return _validTargets[i];
+                }
+            }
+
             return null;
         }
 
         private void OnDestroy()
         {
             if (_selector != null)
+            {
                 _selector.ActionRequested -= OnActionRequested;
+            }
         }
     }
 }
