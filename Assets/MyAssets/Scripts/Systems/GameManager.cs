@@ -33,7 +33,7 @@ namespace Assets.MyAssets.Scripts.Systems
         /// </summary>
         private void ValidateReferences()
         {
-            InspectorCheck.LogIfMissing(_fadeScreenEffect, nameof(_fadeScreenEffect), this,
+            NullCheck.LogIfMissing(_fadeScreenEffect, nameof(_fadeScreenEffect), this,
                                         "페이드 없이 씬을 전환합니다");
         }
 

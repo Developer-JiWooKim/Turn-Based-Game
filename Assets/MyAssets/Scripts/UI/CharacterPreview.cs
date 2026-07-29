@@ -28,16 +28,15 @@ namespace Assets.MyAssets.Scripts.UI
 
         private GameObject _current;
 
-        /// <summary>
-        /// 필수 인스펙터 연결이 갖춰졌는지 판별용 bool
-        private bool _isReady;
+        private bool _isValid;
 
         /// <summary>UI에 배선할 렌더 텍스처(비어 있으면 null). 배선 자체는 UXML을 소유한 패널이 한다.</summary>
         public RenderTexture Texture => _previewTexture;
 
         private void Awake()
         {
-            _isReady = ValidateReferences();
+            _isValid = ValidateReferences();
+
             SetVisible(false); // 패널이 열릴 때 켜지도록 초기 상태는 꺼둠
         }
 
@@ -48,15 +47,15 @@ namespace Assets.MyAssets.Scripts.UI
         private bool ValidateReferences()
         {
             bool hasError = false;
-            hasError |= InspectorCheck.LogIfMissing(_previewRig, nameof(_previewRig), this);
-            hasError |= InspectorCheck.LogIfMissing(_modelAnchor, nameof(_modelAnchor), this);
+            hasError |= NullCheck.LogIfMissing(_previewRig, nameof(_previewRig), this);
+            hasError |= NullCheck.LogIfMissing(_modelAnchor, nameof(_modelAnchor), this);
             return !hasError;
         }
 
         /// <summary>프리뷰 리그를 켜고 끈다(선택 화면 진입/이탈). 꺼진 동안에는 모델도 함께 멈춘다.</summary>
         public void SetVisible(bool visible)
         {
-            if (!_isReady) return;
+            if (!_isValid) return;
 
             _previewRig.SetActive(visible);
         }
@@ -64,7 +63,7 @@ namespace Assets.MyAssets.Scripts.UI
         /// <summary>지정한 캐릭터의 모델을 보여준다(이전 모델은 숨김). null이면 아무것도 표시하지 않는다.</summary>
         public void Show(CharacterStatsSO character)
         {
-            if (!_isReady) return;
+            if (!_isValid) return;
 
             if (_current != null)
             {

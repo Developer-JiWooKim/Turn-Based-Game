@@ -49,11 +49,8 @@ namespace Assets.MyAssets.Scripts.UI
         private void BindSlider(string elementName, float initial, Action<float> onChange, Action onRelease = null)
         {
             Slider slider = Root.Q<Slider>(elementName);
-            if (slider is null)
-            {
-                UnityEngine.Debug.LogError("[OptionPopupUI] BindSlider(): slider is null");
+            if (NullCheck.LogIfNull(slider, nameof(slider), this, $"UXML에 '{elementName}' 슬라이더가 없습니다"))
                 return;
-            }
 
             slider.value = initial;
             slider.RegisterValueChangedCallback(evt => onChange(evt.newValue));

@@ -59,10 +59,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         private void ValidateReferences()
         {
-            InspectorCheck.LogIfEmpty(_playerSlots, nameof(_playerSlots), this,
+            NullCheck.LogIfEmpty(_playerSlots, nameof(_playerSlots), this,
                                       "파티원을 배치할 수 없습니다");
 
-            InspectorCheck.LogIfEmpty(_enemySlots, nameof(_enemySlots), this,
+            NullCheck.LogIfEmpty(_enemySlots, nameof(_enemySlots), this,
                                       "몬스터가 한 자리에 겹쳐 스폰됩니다");
         }
 

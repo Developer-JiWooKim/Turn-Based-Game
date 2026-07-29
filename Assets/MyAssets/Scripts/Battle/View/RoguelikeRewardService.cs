@@ -6,6 +6,7 @@ using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Progression.Run;
 using Assets.MyAssets.Scripts.Progression.Save;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.View
@@ -50,29 +51,38 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private const string SkipRecruitTitle = "영입 안 함";
         private const string SkipRecruitDescription = "현재 파티를 유지합니다.";
 
+        private void Awake() => ValidateReferences();
+
+        /// <summary>
+        /// 인스펙터 연결 누락 보고한다.
+        /// 아래 <see cref="PresentAsync"/>·<see cref="PickChoices"/>는 누락 시 조용히 빈 결과로 넘어가는데,
+        /// 그러면 "스테이지를 클리어했는데 아무 일도 안 일어나는" 증상만 남아 원인을 찾기 어렵다.
+        /// </summary>
+        private void ValidateReferences()
+        {
+            NullCheck.LogIfMissing(_panel, nameof(_panel), this, "성장 선택지가 표시되지 않습니다");
+            NullCheck.LogIfEmpty(_choicePool, nameof(_choicePool), this, "뽑을 선택지가 없습니다");
+            NullCheck.LogIfMissing(_roster, nameof(_roster), this, "파티원 영입 선택지가 제외됩니다");
+        }
+
         /// <summary>
         /// 선택지를 제시하고 고른 효과를 런에 적용한다.
         /// 영입 선택지면 이어서 후보 캐릭터를 제시하고 플레이어가 고른 1명을 합류시킨다.
         /// </summary>
-        /// <returns>영입 결과(영입 선택지가 아니거나 취소되면 Recruited가 null).</returns>
+        /// <returns>영입 결과(영입 선택지가 아니거나 취소되면 Recruited가 null)</returns>
         public async Task<RecruitResult> PresentAsync(RunData run, IRandom rng, StageScaling scaling, CancellationToken ct)
         {
-            if (_panel == null)
-                return default;
+            if (_panel == null) return default;
 
             List<RoguelikeChoiceSO> choices = PickChoices(run, rng);
-            if (choices.Count == 0)
-                return default;
+            if (choices.Count == 0) return default;
 
             RoguelikeChoiceSO picked = await _panel.PresentAsync(choices, ct);
-            if (picked == null)
-                return default;
+            if (picked == null) return default;
 
             RoguelikeEffect effect = picked.CreateEffect();
             run.ApplyChoice(effect);
-
-            if (!effect.Recruit)
-                return default;
+            if (!effect.Recruit) return default;
 
             return await PresentRecruitAsync(run, rng, scaling, ct);
         }
@@ -84,8 +94,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private async Task<RecruitResult> PresentRecruitAsync(RunData run, IRandom rng, StageScaling scaling, CancellationToken ct)
         {
             List<CharacterStatsSO> candidates = PickRecruitCandidates(rng);
-            if (candidates.Count == 0)
-                return default;
+            if (candidates.Count == 0) return default;
 
             bool needsReplace = !run.CanRecruit;
             var cards = candidates.Select(c => new ChoiceCard(c.DisplayName, DescribeCandidate(c, run, scaling))).ToList();
@@ -93,16 +102,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 cards.Add(new ChoiceCard(SkipRecruitTitle, SkipRecruitDescription));
 
             int index = await _panel.PresentAsync("동료 영입", cards, ct);
-            if (index < 0 || index >= candidates.Count)
-                return default; // 취소 또는 "영입 안 함"
+            if (index < 0 || index >= candidates.Count) return default; // 취소 또는 "영입 안 함"
 
             CharacterStatsSO chosen = candidates[index];
-            if (!needsReplace)
-                return new RecruitResult(run.Recruit(chosen, scaling), null);
+            if (!needsReplace) return new RecruitResult(run.Recruit(chosen, scaling), null);
 
             RunMember outgoing = await PresentReplaceTargetAsync(run, ct);
-            if (outgoing == null)
-                return default;
+            if (outgoing == null) return default;
 
             RunMember recruited = run.ReplaceMember(outgoing, chosen, scaling);
             return recruited == null ? default : new RecruitResult(recruited, outgoing);
@@ -120,13 +126,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private List<CharacterStatsSO> PickRecruitCandidates(IRandom rng)
         {
             var pool = new List<CharacterStatsSO>();
-            if (_roster == null)
-                return pool;
+            if (_roster == null) return pool;
 
             for (int i = 0; i < _roster.Count; i++)
             {
-                if (_roster[i] != null)
-                    pool.Add(_roster[i]);
+                if (_roster[i] != null) pool.Add(_roster[i]);
             }
 
             var picked = new List<CharacterStatsSO>();
@@ -178,5 +182,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
                                  .Select(i => pool[i])
                                  .ToList();
         }
+
+#if UNITY_EDITOR
+        private void OnValidate() => ValidateReferences();
+#endif
     }
 }

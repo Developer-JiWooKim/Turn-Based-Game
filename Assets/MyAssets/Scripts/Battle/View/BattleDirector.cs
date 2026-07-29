@@ -72,10 +72,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private bool ValidateReferences()
         {
             bool hasError = false;
-            hasError |= InspectorCheck.LogIfMissing(_registry, nameof(_registry), this);
-            hasError |= InspectorCheck.LogIfMissing(_presenter, nameof(_presenter), this);
-            hasError |= InspectorCheck.LogIfMissing(_spawner, nameof(_spawner), this);
-            hasError |= InspectorCheck.LogIfMissing(_runFlow, nameof(_runFlow), this);
+            hasError |= NullCheck.LogIfMissing(_registry, nameof(_registry), this);
+            hasError |= NullCheck.LogIfMissing(_presenter, nameof(_presenter), this);
+            hasError |= NullCheck.LogIfMissing(_spawner, nameof(_spawner), this);
+            hasError |= NullCheck.LogIfMissing(_runFlow, nameof(_runFlow), this);
             return !hasError;
         }
 
