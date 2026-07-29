@@ -25,7 +25,9 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             {
                 float total = 0f;
                 foreach (int index in remaining)
+                {
                     total += Math.Max(0f, weights[index]); // 전체 가중치 값의 합
+                }
 
                 int slot;
                 if (total <= 0f)

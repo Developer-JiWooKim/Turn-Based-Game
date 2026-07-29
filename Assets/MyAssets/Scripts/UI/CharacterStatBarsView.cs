@@ -50,10 +50,14 @@ namespace Assets.MyAssets.Scripts.UI
         private void SetRow(int index, float value, float ceiling, string text)
         {
             if (index < _fills.Count)
+            {
                 _fills[index].style.width = Length.Percent(ceiling > 0f ? Mathf.Clamp01(value / ceiling) * 100f : 0f);
+            }
 
             if (_values != null && index < _values.Count)
+            {
                 _values[index].text = text;
+            }
         }
     }
 }

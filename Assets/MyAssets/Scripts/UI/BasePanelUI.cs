@@ -22,8 +22,7 @@ namespace Assets.MyAssets.Scripts.UI
         private void SetVisible(bool visible)
         {
             // UXML에 RootElementName과 같은 이름의 엘리먼트가 없을 때 걸린다(_document 누락 포함).
-            if (NullCheck.LogIfNull(Root, nameof(Root), this, $"'{RootElementName}' 엘리먼트를 찾지 못했습니다"))
-                return;
+            if (NullCheck.LogIfNull(Root, nameof(Root), this, $"'{RootElementName}' 엘리먼트를 찾지 못했습니다")) return;
 
             Root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }

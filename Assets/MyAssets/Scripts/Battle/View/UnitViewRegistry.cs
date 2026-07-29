@@ -44,7 +44,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>플레이어 슬롯 점유 현황(추방으로 중간이 비면 영입 시 그 자리를 재사용)</summary>
         private RunMember[] _slotOccupants;
 
-        /// <summary>이번 웨이브에 살아 있는 몬스터 View들.</summary>
+        /// <summary>이번 웨이브에 살아 있는 몬스터 View들</summary>
         public IReadOnlyList<UnitView> EnemyViews => _enemyViews;
 
         private void Awake()
@@ -59,11 +59,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         private void ValidateReferences()
         {
-            NullCheck.LogIfEmpty(_playerSlots, nameof(_playerSlots), this,
-                                      "파티원을 배치할 수 없습니다");
-
-            NullCheck.LogIfEmpty(_enemySlots, nameof(_enemySlots), this,
-                                      "몬스터가 한 자리에 겹쳐 스폰됩니다");
+            NullCheck.LogIfEmpty(_playerSlots, nameof(_playerSlots), this, "파티원을 배치할 수 없습니다");
+            NullCheck.LogIfEmpty(_enemySlots, nameof(_enemySlots), this, "몬스터가 한 자리에 겹쳐 스폰됩니다");
         }
 
         public bool TryGet(int unitId, out UnitView view) => _views.TryGetValue(unitId, out view);
@@ -71,17 +68,24 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>파티원 View를 빈 슬롯에 스폰한다.</summary>
         public UnitView SpawnMember(RunMember member)
         {
-            int slot = Array.IndexOf(_slotOccupants, null);
-            if (slot < 0)
+            int slotIndex = Array.IndexOf(_slotOccupants, null);
+            if (slotIndex < 0)
             {
                 Debug.LogError($"[UnitViewRegistry] '{member.DisplayName}'을 배치할 플레이어 슬롯이 없습니다.");
                 return null;
             }
 
-            UnitView view = Spawn(member.UnitId, member.DisplayName, member.Prefab,
-                                  member.CurrentHp, member.Stats.MaxHp, _playerSlots, slot);
+            UnitView view = Spawn(member.UnitId,
+                                  member.DisplayName,
+                                  member.Prefab,
+                                  member.CurrentHp,
+                                  member.Stats.MaxHp,
+                                  _playerSlots,
+                                  slotIndex);
             if (view != null)
-                _slotOccupants[slot] = member;
+            {
+                _slotOccupants[slotIndex] = member;
+            }
 
             return view;
         }
@@ -89,10 +93,18 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>몬스터 View를 스폰하고 이번 웨이브 목록에 등록한다.</summary>
         public UnitView SpawnMonster(Unit unit, GameObject prefab, int index)
         {
-            UnitView view = Spawn(unit.Id, unit.DisplayName, prefab,
-                                  unit.CurrentHp, unit.Stats.MaxHp, _enemySlots, index);
+            UnitView view = Spawn(unit.Id,
+                                  unit.DisplayName,
+                                  prefab,
+                                  unit.CurrentHp,
+                                  unit.Stats.MaxHp,
+                                  _enemySlots,
+                                  index);
+
             if (view != null)
+            {
                 _enemyViews.Add(view);
+            }
 
             return view;
         }
@@ -100,9 +112,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>추방된 파티원의 View를 치우고 슬롯을 비운다.</summary>
         public void RemoveMember(RunMember member)
         {
-            int slot = Array.IndexOf(_slotOccupants, member);
-            if (slot >= 0)
-                _slotOccupants[slot] = null;
+            int slotIndex = Array.IndexOf(_slotOccupants, member);
+            if (slotIndex >= 0)
+            {
+                _slotOccupants[slotIndex] = null;
+            }
 
             DespawnById(member.UnitId);
         }
@@ -111,7 +125,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public void ClearMonsters()
         {
             foreach (UnitView view in _enemyViews)
+            {
                 DespawnById(view.UnitId);
+            }
 
             _enemyViews.Clear();
         }
@@ -126,7 +142,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             foreach (Unit unit in units)
             {
                 if (_views.TryGetValue(unit.Id, out UnitView view))
+                {
                     view.RefreshStatuses(unit.Statuses);
+                }
             }
         }
 
@@ -139,7 +157,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             foreach (UnitView view in _views.Values)
             {
                 if (view != null)
+                {
                     view.RefreshStatuses(null);
+                }
             }
         }
 
@@ -149,7 +169,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             foreach (RunMember member in members)
             {
                 if (_views.TryGetValue(member.UnitId, out UnitView view))
+                {
                     view.RefreshHealth(member.CurrentHp, member.Stats.MaxHp);
+                }
             }
         }
 
@@ -170,8 +192,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             ObjectPool<UnitView> pool = GetPool(prefab, displayName);
-            if (pool == null)
-                return null;
+            if (pool == null) return null;
 
             UnitView view = pool.Get();
 
@@ -184,6 +205,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             _views[unitId] = view;
             _sourcePrefab[view] = prefab;
+
             return view;
         }
 
@@ -199,17 +221,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             Debug.LogError($"[UnitViewRegistry] '{displayName}'을 배치할 {index}번 슬롯이 없습니다" +
                            $"(슬롯 {(slots != null ? slots.Length : 0)}개) — 겹쳐서 스폰됩니다.", this);
+
             return transform;
         }
 
         private void DespawnById(int unitId)
         {
-            if (!_views.TryGetValue(unitId, out UnitView view))
-                return;
+            if (!_views.TryGetValue(unitId, out UnitView view)) return;
 
             _views.Remove(unitId);
-            if (view == null)
-                return;
+            if (view == null) return;
 
             if (_sourcePrefab.TryGetValue(view, out GameObject prefab))
             {
@@ -230,8 +251,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         private ObjectPool<UnitView> GetPool(GameObject prefab, string displayName)
         {
-            if (_pools.TryGetValue(prefab, out ObjectPool<UnitView> pool))
-                return pool;
+            if (_pools.TryGetValue(prefab, out ObjectPool<UnitView> pool)) return pool;
 
             if (prefab.GetComponentInChildren<UnitView>(true) == null)
             {

@@ -51,7 +51,9 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         public RunData(CharacterStatsSO starter)
         {
             if (starter != null)
+            {
                 Members.Add(new RunMember(NextUnitId(), starter));
+            }
         }
 
         /// <summary>새 Unit(파티원·몬스터)에 부여할 식별자를 발급한다.</summary>
@@ -65,7 +67,9 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         public void ApplyChoice(in RoguelikeEffect effect)
         {
             foreach (RunMember member in Members)
+            {
                 member.ApplyGrowth(effect);
+            }
 
             PendingModifiers.Add(effect);
         }
@@ -78,14 +82,15 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         {
             int step = CurrentStage - 1; // 진급 직후 호출되므로 이번이 몇 번째 성장인지와 같다
             foreach (RunMember member in Members)
+            {
                 member.ApplyGrowth(scaling.CreatePlayerGrowth(member.BaseStats, step));
+            }
         }
 
         /// <summary>파티에 새 멤버를 추가한다(자리가 없으면 null).</summary>
         public RunMember AddMember(CharacterStatsSO source)
         {
-            if (source == null || !CanRecruit)
-                return null;
+            if (source == null || !CanRecruit) return null;
 
             var member = new RunMember(NextUnitId(), source);
             Members.Add(member);
@@ -98,8 +103,7 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         public RunMember Recruit(CharacterStatsSO source, in StageScaling scaling)
         {
             RunMember member = AddMember(source);
-            if (member == null)
-                return null;
+            if (member == null) return null;
 
             ApplyCatchUp(member, scaling);
             return member;
@@ -111,8 +115,7 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// </summary>
         public Stats PreviewRecruitStats(CharacterStatsSO source, in StageScaling scaling)
         {
-            if (source == null)
-                return null;
+            if (source == null) return null;
 
             var preview = new RunMember(0, source); // Id 0 = 미리보기 전용(파티에 넣지 않으므로 식별자를 소모하지 않는다)
             ApplyCatchUp(preview, scaling);
@@ -127,7 +130,9 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         {
             // 기존 파티원이 진급마다 받아온 것과 같은 순서로 되짚어야 누적 결과가 정확히 일치한다.
             for (int step = 1; step < CurrentStage; step++)
+            {
                 member.ApplyGrowth(scaling.CreatePlayerGrowth(member.BaseStats, step));
+            }
         }
 
         /// <summary>
@@ -136,8 +141,7 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// </summary>
         public RunMember ReplaceMember(RunMember outgoing, CharacterStatsSO source, in StageScaling scaling)
         {
-            if (source == null || outgoing == null || !Members.Remove(outgoing))
-                return null;
+            if (source == null || outgoing == null || !Members.Remove(outgoing)) return null;
 
             return Recruit(source, scaling); // 자리가 방금 비었으므로 기존 영입 경로(소급 성장 포함)를 그대로 탄다
         }
@@ -157,7 +161,9 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         {
             List<RunMember> fallen = Members.Where(m => !m.IsAlive).ToList();
             foreach (RunMember member in fallen)
+            {
                 Members.Remove(member);
+            }
 
             return fallen;
         }

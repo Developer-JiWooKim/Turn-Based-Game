@@ -16,29 +16,35 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// </summary>
     public sealed class BattleRunFlow : MonoBehaviour
     {
-        /// <summary>런이 끝나면 되돌아갈 타이틀/캐릭터 선택 씬.</summary>
+        /// <summary>런이 끝나면 되돌아갈 타이틀/캐릭터 선택 씬</summary>
         private const string IntroSceneName = "IntroScene";
 
+        [Header("Test Party SO")]
         [Tooltip("Title→캐릭터 선택을 거치지 않고 BattleScene을 직접 플레이할 때 쓰는 테스트 파티(폴백)")]
         [SerializeField] private CharacterStatsSO[] _testParty;
 
-        [Tooltip("런 종료 시 도달 스테이지를 보여주는 결과 팝업. 비워두면 바로 씬을 전환한다.")]
+        [Header("결과 UI Panel")]
+        [Tooltip("런 종료 시 도달 스테이지를 보여주는 결과 팝업(UI Tool Kit). 비워두면 바로 씬을 전환한다.")]
         [SerializeField] private BattleResultPanel _resultPanel;
 
         /// <summary>런 데이터를 가져오고, 없으면(BattleScene 직접 플레이) 테스트 파티로 임시 런을 만든다.</summary>
         public RunData ResolveRun()
         {
             RunData run = GameManager.Instance != null ? GameManager.Instance.CurrentRun : null;
-            if (run != null && run.Members.Count > 0)
-                return run;
+            if (run != null && run.Members.Count > 0) return run;
 
             if (_testParty == null || _testParty.Length == 0)
+            {
+                Debug.LogError("[BattleRunFlow] 테스트 파티 데이터가 없습니다.");
                 return null;
+            }
 
             Debug.Log("[BattleRunFlow] RunData가 없어 인스펙터 테스트 파티로 진행합니다.");
             var fallback = new RunData(_testParty[0]);
             for (int i = 1; i < _testParty.Length; i++)
+            {
                 fallback.AddMember(_testParty[i]);
+            }
 
             return fallback;
         }
@@ -59,12 +65,18 @@ namespace Assets.MyAssets.Scripts.Battle.View
             bool isNewRecord = SaveService.RecordStage(reachedStage);
 
             if (_resultPanel != null)
+            {
                 await _resultPanel.PresentAsync(reachedStage, previousBest, isNewRecord, ct);
+            }
 
             if (GameManager.Instance != null)
+            {
                 GameManager.Instance.LoadScene(IntroSceneName);
+            }
             else
+            {
                 Debug.Log("[BattleRunFlow] GameManager가 없어 씬 전환을 건너뜀(BattleScene 직접 실행)");
+            }
         }
     }
 }

@@ -1,5 +1,3 @@
-using System;
-
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
@@ -21,10 +19,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     /// </summary>
     public sealed class SystemRandom : IRandom
     {
-        private readonly Random _random;
+        private readonly System.Random _random;
 
-        public SystemRandom() : this(Environment.TickCount) { }
-        public SystemRandom(int seed) => _random = new Random(seed);
+        public SystemRandom() : this(System.Environment.TickCount) { }
+        public SystemRandom(int seed) => _random = new System.Random(seed);
 
         public float Value01() => (float)_random.NextDouble();
 

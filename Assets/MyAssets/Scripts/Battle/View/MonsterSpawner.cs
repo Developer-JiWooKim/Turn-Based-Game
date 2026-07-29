@@ -9,8 +9,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 {
     /// <summary>
     /// "이번 스테이지에 어떤 몬스터가 나오는가"만 책임지는 컴포넌트.
-    /// 웨이브 선택(수동 설계 구간 / 랜덤 풀)과 몬스터 <see cref="Unit"/> 생성 + View 스폰까지 담당하고,
-    /// 전투 진행이나 스테이지 루프는 전혀 모른다.
+    /// 웨이브 선택(수동 설계 구간 / 랜덤 풀)과 몬스터 <see cref="Unit"/> 생성 + View 스폰까지 담당
     ///
     /// 파티 쪽은 <see cref="UnitViewRegistry.SpawnMember"/>가 이미 스폰을 담당하므로 여기서 다루지 않는다.
     /// </summary>
@@ -41,11 +40,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         public SpawnWaveSO ResolveWave(int stage, IRandom rng)
         {
-            if (_monsterWaves == null || _monsterWaves.Length == 0)
-                return null;
+            if (_monsterWaves == null || _monsterWaves.Length == 0) return null;
 
-            if (stage <= _monsterWaves.Length)
-                return _monsterWaves[stage - 1];
+            if (stage <= _monsterWaves.Length) return _monsterWaves[stage - 1];
 
             bool wantBoss = _bossStageInterval > 0 && stage % _bossStageInterval == 0;
             return PickFromPool(wantBoss, rng)
@@ -53,7 +50,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 ?? _monsterWaves[(stage - 1) % _monsterWaves.Length];
         }
 
-        /// <summary>웨이브의 몬스터를 만들어 스폰한다. 스탯은 기준값 → 스테이지 배율 → 로그라이크 디버프 순.</summary>
+        /// <summary>
+        /// 웨이브의 몬스터를 만들어 스폰한다. 
+        /// 스탯은 기준값 → 스테이지 배율 → 로그라이크 디버프 순.
+        /// </summary>
         public List<Unit> SpawnWave(SpawnWaveSO wave, RunData run, in StageScaling scaling, int stage)
         {
             // Consume() 전에 읽어둔다 — 스폰 루프가 끝나면 예약이 비워진다.
@@ -75,7 +75,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
                 // '몬스터 행동불가' 선택지는 1턴 기절로 표현한다 — 저항 없이 확정 적용(플레이어가 선택으로 얻은 효과).
                 if (skipFirstTurn)
+                {
                     unit.ApplyStatus(new StatusEffect(StatusKind.Stun, 1, 0f, 1f));
+                }
 
                 enemies.Add(unit);
 

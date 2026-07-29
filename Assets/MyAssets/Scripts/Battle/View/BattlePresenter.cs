@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Battle.View
 {
     /// <summary>
-    /// Core(BattleSimulation)의 이벤트를 구독해 연출과 HUD를 갱신하는 연출 담당.
+    /// BattleSimulation의 이벤트를 구독해 연출과 HUD를 갱신하는 연출 담당.
     /// 전투 규칙은 전혀 모르고 "언제 무엇을 보여줄지"만 담당하며,
     /// 애니메이션이 끝날 때까지의 Task를 이벤트에 등록해 시뮬레이션을 대기시킨다.
     ///
@@ -21,22 +21,19 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [SerializeField] private BattleHUD _hud;
         [SerializeField] private CameraShake _cameraShake;
 
-        // 레지스트리는 인스펙터가 아니라 BattleDirector가 Initialize로 주입한다
-        // (MonsterSpawner·TargetingController와 같은 방식 — 슬롯을 중복으로 두면 둘이 다른 오브젝트를 가리켜도 알 수 없다).
-        private UnitViewRegistry _registry;
-
         [Header("연출")]
         [Tooltip("공격 시작 후 타격이 적중하는 시점까지의 지연(초).")]
         [SerializeField] private float _impactDelay = 0.35f;
         [Tooltip("현재 행동 중인 유닛에 씌울 레이어 이름(파랑 아웃라인). 렌더러만 이 레이어로 옮긴다.")]
         [SerializeField] private string _activeLayerName = "ActiveUnit";
 
+        private UnitViewRegistry _registry;
         private BattleSimulation _simulation;
-        private CancellationToken _ct;
+        private UnitView _activeView; // 현재 파랑 강조 중인 행동 유닛 View(다음 행동 유닛으로 넘어갈 때 원복).
 
         private int _activeLayer;
-        // 현재 파랑 강조 중인 행동 유닛 View(다음 행동 유닛으로 넘어갈 때 원복).
-        private UnitView _activeView;
+
+        private CancellationToken _ct;
 
         private void Awake() => _activeLayer = LayerMask.NameToLayer(_activeLayerName);
 
@@ -50,14 +47,18 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public void SetStage(int stage)
         {
             if (_hud != null)
+            {
                 _hud.SetStage(stage);
+            }
         }
 
         /// <summary>이번 스테이지에 발동 중인 파티 시너지를 HUD에 표시한다.</summary>
         public void SetSynergies(IReadOnlyList<ActiveSynergy> synergies)
         {
             if (_hud != null)
+            {
                 _hud.ShowSynergies(synergies);
+            }
         }
 
         /// <summary>이번 웨이브의 시뮬레이션에 연출을 연결한다.</summary>
@@ -77,8 +78,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         public void Unbind()
         {
-            if (_simulation == null)
-                return;
+            if (_simulation == null) return;
 
             _simulation.TurnStarted -= OnTurnStarted;
             _simulation.ActorTurnStarted -= OnActorTurnStarted;
@@ -99,13 +99,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void OnTurnStarted(object sender, TurnStartedEventArgs e)
         {
             if (_hud != null)
+            {
                 _hud.ShowTurnOrder(e.Order);
+            }
         }
 
         private void OnActorTurnStarted(object sender, ActorTurnEventArgs e)
         {
             if (_hud != null)
+            {
                 _hud.SetActiveUnit(e.Actor);
+            }
 
             HighlightActive(e.Actor.Id);
         }
@@ -125,7 +129,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void ClearActive()
         {
             if (_activeView != null)
+            {
                 _activeView.ResetOutlineLayer();
+            }
+
             _activeView = null;
         }
 
@@ -134,7 +141,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void OnActionResolved(object sender, ActionResolvedEventArgs e)
         {
             if (_hud != null)
+            {
                 _hud.HidePrompt(); // 입력 완료 → 연출 단계이므로 "당신의 차례" 프롬프트 숨김
+            }
 
             e.RegisterPlayback(PlayActionAsync(e.Result));
         }
@@ -142,33 +151,40 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void OnUnitDied(object sender, UnitDiedEventArgs e)
         {
             if (_hud != null)
+            {
                 _hud.MarkDead(e.Unit.Id);
+            }
+
 
             if (_registry.TryGet(e.Unit.Id, out UnitView view))
+            {
                 e.RegisterPlayback(view.PlayDieAsync(_ct));
+            }
         }
 
         /// <summary>상태이상이 붙거나 풀렸을 때 체력바 옆 표기를 다시 그린다(저항은 표기 변화가 없다).</summary>
         private void OnStatusChanged(object sender, StatusChangedEventArgs e)
         {
-            if (e.Reason == StatusChangeReason.Resisted)
-                return;
+            if (e.Reason == StatusChangeReason.Resisted) return;
 
             if (_registry.TryGet(e.Unit.Id, out UnitView view))
+            {
                 view.RefreshStatuses(e.Unit.Statuses);
+            }
         }
 
         /// <summary>도트 피해는 일반 피격과 같은 연출을 재사용한다(체력바 갱신 포함).</summary>
         private void OnStatusTicked(object sender, StatusTickedEventArgs e)
         {
             if (_registry.TryGet(e.Unit.Id, out UnitView view))
+            {
                 e.RegisterPlayback(view.PlayHitAsync(e.Unit.CurrentHp, e.Unit.Stats.MaxHp, _ct));
+            }
         }
 
         private async Task PlayActionAsync(ActionResult result)
         {
-            if (!_registry.TryGet(result.Actor.Id, out UnitView actorView))
-                return;
+            if (!_registry.TryGet(result.Actor.Id, out UnitView actorView)) return;
 
             // 1) 공격/스킬 애니메이션 시작
             Task actorAnim = result.Kind == ActionKind.Skill
@@ -184,13 +200,19 @@ namespace Assets.MyAssets.Scripts.Battle.View
             {
                 if (hit.IsCritical) anyCritical = true;
                 if (_registry.TryGet(hit.Target.Id, out UnitView targetView))
+                {
                     playback.Add(targetView.PlayHitAsync(hit.Target.CurrentHp, hit.Target.Stats.MaxHp, _ct));
+                }
+
             }
 
             if (anyCritical)
             {
                 if (_cameraShake != null)
+                {
                     _cameraShake.Shake();
+                }
+
                 AudioManager.Sfx(AudioManager.Library?.Critical);
             }
 

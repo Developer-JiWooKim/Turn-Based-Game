@@ -7,7 +7,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// <see cref="Camera.main"/> 조회 결과를 캐시한다.
     ///
     /// Camera.main은 "MainCamera" 태그를 검색하는 호출이라 매 프레임 쓰면 비용이 쌓인다 —
-    /// 체력바 빌보드는 <b>유닛마다</b> LateUpdate에서 호출하므로 전장에 8유닛이면 초당 수백 회가 된다.
+    /// 체력바 빌보드는 유닛마다 LateUpdate에서 호출하므로 전장에 8유닛이면 초당 수백 회가 된다.
     ///
     /// 캐시된 카메라가 파괴되거나(씬 전환) 비활성화되면 자동으로 다시 조회하므로 수동 무효화가 필요 없다.
     /// </summary>
@@ -16,13 +16,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private static Camera _camera;
         private static Transform _transform;
 
-        /// <summary>현재 메인 카메라(없으면 null).</summary>
+        /// <summary>현재 메인 카메라(없으면 null)</summary>
         public static Camera Current
         {
             get
             {
-                // Unity의 == 오버로드가 파괴된 오브젝트도 null로 판정하므로 씬 전환이 자동으로 처리된다.
-                // 비활성화된 카메라는 렌더링하지 않으므로 교체된 것으로 보고 다시 찾는다.
                 if (_camera == null || !_camera.isActiveAndEnabled)
                 {
                     _camera = Camera.main;

@@ -79,8 +79,7 @@ namespace Assets.MyAssets.Scripts.Systems
 
             DontDestroyOnLoad(gameObject);
 
-            if (NullCheck.LogIfMissing(_actions, nameof(_actions), this, "어떤 입력도 받을 수 없습니다"))
-                return;
+            if (NullCheck.LogIfMissing(_actions, nameof(_actions), this, "어떤 입력도 받을 수 없습니다")) return;
 
             _saver = new InputBindingSaver(_actions);
             _rebinder = new InputRebinder(_actions, _saver);
@@ -120,6 +119,7 @@ namespace Assets.MyAssets.Scripts.Systems
         protected override void OnDestroy()
         {
             base.OnDestroy();
+
             _rebinder?.Dispose(); // 리바인딩 세션 정리
         }
 

@@ -17,7 +17,7 @@ namespace Assets.MyAssets.Scripts.Systems
         protected override void Awake()
         {
             base.Awake();
-            if (!IsValidInstance) return; // 중복 인스턴스는 base.Awake에서 파괴 예약됨 — 구독/검증을 하지 않는다
+            if (!IsValidInstance) return;
 
             ValidateReferences(); // 인스펙터 연결 누락을 시작 시 1회 보고한다.
 
@@ -27,14 +27,11 @@ namespace Assets.MyAssets.Scripts.Systems
         }
 
         /// <summary>
-        /// 인스펙터 연결 누락을 보고한다. 페이드는 연출이라 없어도 씬 전환 자체는 진행하므로
-        /// 결과를 플래그로 남기지 않고, 사용처가 매번 null을 확인한다
-        /// (Fade Canvas를 자식으로 두지 않으면 씬 전환 때 파괴되는데, 캐싱한 플래그는 그걸 잡지 못한다).
+        /// 인스펙터 연결 누락을 보고한다. 
         /// </summary>
         private void ValidateReferences()
         {
-            NullCheck.LogIfMissing(_fadeScreenEffect, nameof(_fadeScreenEffect), this,
-                                        "페이드 없이 씬을 전환합니다");
+            NullCheck.LogIfMissing(_fadeScreenEffect, nameof(_fadeScreenEffect), this, "페이드 없이 씬을 전환합니다");
         }
 
         protected override void OnDestroy()
