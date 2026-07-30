@@ -6,16 +6,7 @@
     <ui:VisualElement name="screen-root" class="screen-root" picking-mode="Ignore">
         <!-- 공용 배경: 패널 전환과 무관하게 항상 뒤에 깔림 -->
         <ui:VisualElement name="background" class="background" picking-mode="Ignore">
-            <ui:VisualElement class="bg-band bg-sky" picking-mode="Ignore" />
-            <ui:VisualElement class="bg-band bg-blend-1" picking-mode="Ignore" />
-            <ui:VisualElement class="bg-band bg-grass-mid" picking-mode="Ignore" />
-            <ui:VisualElement class="bg-band bg-blend-2" picking-mode="Ignore" />
-            <ui:VisualElement class="bg-band bg-grass-dark" picking-mode="Ignore" />
-        </ui:VisualElement>
-        <ui:VisualElement name="clouds" class="clouds" picking-mode="Ignore">
-            <ui:VisualElement class="cloud cloud-1" />
-            <ui:VisualElement class="cloud cloud-2" />
-            <ui:VisualElement class="cloud cloud-3" />
+            <ui:VisualElement class="bg-image" picking-mode="Ignore"/>
         </ui:VisualElement>
 
         <!-- TitlePanelUI._rootElementName = "title-panel" -->
