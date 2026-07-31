@@ -247,25 +247,29 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>성장 선택지를 제시하고, 영입되었으면(교체 포함) 파티원 View를 갱신한다.</summary>
         private async Task PresentRewardAsync(IRandom rng)
         {
-            if (_rewards == null)
-                return;
+            if (_rewards == null) return;
 
             RecruitResult result = await _rewards.PresentAsync(_run, rng, _scaling, _cts.Token);
-            if (result.Recruited == null)
-                return;
+            if (result.Recruited == null) return;
 
             if (result.ReplacedOut != null)
+            {
                 _registry.RemoveMember(result.ReplacedOut);
+            }
 
             UnitView view = _registry.SpawnMember(result.Recruited);
             if (view != null)
+            {
                 await view.PlaySpawnAsync(_cts.Token);
+            }
         }
 
         private void OnDestroy()
         {
             if (_pausePanel != null)
+            {
                 _pausePanel.AbortRequested -= OnAbortRequested;
+            }
 
             _cts?.Cancel();
             _cts?.Dispose();
