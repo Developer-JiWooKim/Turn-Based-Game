@@ -56,7 +56,9 @@ namespace Assets.MyAssets.Scripts.UI
             slider.RegisterValueChangedCallback(evt => onChange(evt.newValue));
 
             if (onRelease != null)
+            {
                 slider.RegisterCallback<PointerUpEvent>(_ => onRelease());
+            }
         }
     }
 }
