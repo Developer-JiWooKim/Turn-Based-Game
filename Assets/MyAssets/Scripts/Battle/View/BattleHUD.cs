@@ -38,7 +38,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             _pauseButton = root.Q<Button>("pause-button");
             if (_pauseButton != null)
+            {
                 _pauseButton.clicked += () => PauseClicked?.Invoke();
+            }
 
             HidePrompt();
         }
@@ -47,13 +49,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public void SetPauseButtonVisible(bool visible)
         {
             if (_pauseButton != null)
+            {
                 _pauseButton.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
         }
 
         public void SetStage(int stage)
         {
             if (_stageLabel != null)
+            {
                 _stageLabel.text = $"STAGE {stage}";
+            }
         }
 
         /// <summary>발동 중인 파티 시너지를 표시한다(없으면 숨김).</summary>
@@ -122,21 +128,29 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 kv.Value.EnableInClassList("turn-chip-active", kv.Key == actor.Id);
 
             if (actor.Team == TeamSide.Player)
+            {
                 ShowPrompt("당신의 차례 — 공격할 몬스터를 클릭하세요");
+            }
             else
+            {
                 HidePrompt();
+            }
         }
 
         public void MarkDead(int unitId)
         {
             if (_chips.TryGetValue(unitId, out VisualElement chip))
+            {
                 chip.AddToClassList("turn-chip-dead");
+            }
         }
 
         public void HidePrompt()
         {
             if (_playerPrompt != null)
+            {
                 _playerPrompt.style.display = DisplayStyle.None;
+            }
         }
 
         private void ShowPrompt(string text)

@@ -39,20 +39,27 @@
     margin-bottom: 60px;
 }
 
-.title-text {
-    font-size: 110px;
-    color: var(--color-cream);
-    -unity-text-outline-width: 5px;
-    letter-spacing: 4px;
-    text-shadow: 0 6px 0 var(--color-outline);
+.title-logo {
+    width: 1280px;
+    height: 380px;
+
+    align-self: center;
+    margin-top: -150px;
+
+    background-image: url('project://database/Assets/MyAssets/Textures/Title_Logo.png');
+    -unity-background-scale-mode: scale-to-fit;
 }
 
-.subtitle-text {
-    font-size: 22px;
-    color: var(--color-cream);
-    opacity: 0.85;
-    margin-top: 8px;
-    -unity-text-outline-width: 2px;
+.title-logo-shadow {
+    position: absolute;
+    width: 1280px;
+    height: 380px;
+
+    margin-top: -140px;
+
+    background-image: url('project://database/Assets/MyAssets/Textures/Title_Logo.png');
+    -unity-background-scale-mode: scale-to-fit;
+    -unity-background-image-tint-color: rgba(0,0,0,0.6);
 }
 
 .menu {

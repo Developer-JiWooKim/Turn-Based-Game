@@ -63,11 +63,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             Button resume = root.Q<Button>("pause-resume");
             if (resume != null)
+            {
                 resume.clicked += Resume;
+            }
 
             Button abort = root.Q<Button>("pause-abort");
             if (abort != null)
+            {
                 abort.clicked += Abort;
+            }
 
             HideOverlay();
         }
@@ -75,13 +79,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void OnEnable()
         {
             if (_hud != null)
+            {
                 _hud.PauseClicked += Pause;
+            }
         }
 
         private void OnDisable()
         {
             if (_hud != null)
+            {
                 _hud.PauseClicked -= Pause;
+            }
 
             // InputManager는 DontDestroyOnLoad라, 퍼즈 중에 씬이 바뀌면 배틀 입력이 잠긴 채로 다음 런까지
             // 이어진다. 복구 예약(_enableInputAtFrame)도 Update가 더 돌지 않으면 소멸하므로 여기서 확정한다.
@@ -93,14 +101,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
             pending?.TrySetCanceled();
 
             if (needsRestore && InputManager.Instance != null)
+            {
                 InputManager.Instance.IsGameplayInputEnabled = true;
+            }
         }
 
         private void Update()
         {
             InputManager input = InputManager.Instance;
-            if (input == null)
-                return;
+            if (input == null) return;
 
             if (_enableInputAtFrame >= 0 && Time.frameCount >= _enableInputAtFrame)
             {
@@ -108,13 +117,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 input.IsGameplayInputEnabled = true;
             }
 
-            if (!input.PauseTogglePressed)
-                return;
+            if (!input.PauseTogglePressed) return;
 
             if (IsPaused)
+            {
                 Resume();
+            }
             else
+            {
                 Pause();
+            }
         }
 
         /// <summary>퍼즈 가능 구간을 켜고 끈다. 끌 때 퍼즈 중이었다면 안전하게 해제한다.</summary>
@@ -123,10 +135,14 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _battleActive = active;
 
             if (!active && IsPaused)
+            {
                 Resume();
+            }
 
             if (_hud != null)
+            {
                 _hud.SetPauseButtonVisible(active);
+            }
         }
 
         /// <summary>퍼즈 화면에 표시할 현재 스테이지(스테이지 시작 시 <see cref="BattleDirector"/>가 밀어넣는다).</summary>
@@ -134,15 +150,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         public void Pause()
         {
-            if (!_battleActive || IsPaused)
-                return;
+            if (!_battleActive || IsPaused) return;
 
             _resumeSignal = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             // 배틀 입력만 닫는다 — UI 입력은 열려 있어야 퍼즈 메뉴를 조작할 수 있다.
             _enableInputAtFrame = -1; // 직전 해제의 복구 예약이 남아 있으면 취소
             if (InputManager.Instance != null)
+            {
                 InputManager.Instance.IsGameplayInputEnabled = false;
+            }
 
             RefreshTexts();
             ShowOverlay();
@@ -150,8 +167,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         public void Resume()
         {
-            if (!IsPaused)
-                return;
+            if (!IsPaused) return;
 
             ReleaseGate()?.TrySetResult(true);
             HideOverlay();
@@ -164,8 +180,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         private void Abort()
         {
-            if (!IsPaused)
-                return;
+            if (!IsPaused) return;
 
             HideOverlay();
             AbortRequested?.Invoke();
@@ -198,17 +213,20 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void RefreshTexts()
         {
             if (_stageLabel != null)
+            {
                 _stageLabel.text = _stage.ToString();
+            }
 
-            if (_bestLabel == null)
-                return;
+            if (_bestLabel == null) return;
 
             // 이번 런은 아직 기록되지 않았으므로 여기 값이 곧 "이전 최고 기록"이다.
             int best = SaveService.Current.BestStage;
             bool hasRecord = best > 0;
             _bestLabel.style.display = hasRecord ? DisplayStyle.Flex : DisplayStyle.None;
             if (hasRecord)
+            {
                 _bestLabel.text = $"이전 최고 기록 {best}";
+            }
         }
 
         // BasePanelUI의 Show/Hide를 그대로 쓰되, 이 패널에서는 "퍼즈 상태 전환"(Pause/Resume)과

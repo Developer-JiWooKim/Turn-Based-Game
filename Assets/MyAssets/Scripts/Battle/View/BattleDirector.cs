@@ -233,7 +233,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 {
                     _pausePanel.SetBattleActive(false);
                 }
-
             }
         }
 

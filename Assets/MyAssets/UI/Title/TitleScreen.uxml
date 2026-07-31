@@ -12,8 +12,8 @@
         <!-- TitlePanelUI._rootElementName = "title-panel" -->
         <ui:VisualElement name="title-panel" class="panel" picking-mode="Ignore">
             <ui:VisualElement name="title-wrap" class="title-wrap" picking-mode="Ignore">
-                <ui:Label text="TURN TACTICS" name="game-title" class="title-text outline-text" />
-                <ui:Label text="(제목 미정 · placeholder)" name="game-subtitle" class="subtitle-text outline-text" />
+                <ui:VisualElement name="game-title-shadow" class="title-logo-shadow" picking-mode="Ignore" />
+                <ui:VisualElement name="game-title" class="title-logo" picking-mode="Ignore" />                    
             </ui:VisualElement>
             <ui:VisualElement name="menu" class="menu" picking-mode="Ignore">
                 <ui:Button text="게임 시작" name="start-button" class="btn btn-cta" />
