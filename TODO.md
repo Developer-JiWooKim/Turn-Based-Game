@@ -2,7 +2,7 @@
 
 이 문서는 앞으로 해야 할 작업을 정리한 목록입니다.
 게임 기획은 `README.md`, 코드 작업 규칙·현재 코드 상태는 `CLAUDE.md`를 참고하세요.
-UI 비주얼 규칙은 `UI_DesignReference.md`, 입력 구조와 개선 방향은 `Input_Architecture.md`에 있습니다.
+UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 별도 문서 없이 `CLAUDE.md`의 InputManager 항목에 통합돼 있음).
 
 > 우선순위 표기: 🔴 높음(핵심 재미·구조) / 🟡 중간 / 🟢 낮음(폴리시·후순위)
 > 상태 표기: 미착수 / 진행중 / 부분구현
@@ -77,17 +77,24 @@ UI 비주얼 규칙은 `UI_DesignReference.md`, 입력 구조와 개선 방향�
 - ✅ 선행 준비 완료: `Systems/GameSettings`가 옵션 값의 단일 진입점이라, 해상도는 여기에 프로퍼티 + `ApplyDisplay()`를 추가하고 `GameManager.Awake`에서 한 번 부르면 된다. UI는 드롭다운/토글만 붙이면 끝
 - ❓ **선결 사항: 언어 설정을 뺄지 결정** — `SaveData.cs`의 `Language` 필드에 "언어 설정 기능 뺄 것 같음" 주석이 있다. 빼기로 하면 해상도만 구현하는 작은 작업이 되고, 외부 에셋이 필요 없어 **지금 바로 착수 가능한 유일한 기능 작업**이다
 
-### 3-5. UI 비주얼 폴리시  (상태: 미착수)
-- `UI_DesignReference.md`의 나무 텍스처·두꺼운 검은 아웃라인 스타일이 배틀 UI(HUD/퍼즈/결과)에 아직 적용되지 않았다 — 현재는 단순 골드-브라운 톤(해당 문서 말미에도 명시돼 있음)
+### 3-5. UI 비주얼 폴리시  (상태: 부분구현 — 2026-08 버튼/패널 톤 교체 완료)
+- ✅ 기존 골드/나무 텍스처 카툰 톤을 다크 민트/바이올렛 네온 톤으로 전면 교체(`UI_DesignReference.md` 참고). 버튼(`Common.uss` `.btn` 계열) + 패널·팝업 배경(`.panel-frame`) + 배틀 HUD 턴 순서 칩 모서리·트랜지션까지 적용
+- ⬜ 캐릭터 선택 화면의 nav-arrow·인디케이터 점·스탯 바 강조색은 아직 구 시안/네이비 톤 그대로 — 새 팔레트로 이전 필요
+- ⬜ **버튼 크기 조정** — 현재 `.btn` 계열이 레퍼런스 이미지 대비 작음. 톤(색상)은 유지하고 크기만 키우는 방향(2026-08 확인, 레퍼런스 이미지 별도 공유 예정)
 - 아이콘 작업(3-1/3-3)과 함께 처리하면 톤을 한 번에 맞출 수 있다
+
+### 3-6. 배틀 정보 표시 확장  (상태: 미착수)
+- **시너지 표**: 현재 HUD에 발동 중인 시너지 라벨(`BattleHUD.ShowSynergies`)만 있음 — 어떤 시너지가 왜 발동됐는지(임계 인원/효과)를 보여주는 표 형태로 확장
+- **선택지로 증가한 스탯 표**: 이번 런에서 로그라이크 선택지로 누적된 스탯 증가량을 파티원별로 확인할 수 있는 표 필요(`RunMember.Stats` vs `BaseStats` 차이를 보여주면 됨)
 
 ---
 
 ## 🟢 4순위 — 연출 / 폴리시
 
-### 4-1. 히트 이펙트 / 파티클  (상태: 미착수)
-- 타격 시 히트 이펙트 재생 (외부 에셋 구매/다운로드 예정)
-- `BattlePresenter.PlayActionAsync`에 이펙트 스폰 훅 추가 지점 있음
+### 4-1. 히트 이펙트 / 데미지 표시  (상태: 미착수)
+- **타격 이펙트**: 기존에 만들어뒀던 파티클 효과를 다시 가져와 연결 (`BattlePresenter.PlayActionAsync`에 이펙트 스폰 훅 추가 지점 있음)
+- **데미지 숫자 팝업**(월드스페이스 uGUI, `UnitHealthBar`류와 같은 계층): 크리티컬은 빨간색 + 큰 글자, 일반 데미지는 흰색
+- **연출 동기화**: 애니메이션 클립에 애니메이션 이벤트를 추가해서, Hit 애니메이션 발동 시점에 파티클 + 데미지 숫자 + 사운드가 함께 재생되도록. 이벤트 시점 하나에 여러 연출을 묶는 시퀀스 구조가 필요할 것(구현 방식 TBD)
 
 ### 4-2. 입력 시스템 정식화  (상태: ✅ 완료)
 - ✅ 바인딩을 `.inputactions` 에셋의 액션맵(Battle/Menu/UI)으로 이전, 코드 하드코딩 제거, 생성 래퍼 삭제
@@ -99,6 +106,8 @@ UI 비주얼 규칙은 `UI_DesignReference.md`, 입력 구조와 개선 방향�
 
 ## 🔧 기술 부채 / 알려진 이슈
 
+- **영입 스탯 불일치 의심**(2026-08 발견, 점검 필요): 영입 시 파티에 합류하는 캐릭터의 스탯이 기존에 그 필드에 있던(같은 캐릭터의) 스탯과 다르게 적용됨. `RunData.Recruit`/`PreviewRecruitStats`가 공유하는 소급 성장 계산(`ApplyCatchUp`)에서 실제 적용 수치를 점검할 것
+- **미사용 USS 변수**: `Common.uss`의 `--color-cyan-mid`가 버튼 팔레트 교체(3-5) 이후 실사용처 없음 — 캐릭터 선택 잔여 시안 톤(3-5의 nav-arrow 등) 정리 시 같이 삭제
 - **에셋 이름 오타**: `ScriptableObjects/Skill/Skill_SkeltonWarrior.asset` — `Skeleton`이 `Skelton`으로 빠져 있다. 참조가 늘기 전에 고치는 편이 낫다
 - **`MinionSO.asset`에 구 필드 잔여**: `_skillCooldown`/`_skillScope`/`_skillPowerMultiplier` — `SkillSO` 분리 이전의 인라인 필드가 YAML에 남아 있다. Unity가 무시하므로 동작엔 무해하고, 에디터에서 해당 에셋을 한 번 수정·저장하면 사라진다
 - **Core 유닛 테스트 미도입**: asmdef 분리로 전제조건은 해결됐고 `com.unity.test-framework`도 설치돼 있으나 테스트 어셈블리가 아직 없다. 회귀 가치가 높은 후보 — `DamageCalculator`(비율 감소+크리), `TurnOrder`(SPD 정렬), `StageScaling.CreatePlayerGrowth`(반올림 누적 방지), `Unit.TryApplyStatus`(RES 저항 확률)
