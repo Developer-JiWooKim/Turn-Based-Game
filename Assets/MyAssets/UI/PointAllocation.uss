@@ -1,4 +1,4 @@
-/* 성향 포인트 배분 팝업 전용 스타일. 공용 클래스(popup-*, btn, wood-panel)는 Common.uss 참조 */
+/* 성향 포인트 배분 팝업 전용 스타일. 공용 클래스(popup-*, btn, panel-frame)는 Common.uss 참조 */
 
 .allocation-header {
     font-size: 22px;

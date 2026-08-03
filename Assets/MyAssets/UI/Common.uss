@@ -1,28 +1,49 @@
 /*
  * 공용 디자인 토큰 / 재사용 클래스
- * 색상·텍스트·버튼 규칙은 UI_DesignReference.md 기준
+ * 색상·텍스트 규칙은 UI_DesignReference.md, 버튼 규칙은 UI_DesignReference2.md("Endless Expedition") 기준
  * 새 화면(UXML)에서는 이 파일을 @import 해서 재사용한다.
  */
 
 :root {
-    --color-sky: #7ECBF0;
-    --color-grass-mid: #A8E0A0;
-    --color-grass-mid-alt: #BFE8B0;
-    --color-grass-dark: #8FD070;
-    --color-grass-dark-alt: #A0D47A;
-
+    /* Title_background.jpg(밤하늘)·Title_Logo.png(시안·바이올렛 네온 로고)에서 뽑은 팔레트 */
+    --color-abyss: #0A1220;
+    --color-deep: #101B30;
+    /* UI_DesignReference.md 아웃라인(공통) */
     --color-outline: #16202A;
 
-    --color-gold-light: #FFD97A;
-    --color-gold-dark: #E8963C;
-    --color-gold-text: #5A2E0C;
+    /* 패널 배경: 어두운 바이올렛 카드 (버튼과 같은 "Endless Expedition" 다크 톤) */
+    --color-panel: #2A2440;
 
-    --color-wood-light: #9A6A34;
-    --color-wood-dark: #6A4520;
+    --color-cyan-light: #A8F0FF;
+    --color-cyan-mid: #63D8F5;
 
-    --color-cream: #FFF8E0;
+    --color-cream: #EAF6FF;
 
-    --color-danger: #C9382A;
+    /* UI_DesignReference2.md 버튼 팔레트 — Primary(민트) */
+    --color-mint: #7AF0BE;
+    --color-mint-bright: #A8FFD9;
+    --color-mint-text: #EAFFF7;
+    --color-surface-primary: #22373F;
+    --color-surface-primary-hover: #2B4A54;
+    --color-surface-primary-press: #192D37;
+
+    /* Secondary(바이올렛) */
+    --color-violet: #BFAEF0;
+    --color-violet-dim: #6B5F92;
+    --color-violet-text: #DED6F5;
+    --color-surface-secondary: rgba(29, 22, 45, 0.88);
+    --color-surface-secondary-hover: rgba(40, 30, 62, 0.94);
+
+    /* Danger */
+    --color-danger: #E08B8B;
+    --color-danger-text: #FFDEDE;
+    --color-surface-danger: #551B29;
+
+    /* Disabled */
+    --color-disabled-border: #3A3450;
+    --color-disabled-text: #6A6383;
+    --color-surface-disabled: rgba(20, 16, 29, 0.7);
+
     --color-heal: #6FBF3F;
     --color-recruit: #9A5FD4;
     --color-info: #3A7AC9;
@@ -35,57 +56,101 @@
     -unity-text-outline-color: var(--color-outline);
 }
 
-/* 버튼 공통: 검은 테두리 + 하단 두꺼운 테두리로 하드 섀도우(베벨) 표현 */
+/* 버튼 공통: 어두운 면 + 얇은 컬러 테두리 (UI_DesignReference2.md "Endless Expedition" 스타일) */
 .btn {
     -unity-font-style: bold;
     color: var(--color-cream);
     font-size: 32px;
-    -unity-text-outline-width: 2px;
+    -unity-text-outline-width: 1px;
     -unity-text-outline-color: var(--color-outline);
-    border-left-width: 4px;
-    border-right-width: 4px;
-    border-top-width: 4px;
-    border-bottom-width: 8px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-width: 2px;
+    border-bottom-width: 2px;
     border-left-color: var(--color-outline);
     border-right-color: var(--color-outline);
     border-top-color: var(--color-outline);
     border-bottom-color: var(--color-outline);
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    border-bottom-left-radius: 16px;
-    border-bottom-right-radius: 16px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
     padding: 14px 40px;
     margin: 8px;
     translate: 0 0;
-    transition-property: translate, border-bottom-width;
-    transition-duration: 0.08s;
-}
-
-.btn:hover {
-    translate: 0 -2px;
+    transition-property: background-color, border-color, translate;
+    transition-duration: 0.12s;
 }
 
 .btn:active {
-    border-bottom-width: 4px;
-    translate: 0 4px;
+    translate: 0 2px;
 }
 
-/* CTA 버튼: 골드 그라디언트 배경 + 진한 갈색 텍스트 */
+/* CTA 버튼: 어두운 청록 면 + 민트 테두리 */
 .btn-cta {
-    background-color: var(--color-gold-dark);
-    color: var(--color-gold-text);
-    -unity-text-outline-color: var(--color-outline);
+    background-color: var(--color-surface-primary);
+    color: var(--color-mint-text);
+    border-left-color: var(--color-mint);
+    border-right-color: var(--color-mint);
+    border-top-color: var(--color-mint);
+    border-bottom-color: var(--color-mint);
 }
 
-/* 보조 버튼: 나무 텍스처 톤 */
+.btn-cta:hover {
+    background-color: var(--color-surface-primary-hover);
+    border-left-color: var(--color-mint-bright);
+    border-right-color: var(--color-mint-bright);
+    border-top-color: var(--color-mint-bright);
+    border-bottom-color: var(--color-mint-bright);
+}
+
+.btn-cta:active {
+    background-color: var(--color-surface-primary-press);
+}
+
+/* 보조 버튼: 반투명 다크 바이올렛 면 */
 .btn-secondary {
-    background-color: var(--color-wood-light);
+    background-color: var(--color-surface-secondary);
+    color: var(--color-violet-text);
+    border-left-color: var(--color-violet-dim);
+    border-right-color: var(--color-violet-dim);
+    border-top-color: var(--color-violet-dim);
+    border-bottom-color: var(--color-violet-dim);
     font-size: 24px;
 }
 
-/* 나무 텍스처 패널 (정보 배너 / 팝업 프레임) */
-.wood-panel {
-    background-color: var(--color-wood-dark);
+.btn-secondary:hover {
+    background-color: var(--color-surface-secondary-hover);
+    border-left-color: var(--color-violet);
+    border-right-color: var(--color-violet);
+    border-top-color: var(--color-violet);
+    border-bottom-color: var(--color-violet);
+}
+
+/* 위험/되돌릴 수 없는 동작 전용 (배틀 중단 등) */
+.btn-danger {
+    background-color: var(--color-surface-danger);
+    color: var(--color-danger-text);
+    border-left-color: var(--color-danger);
+    border-right-color: var(--color-danger);
+    border-top-color: var(--color-danger);
+    border-bottom-color: var(--color-danger);
+}
+
+/* 비활성 버튼 (성향 배분 +/- 등 SetEnabled(false)로 눌러도 반응 없을 때) */
+.btn:disabled {
+    background-color: var(--color-surface-disabled);
+    color: var(--color-disabled-text);
+    border-left-color: var(--color-disabled-border);
+    border-right-color: var(--color-disabled-border);
+    border-top-color: var(--color-disabled-border);
+    border-bottom-color: var(--color-disabled-border);
+    opacity: 1;
+}
+
+/* 기본 패널 프레임 (정보 배너 / 팝업 프레임) */
+.panel-frame {
+    background-color: var(--color-panel);
     border-width: 5px;
     border-color: var(--color-outline);
     border-top-left-radius: 14px;
@@ -99,7 +164,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: rgba(14, 22, 30, 0.55);
+    background-color: rgba(10, 18, 32, 0.6);
     align-items: center;
     justify-content: center;
 }
@@ -172,5 +237,5 @@
 
 /* 재설정 대기 중 강조 */
 .keybind-key--waiting {
-    color: var(--color-gold-light);
+    color: var(--color-cyan-light);
 }

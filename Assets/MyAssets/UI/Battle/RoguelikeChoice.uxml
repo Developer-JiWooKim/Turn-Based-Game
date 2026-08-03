@@ -1,21 +1,22 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
+    <Style src="../Common.uss" />
     <Style src="RoguelikeChoice.uss" />
     <ui:VisualElement name="roguelike-panel" class="roguelike-overlay" style="display: none;">
-        <ui:Label name="panel-header" text="성장 선택" class="roguelike-header" />
+        <ui:Label name="panel-header" text="성장 선택" class="roguelike-header outline-text" />
         <ui:VisualElement class="roguelike-cards">
-            <ui:Button name="choice-card" class="choice-card">
+            <ui:Button name="choice-card" class="choice-card panel-frame">
                 <ui:Label name="card-title" class="card-title" />
                 <ui:Label name="card-desc" class="card-desc" />
             </ui:Button>
-            <ui:Button name="choice-card" class="choice-card">
+            <ui:Button name="choice-card" class="choice-card panel-frame">
                 <ui:Label name="card-title" class="card-title" />
                 <ui:Label name="card-desc" class="card-desc" />
             </ui:Button>
-            <ui:Button name="choice-card" class="choice-card">
+            <ui:Button name="choice-card" class="choice-card panel-frame">
                 <ui:Label name="card-title" class="card-title" />
                 <ui:Label name="card-desc" class="card-desc" />
             </ui:Button>
-            <ui:Button name="choice-card" class="choice-card">
+            <ui:Button name="choice-card" class="choice-card panel-frame">
                 <ui:Label name="card-title" class="card-title" />
                 <ui:Label name="card-desc" class="card-desc" />
             </ui:Button>

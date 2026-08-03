@@ -7,30 +7,25 @@
     bottom: 0;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.78);
+    background-color: rgba(16, 27, 48, 0.85);
 }
 
 .result-box {
     width: 420px;
     padding: 36px;
-    border-radius: 16px;
-    border-width: 3px;
-    border-color: rgba(255, 214, 92, 0.5);
-    background-color: rgba(48, 40, 32, 0.96);
     align-items: center;
 }
 
 .result-title {
     font-size: 40px;
-    -unity-font-style: bold;
-    color: rgb(255, 244, 200);
+    color: var(--color-cream);
     margin-bottom: 28px;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
 }
 
 .result-caption {
     font-size: 15px;
-    color: rgb(190, 184, 172);
+    color: var(--color-violet-text);
+    opacity: 0.7;
     margin-bottom: 2px;
 }
 
@@ -38,32 +33,21 @@
 .result-stage {
     font-size: 72px;
     -unity-font-style: bold;
-    color: rgb(255, 214, 92);
+    color: var(--color-mint-bright);
     margin-bottom: 8px;
 }
 
 .result-best {
     font-size: 16px;
-    color: rgb(220, 214, 200);
+    color: var(--color-violet-text);
+    opacity: 0.85;
     margin-bottom: 8px;
 }
 
+/* 크기만 오버라이드 — 배경/hover/pressed는 .btn(Common.uss)이 처리 */
 .result-confirm {
     width: 200px;
     height: 52px;
     margin-top: 24px;
     font-size: 18px;
-    -unity-font-style: bold;
-    border-radius: 10px;
-    border-width: 2px;
-    border-color: rgba(255, 214, 92, 0.5);
-    background-color: rgba(80, 66, 48, 0.96);
-    color: rgb(255, 244, 200);
-    transition-property: scale, border-color;
-    transition-duration: 0.12s;
-}
-
-.result-confirm:hover {
-    scale: 1.05 1.05;
-    border-color: rgb(255, 214, 92);
 }

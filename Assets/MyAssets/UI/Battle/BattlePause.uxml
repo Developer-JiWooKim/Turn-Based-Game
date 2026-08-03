@@ -1,7 +1,8 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
+    <Style src="../Common.uss" />
     <Style src="BattlePause.uss" />
     <ui:VisualElement name="pause-panel" class="pause-overlay" style="display: none;">
-        <ui:VisualElement class="pause-box">
+        <ui:VisualElement class="pause-box panel-frame">
             <ui:Label name="pause-title" class="pause-title" text="PAUSE" />
 
             <ui:Label class="pause-caption" text="현재 스테이지" />
@@ -10,8 +11,8 @@
             <!-- 이전 최고 기록: 기록이 없는 첫 런에서는 숨긴다 -->
             <ui:Label name="pause-best" class="pause-best" text="" style="display: none;" />
 
-            <ui:Button name="pause-resume" class="pause-button pause-button--primary" text="계속하기" />
-            <ui:Button name="pause-abort" class="pause-button pause-button--danger" text="배틀 중단" />
+            <ui:Button name="pause-resume" class="btn btn-secondary pause-button" text="계속하기" />
+            <ui:Button name="pause-abort" class="btn btn-danger pause-button" text="배틀 중단" />
             <ui:Label name="pause-hint" class="pause-hint" text="ESC 키로도 계속할 수 있습니다" />
         </ui:VisualElement>
     </ui:VisualElement>

@@ -4,13 +4,13 @@
     <ui:Template name="OptionPopup" src="../OptionPopup.uxml" />
     <ui:Template name="PointAllocationPopup" src="../PointAllocation.uxml" />
     <ui:VisualElement name="screen-root" class="screen-root" picking-mode="Ignore">
-        <!-- 공용 배경: 패널 전환과 무관하게 항상 뒤에 깔림 -->
-        <ui:VisualElement name="background" class="background" picking-mode="Ignore">
-            <ui:VisualElement class="bg-image" picking-mode="Ignore"/>
-        </ui:VisualElement>
-
         <!-- TitlePanelUI._rootElementName = "title-panel" -->
         <ui:VisualElement name="title-panel" class="panel" picking-mode="Ignore">
+            <!-- 타이틀 전용 배경. character-select-panel과 display:none으로 서로 배타적이라 패널 전환 시 자동으로 같이 바뀐다 -->
+            <ui:VisualElement name="background" class="background" picking-mode="Ignore">
+                <ui:VisualElement class="bg-image" picking-mode="Ignore"/>
+            </ui:VisualElement>
+
             <ui:VisualElement name="title-wrap" class="title-wrap" picking-mode="Ignore">
                 <ui:VisualElement name="game-title-shadow" class="title-logo-shadow" picking-mode="Ignore" />
                 <ui:VisualElement name="game-title" class="title-logo" picking-mode="Ignore" />                    
@@ -24,8 +24,13 @@
 
         <!-- CharacterSelectPanelUI._rootElementName = "character-select-panel" -->
         <ui:VisualElement name="character-select-panel" class="panel" style="display: none;">
-            <ui:VisualElement name="select-header" class="select-header wood-panel">
-                <ui:Label text="캐릭터 선택" class="select-header-text outline-text" />
+            <!-- 캐릭터 선택 전용 배경 -->
+            <ui:VisualElement name="select-background" class="background" picking-mode="Ignore">
+                <ui:VisualElement class="select-bg-image" picking-mode="Ignore" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="select-header" class="select-header panel-frame">
+                <ui:Label text="캐릭터 선택" class="select-header-text" />
             </ui:VisualElement>
             <ui:VisualElement name="select-body" class="select-body" picking-mode="Ignore">
                 <ui:Button text="◀" name="prev-button" class="nav-arrow" />
@@ -34,7 +39,7 @@
                     <ui:VisualElement name="character-preview" class="character-preview" />
                     <ui:Label text="Knight" name="character-name" class="character-name outline-text" />
                     <!-- 각 행의 fill 너비와 value 텍스트는 CharacterSelectPanelUI가 채운다 -->
-                    <ui:VisualElement name="stat-panel" class="stat-panel wood-panel">
+                    <ui:VisualElement name="stat-panel" class="stat-panel panel-frame">
                         <ui:VisualElement name="stat-row" class="stat-row">
                             <ui:Label text="HP" class="stat-label" />
                             <ui:VisualElement class="stat-track">
