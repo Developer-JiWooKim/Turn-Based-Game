@@ -37,7 +37,10 @@
                 <ui:VisualElement name="preview-column" class="preview-column" picking-mode="Ignore">
                     <!-- 프리뷰 카메라의 RenderTexture가 CharacterSelectPanelUI에서 배선됨 -->
                     <ui:VisualElement name="character-preview" class="character-preview" />
-                    <ui:Label text="Knight" name="character-name" class="character-name outline-text" />
+                    <ui:VisualElement name="character-name-row" class="character-name-row">
+                        <ui:VisualElement name="character-icon" class="character-icon" />
+                        <ui:Label text="Knight" name="character-name" class="character-name outline-text" />
+                    </ui:VisualElement>
                     <!-- 각 행의 fill 너비와 value 텍스트는 CharacterSelectPanelUI가 채운다 -->
                     <ui:VisualElement name="stat-panel" class="stat-panel panel-frame">
                         <ui:VisualElement name="stat-row" class="stat-row">

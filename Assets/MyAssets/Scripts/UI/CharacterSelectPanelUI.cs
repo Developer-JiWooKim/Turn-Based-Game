@@ -34,6 +34,7 @@ namespace Assets.MyAssets.Scripts.UI
         private int _selectedIndex;
         private bool _visible; // 방향키 입력을 이 패널이 보일 때만 받기 위한 플래그
         private Label _nameLabel;
+        private VisualElement _icon;
         private List<VisualElement> _dots;
 
         /// <summary>현재 선택된 캐릭터. 로스터가 비어 있으면 null.</summary>
@@ -61,6 +62,7 @@ namespace Assets.MyAssets.Scripts.UI
             }
 
             _nameLabel = Root.Q<Label>("character-name");
+            _icon = Root.Q<VisualElement>("character-icon");
             _dots = Root.Q<VisualElement>("indicator").Query<VisualElement>(className: "dot").ToList();
 
             // 바 길이의 기준은 로스터가 계산한다(밸런싱 값을 UI에 박지 않기 위함).
@@ -113,6 +115,11 @@ namespace Assets.MyAssets.Scripts.UI
             if (_nameLabel != null)
             {
                 _nameLabel.text = character.DisplayName;
+            }
+
+            if (_icon != null)
+            {
+                _icon.style.backgroundImage = character.Icon != null ? Background.FromSprite(character.Icon) : default;
             }
 
             if (_dots != null)

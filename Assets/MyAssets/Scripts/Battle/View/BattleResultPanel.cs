@@ -76,7 +76,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public void SetTitle(string text)
         {
             if (_title != null)
+            {
                 _title.text = text;
+            }
         }
     }
 }

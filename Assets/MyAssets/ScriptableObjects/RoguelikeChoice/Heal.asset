@@ -15,6 +15,7 @@ MonoBehaviour:
   _title: Heal
   _description: Restore 100 HP
   _category: 4
+  _icon: {fileID: 21300000, guid: b3d5e99a0be8e8741807cbb2cb3b94ff, type: 3}
   _hpFlat: 0
   _atkFlat: 0
   _spdFlat: 0

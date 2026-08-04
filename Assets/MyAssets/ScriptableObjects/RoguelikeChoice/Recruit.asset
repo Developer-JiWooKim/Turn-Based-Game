@@ -15,6 +15,7 @@ MonoBehaviour:
   _title: Recruit
   _description: "A new ally\njoins your party"
   _category: 8
+  _icon: {fileID: 21300000, guid: 5be5035a8fa248c43ac84d000f67aae7, type: 3}
   _hpFlat: 0
   _atkFlat: 0
   _spdFlat: 0

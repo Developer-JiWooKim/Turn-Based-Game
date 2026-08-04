@@ -15,6 +15,7 @@ MonoBehaviour:
   _title: Speed Up
   _description: "HP +5 \nSPD +5"
   _category: 1
+  _icon: {fileID: 21300000, guid: c41e611d3b206604dab05690a73a426e, type: 3}
   _hpFlat: 5
   _atkFlat: 0
   _spdFlat: 5

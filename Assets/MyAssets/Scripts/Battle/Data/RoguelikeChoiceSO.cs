@@ -29,6 +29,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         [SerializeField] private string _title;
         [TextArea][SerializeField] private string _description;
         [SerializeField] private RoguelikeCategory _category;
+        [SerializeField] private Sprite _icon;
 
         [Header("파티 강화 (런 종료까지 유지)")]
         [SerializeField] private int _hpFlat;
@@ -60,6 +61,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         public string Title => _title;
         public string Description => _description;
         public RoguelikeCategory Category => _category;
+        public Sprite Icon => _icon;
 
         /// <summary>영입 로스터가 없으면 제시되면 안 되는 선택지인지(영입 계열)</summary>
         public bool RequiresPartySlot => _category == RoguelikeCategory.Recruit;

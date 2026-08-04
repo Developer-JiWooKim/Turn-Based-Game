@@ -97,7 +97,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (candidates.Count == 0) return default;
 
             bool needsReplace = !run.CanRecruit;
-            var cards = candidates.Select(c => new ChoiceCard(c.DisplayName, DescribeCandidate(c, run, scaling))).ToList();
+            var cards = candidates.Select(c => new ChoiceCard(c.DisplayName, DescribeCandidate(c, run, scaling), c.Icon)).ToList();
             if (needsReplace)
                 cards.Add(new ChoiceCard(SkipRecruitTitle, SkipRecruitDescription));
 
