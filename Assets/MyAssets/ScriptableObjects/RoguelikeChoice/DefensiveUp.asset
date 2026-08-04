@@ -19,6 +19,7 @@ MonoBehaviour:
 
     RES +0.1'
   _category: 2
+  _icon: {fileID: 21300000, guid: 6a830d499fc8efc44912be35896d299b, type: 3}
   _hpFlat: 15
   _atkFlat: 0
   _spdFlat: 0

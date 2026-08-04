@@ -15,6 +15,7 @@ MonoBehaviour:
   _title: Weaken
   _description: "Next stage\nEnemy HP -30%"
   _category: 6
+  _icon: {fileID: 21300000, guid: 73f2879fef5164f47a3e44489c68c5ec, type: 3}
   _hpFlat: 0
   _atkFlat: 0
   _spdFlat: 0

@@ -45,6 +45,13 @@
     border-color: var(--color-mint-bright);
 }
 
+.card-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 12px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .card-title {
     font-size: 22px;
     -unity-font-style: bold;

@@ -15,6 +15,7 @@ MonoBehaviour:
   _title: Stun
   _description: "Next stage\nEnemies skip first turn"
   _category: 5
+  _icon: {fileID: 21300000, guid: 3872476ef67297b4296df1c50ad062ef, type: 3}
   _hpFlat: 0
   _atkFlat: 0
   _spdFlat: 0

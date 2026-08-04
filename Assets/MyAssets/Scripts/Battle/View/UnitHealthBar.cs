@@ -99,18 +99,27 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _statusText.SetText(_statusBuilder);
         }
 
+        /// <summary>상태이상/스폰 디버프 아이콘의 공용 크기·기준선 보정. 체감상 작거나 텍스트보다 낮춰 보이면 이 둘만 조정.</summary>
+        private const string IconScale = "1.6";
+        private const string IconVOffset = "0.12em";
+
         /// <summary>
-        /// 상태이상 약어. **ASCII만 쓴다** — 월드스페이스 체력바는 TMP(uGUI)라 폰트 에셋의 글리프 아틀라스에
-        /// 있는 문자만 렌더링되고, 기본 폰트에는 한글·화살표(↓)가 없어 네모로 깨진다.
-        /// 한글로 바꾸려면 한글 글리프를 포함한 TMP Font Asset을 만들어 _statusText에 지정할 것.
+        /// TMP 인라인 스프라이트 태그를 만든다 — 이름은 상태이상 표기(`_statusText`)에 지정된
+        /// Sprite Asset(Debuff 아이콘 + Fallback 체인)의 스프라이트 이름과 일치해야 한다.
+        /// Sprite Asset이 지정되지 않으면 TMP가 태그를 그대로 텍스트로 보여준다(폴백).
+        /// 스폰 디버프 라벨(<see cref="MonsterSpawner"/>)도 같은 태그 형식을 써서 크기·기준선이 어긋나지 않는다.
         /// </summary>
+        public static string IconTag(string spriteName) =>
+            $"<voffset={IconVOffset}><sprite name=\"{spriteName}\" scale={IconScale}></voffset>";
+
+        /// <summary>상태이상 표기.</summary>
         private static string Label(StatusKind kind) => kind switch
         {
-            StatusKind.Stun => "STUN",
-            StatusKind.Poison => "PSN",
-            StatusKind.AtkDown => "ATK-",
-            StatusKind.DefDown => "DEF-",
-            StatusKind.SpdDown => "SPD-",
+            StatusKind.Stun => IconTag("Debuff_Stun"),
+            StatusKind.Poison => IconTag("Debuff_Poison"),
+            StatusKind.AtkDown => IconTag("Debuff_AttackDown"),
+            StatusKind.DefDown => IconTag("Debuff_DefenseDown"),
+            StatusKind.SpdDown => IconTag("Debuff_SpeedDown"),
             _ => "?"
         };
 

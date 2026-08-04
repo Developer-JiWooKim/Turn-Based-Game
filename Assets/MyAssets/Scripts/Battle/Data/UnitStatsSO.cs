@@ -11,6 +11,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
     {
         [SerializeField] private string _displayName;
         [SerializeField] private GameObject _prefab;
+        [SerializeField] private Sprite _icon;
 
         [Header("Stats")]
         [SerializeField] private int _maxHp = 100;
@@ -25,6 +26,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
 
         public string DisplayName => _displayName;
         public GameObject Prefab => _prefab;
+        public Sprite Icon => _icon;
 
         public Stats CreateStats() => new Stats(
             maxHp: _maxHp,

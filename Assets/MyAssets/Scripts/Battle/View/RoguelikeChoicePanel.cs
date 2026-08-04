@@ -16,11 +16,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
     {
         public readonly string Title;
         public readonly string Description;
+        public readonly Sprite Icon;
 
-        public ChoiceCard(string title, string description)
+        public ChoiceCard(string title, string description, Sprite icon = null)
         {
             Title = title;
             Description = description;
+            Icon = icon;
         }
     }
 
@@ -60,7 +62,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>성장 선택지를 제시하고 고른 SO를 반환한다(취소 시 null).</summary>
         public async Task<RoguelikeChoiceSO> PresentAsync(IReadOnlyList<RoguelikeChoiceSO> choices, CancellationToken ct)
         {
-            var cards = choices.Select(c => new ChoiceCard(c.Title, c.Description)).ToList();
+            var cards = choices.Select(c => new ChoiceCard(c.Title, c.Description, c.Icon)).ToList();
             int index = await PresentAsync("성장 선택", cards, ct);
             return index < 0 ? null : choices[index];
         }
@@ -84,6 +86,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
                     _cards[i].style.display = DisplayStyle.Flex;
                     _cards[i].Q<Label>("card-title").text = cards[i].Title;
                     _cards[i].Q<Label>("card-desc").text = cards[i].Description;
+
+                    VisualElement icon = _cards[i].Q<VisualElement>("card-icon");
+                    if (icon != null)
+                    {
+                        icon.style.display = cards[i].Icon != null ? DisplayStyle.Flex : DisplayStyle.None;
+                        icon.style.backgroundImage = cards[i].Icon != null ? Background.FromSprite(cards[i].Icon) : default;
+                    }
                 }
                 else
                 {

@@ -43,7 +43,7 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 - ⬜ **남은 것: 스킬 연출(단일/라인) 이펙트** — 외부 파티클 에셋 필요, 4-1과 같은 에셋으로 처리 가능
 - 참고: `SpawnWaveSO.IsBossWave`(보스 BGM·보스 웨이브 강제 판정)는 `Tier==Boss`만 보므로, Elite만으로 구성된 웨이브는 스킬을 써도 "보스 웨이브" 취급은 아니다(의도된 동작)
 
-### 1-2. 상태이상 시스템  (상태: 코드·에셋 완료 — 아이콘 표기만 남음)
+### 1-2. 상태이상 시스템  (상태: 코드·에셋 완료 — 아이콘 표기는 수동 1단계만 남음)
 - 계기: `Stats.Res`(디버프 저항)가 선택지·시너지로 값은 쌓이지만 소비하는 곳이 없어 사실상 죽은 스탯이었음(2026-07-23 확인) → **이제 RES가 상태이상 저항으로 소비된다**
 - ✅ `StatusKind` 5종(Stun/Poison/AtkDown/DefDown/SpdDown), 부여 정의·진행 상태·저항 판정, 턴 루프 처리(도트→감소→기절), 체력바 상태 표기까지 구현
 - ✅ **확장성**: 스킬 데이터를 `SkillSO`(유닛 종류에 안 묶인 별도 에셋)로 분리 — 캐릭터 스킬 추가 시 `CharacterStatsSO`에 참조 필드 하나만 더하면 되고 상태이상 코드는 그대로 재사용
@@ -51,25 +51,32 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
   - `Skill_SkeletonMage` (MageSO) — 쿨타임 5 / Single / 배율 1.4 / **방어력 감소(DefDown)**, 지속 2턴, 크기 0.5, 부여 확률 0.7
   - `Skill_SkeletonRogue` (RogueSO) — 쿨타임 5 / Single / 배율 1.1 / **중독(Poison)**, 지속 3턴, 크기 0.05, 부여 확률 0.8
   - `Skill_SkeltonWarrior` (WarriorSO) — 쿨타임 3 / **Line** / 배율 1.8 / 기절(Stun), 지속 1턴, 크기 0, 부여 확률 0.35
-- ⬜ 상태이상 아이콘 표시(현재는 체력바 옆 짧은 ASCII 약어 텍스트 `STUN`/`PSN`/`ATK-`) — 아이콘 에셋 확보 시 3-1/3-3과 함께
+- ✅ **2026-08 아이콘 연결**: `UnitHealthBar.Label()`이 ASCII 대신 TMP 인라인 스프라이트 태그(`<sprite name="Debuff_Stun">` 등)를 반환하도록 변경
+- ⬜ **수동 1회 작업 남음**: Debuff 아이콘 5종(`Textures/Icons/Debuff/`) 선택 → 우클릭 → Create → Text → Sprite Asset → `HealthBar.prefab`의 `_statusText`(TMP) `Sprite Asset` 슬롯에 할당. 생성된 스프라이트 이름이 `Label()`의 태그 이름(`Debuff_Stun` 등)과 다르면 코드 쪽 문자열을 맞춘다
 
 ---
 
 ## 🟡 3순위 — UI / UX
 
-### 3-1. 영입 후보 카드 아이콘화  (상태: 미착수)
-- 현재는 이름 + 스탯 6줄 텍스트. 캐릭터를 상징하는 아이콘을 `CharacterStatsSO`에 추가하고 `아이콘 + 이름` 형식으로 변경
-- 이름 텍스트 폰트 크기를 절반 정도로 축소(카드 크기는 유지)
-- `RoguelikeRewardService.DescribeCandidate`와 `ChoiceCard`(현재 제목+설명 2필드)에 아이콘 필드 확장 필요
+### 3-1. 영입 후보 카드 아이콘화  (상태: ✅ 완료 — 2026-08)
+- `UnitStatsSO`에 `_icon`(Sprite) 추가, `CharacterStatsSO` 6종 에셋에 `Textures/Icons/CharacterProfile/` 아이콘 연결
+- `ChoiceCard`(`RoguelikeChoicePanel.cs`)에 `Icon` 필드 추가, `RoguelikeRewardService.PresentRecruitAsync`가 후보 캐릭터의 아이콘을 카드에 전달
+- `RoguelikeChoice.uxml`에 `card-icon` 슬롯 추가 + `RoguelikeChoicePanel.PresentAsync`가 바인딩(아이콘 없는 카드는 자동 숨김)
+- 이름 폰트 축소(3-1의 원래 하위 항목)는 아직 안 함 — 필요하면 `RoguelikeChoice.uss`의 `.card-title`에서 조정
 
 ### 3-2. 타겟팅 피드백  (상태: 부분구현)
 - 마우스 2단계 클릭 + 방향키 순환/Enter·Space 확정은 구현 완료. 겨냥된 **단일** 대상은 빨강 아웃라인 표시
 - 남은 것: 플레이어 차례에 **유효 대상 전체** 하이라이트 / 커서 피드백(어디를 겨냥할 수 있는지)
 - `UnitView.SetOutlineLayer`/`ResetOutlineLayer`가 이미 있으므로 겨냥용(빨강)과 다른 레이어를 하나 더 두면 되는 구조
 
-### 3-3. 캐릭터 선택 화면 폴리시  (상태: 부분구현)
+### 3-3. 캐릭터 선택 화면 폴리시  (상태: 부분구현 — 2026-08 아이콘 추가)
 - 스탯 바(로스터 대비 비율)는 구현 완료
-- README 기획상 "캐릭터 리스트 = 아이콘(대표 무기)"이나 현재는 아이콘 없이 순환/선택만 가능 — 3-1의 아이콘 작업과 함께 처리하면 에셋 재사용 가능
+- ✅ 캐릭터 아이콘 추가: `TitleScreen.uxml`의 `character-name` 옆에 `character-icon` 슬롯, `CharacterSelectPanelUI.ApplySelection()`이 바인딩(3-1과 같은 `UnitStatsSO.Icon` 재사용)
+- 남은 것: nav-arrow·인디케이터 점·스탯 바 강조색의 구 시안 톤 이전(3-5 참고)
+
+### 3-6-보조. 로그라이크 선택지 9종 카테고리 아이콘  (상태: ✅ 완료 — 2026-08, TODO 신규 항목)
+- `RoguelikeChoiceSO`에 `_icon`(Sprite) 추가, 9개 에셋에 `Textures/Icons/Buff`/`Debuff` 아이콘 연결(EnemyStun/EnemyHpDown/EnemyAtkDown은 상태이상 Debuff 아이콘과 재사용)
+- `RoguelikeChoice.uxml`/`.uss`에 `card-icon` 슬롯 및 스타일 추가(3-1과 동일 슬롯 공유)
 
 ### 3-4. 옵션 메뉴 — 해상도/언어  (상태: 미착수)
 - 볼륨(마스터/BGM/SFX) 슬라이더는 구현 완료

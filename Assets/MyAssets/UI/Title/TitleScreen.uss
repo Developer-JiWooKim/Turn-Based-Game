@@ -113,11 +113,23 @@
     -unity-background-scale-mode: scale-and-crop;
 }
 
+.character-name-row {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.character-icon {
+    width: 48px;
+    height: 48px;
+    margin-right: 12px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
 .character-name {
     font-size: 44px;
     color: var(--color-cream);
     -unity-text-outline-width: 3px;
-    margin-top: 16px;
 }
 
 .stat-panel {

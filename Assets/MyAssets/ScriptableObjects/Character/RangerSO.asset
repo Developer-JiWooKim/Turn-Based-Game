@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.CharacterStatsSO
   _displayName: Ranger
   _prefab: {fileID: 470179588852354655, guid: 03fde4f9645f3234c8b69bca880268aa, type: 3}
+  _icon: {fileID: 21300000, guid: dfe614694d525e142a43cf6fc9fed679, type: 3}
   _maxHp: 90
   _atk: 30
   _spd: 10

@@ -96,18 +96,18 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>
         /// 스탯에 녹아든 로그라이크 디버프를 체력바 표기용 문자열로 만든다(없으면 null).
         /// 기절은 실제 상태이상이라 여기 포함하지 않는다 — 상태이상 목록이 알아서 표시한다.
-        /// ASCII만 쓰는 이유는 <see cref="UnitHealthBar"/> 주석 참고.
+        /// TMP 인라인 스프라이트 태그를 쓴다 — 이름은 <see cref="UnitHealthBar"/>와 같은 Sprite Asset(Fallback 포함)을 참조한다.
         /// </summary>
         private static string DescribeDebuff(RunModifiers modifiers)
         {
             string label = null;
 
             if (modifiers.EnemyHpMultiplier != 1f)
-                label = $"HP -{Mathf.RoundToInt((1f - modifiers.EnemyHpMultiplier) * 100f)}%";
+                label = $"{UnitHealthBar.IconTag("Debuff_HealthDown")} -{Mathf.RoundToInt((1f - modifiers.EnemyHpMultiplier) * 100f)}%";
 
             if (modifiers.EnemyAtkMultiplier != 1f)
             {
-                string atk = $"ATK -{Mathf.RoundToInt((1f - modifiers.EnemyAtkMultiplier) * 100f)}%";
+                string atk = $"{UnitHealthBar.IconTag("Debuff_AttackDown")} -{Mathf.RoundToInt((1f - modifiers.EnemyAtkMultiplier) * 100f)}%";
                 label = label == null ? atk : $"{label}\n{atk}";
             }
 
