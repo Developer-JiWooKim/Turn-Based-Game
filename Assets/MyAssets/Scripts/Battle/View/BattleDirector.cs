@@ -80,7 +80,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private async Task BeginBattleAsync()
         {
-            if (!ValidateReferences()) return;
+            if (!ValidateReferences())
+            {
+                return;
+            }
 
             _cts = new CancellationTokenSource();
 
@@ -107,7 +110,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             foreach (RunMember member in _run.Members)
+            {
                 _registry.SpawnMember(member);
+            }
 
             // 파티 등장 모션이 끝난 뒤에야 첫 웨이브가 스폰되도록 대기.
             await _registry.WhenAllSpawnPlayed(_cts.Token);
@@ -139,7 +144,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             int stage = _run.CurrentStage;
             _presenter.SetStage(stage);
             if (_pausePanel != null)
+            {
                 _pausePanel.SetStage(stage);
+            }
 
             SpawnWaveSO wave = _spawner.ResolveWave(stage, rng);
             if (wave == null)
@@ -180,15 +187,22 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _presenter.Bind(simulation);
             simulation.UnitDied += (_, e) =>
             {
-                if (e.Unit.Team != TeamSide.Player) return;
+                if (e.Unit.Team != TeamSide.Player)
+                {
+                    return;
+                }
 
                 List<PartySynergy> updated = synergyTracker.OnAllyDied(e.Unit);
                 if (updated != null)
+                {
                     _presenter.SetSynergies(updated);
+                }
             };
 
             if (_targeting != null)
+            {
                 _targeting.Initialize(playerSelector, _registry);
+            }
 
             BattleOutcome outcome = await RunSimulationAsync(simulation);
 
@@ -199,7 +213,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             // 전투 결과(HP)를 런 데이터에 반영하고, 쓰러진 파티원은 영구 추방한다(README 규칙)
             _run.SyncFromBattle(players);
             foreach (RunMember fallen in _run.RemoveFallen())
+            {
                 _registry.RemoveMember(fallen);
+            }
 
             return outcome != BattleOutcome.Defeat;
         }
@@ -249,10 +265,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>성장 선택지를 제시하고, 영입되었으면(교체 포함) 파티원 View를 갱신한다.</summary>
         private async Task PresentRewardAsync(IRandom rng)
         {
-            if (_rewards == null) return;
+            if (_rewards == null)
+            {
+                return;
+            }
 
             RecruitResult result = await _rewards.PresentAsync(_run, rng, _scaling, _cts.Token);
-            if (result.Recruited == null) return;
+            if (result.Recruited == null)
+            {
+                return;
+            }
 
             if (result.ReplacedOut != null)
             {

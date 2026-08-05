@@ -99,7 +99,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>이번 턴의 SPD 순서로 칩을 다시 그린다(라벨 = 화면 배치 인덱스, 색 = 진영).</summary>
         public void ShowTurnOrder(IReadOnlyList<TurnChipInfo> order)
         {
-            if (_turnOrder == null) return;
+            if (_turnOrder == null)
+            {
+                return;
+            }
 
             _turnOrder.Clear();
             _chips.Clear();
@@ -119,7 +122,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public void SetActiveUnit(Unit actor)
         {
             foreach (KeyValuePair<int, VisualElement> kv in _chips)
+            {
                 kv.Value.EnableInClassList("turn-chip-active", kv.Key == actor.Id);
+            }
 
             if (actor.Team == TeamSide.Player)
             {
@@ -151,7 +156,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void ShowPrompt(string text)
         {
-            if (_playerPrompt == null) return;
+            if (_playerPrompt == null)
+            {
+                return;
+            }
             _playerPrompt.text = text;
             _playerPrompt.style.display = DisplayStyle.Flex;
         }

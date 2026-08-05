@@ -38,9 +38,20 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// <summary>View가 클릭한 대상을 제출한다. 대기 중이 아니거나 유효하지 않은 대상은 무시한다.</summary>
         public void SubmitTarget(Unit target)
         {
-            if (!_pending.IsWaiting) return;
-            if (target == null || !target.IsAlive) return;
-            if (!_validTargets.Contains(target)) return;
+            if (!_pending.IsWaiting)
+            {
+                return;
+            }
+
+            if (target == null || !target.IsAlive)
+            {
+                return;
+            }
+
+            if (!_validTargets.Contains(target))
+            {
+                return;
+            }
 
             _pending.Complete(target);
         }

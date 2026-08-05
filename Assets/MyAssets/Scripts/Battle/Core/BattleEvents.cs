@@ -10,7 +10,11 @@ namespace Assets.MyAssets.Scripts.Battle.Core
 
         public void RegisterPlayback(Task playback)
         {
-            if (playback == null) return;
+            if (playback == null)
+            {
+                return;
+            }
+
             (_tasks ??= new List<Task>()).Add(playback);
         }
 

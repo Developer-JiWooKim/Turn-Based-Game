@@ -28,7 +28,10 @@ namespace Assets.MyAssets.Scripts.Battle.Data
             var ceiling = new Stats(1, 1, 1, 1, 1f, 1f, 1f);
             for (int i = 0; i < Count; i++)
             {
-                if (_characters[i] == null) continue;
+                if (_characters[i] == null)
+                {
+                    continue;
+                }
 
                 Stats s = _characters[i].CreateStats();
                 ceiling.MaxHp = Mathf.Max(ceiling.MaxHp, s.MaxHp);

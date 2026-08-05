@@ -19,7 +19,9 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         {
             IReadOnlyList<Unit> enemies = state.AliveEnemiesOf(actor);
             if (enemies.Count == 0)
+            {
                 return Task.FromResult<ActionPlan>(null); // 이론상 없음(시뮬레이션이 종료 판정). 방어적 처리.
+            }
 
             if (actor.IsSkillReady)
             {

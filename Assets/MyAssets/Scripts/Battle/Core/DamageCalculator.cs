@@ -2,7 +2,7 @@ using System;
 
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
-    /// <summary>한 번의 타격 결과(순수 값).</summary>
+    /// <summary>한 번의 타격 결과(순수 값)</summary>
     public readonly struct DamageResult
     {
         public readonly int Amount;
@@ -38,12 +38,16 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             float raw = attacker.EffectiveAtk * mitigation * powerMultiplier;
 
             bool isCrit = rng.Value01() < attacker.Stats.CritRate;
-            if (isCrit) raw *= attacker.Stats.CritDmg;
-
+            if (isCrit)
+            {
+                raw *= attacker.Stats.CritDmg;
+            }
 
             int amount = (int)Math.Round(raw, MidpointRounding.AwayFromZero);
-            if (amount < MinimumDamage) amount = MinimumDamage;
-
+            if (amount < MinimumDamage)
+            {
+                amount = MinimumDamage;
+            }
             return new DamageResult(amount, isCrit);
         }
     }
