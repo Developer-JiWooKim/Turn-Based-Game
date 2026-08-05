@@ -88,21 +88,33 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                     }
 
                     // 두 검사 모두 await(퍼즈 대기·직전 유닛의 연출) "뒤"에 있어야 한다 — 기다리는 사이에 상태가 바뀐다.
-                    if (!actor.IsAlive) continue;   // 이번 턴에 먼저 행동한 유닛에게 맞아 죽었다
-                    if (_state.IsBattleOver) break; // while 조건은 턴 사이에만 보므로, 턴 도중 승부가 나면 여기서 끊는다
+                    if (!actor.IsAlive)
+                    {
+                        continue;   // 이번 턴에 먼저 행동한 유닛에게 맞아 죽었다
+                    }
+
+                    if (_state.IsBattleOver)
+                    {
+                        break; // while 조건은 턴 사이에만 보므로, 턴 도중 승부가 나면 여기서 끊는다
+                    }
 
                     // 상태이상 처리(도트 → 지속시간 감소 → 기절 판정). 행동할 수 없으면 이번 차례는 넘어간다.
                     // 로그라이크 '몬스터 행동불가' 선택지도 스폰 시 부여된 Stun이라 여기서 함께 처리된다.
                     // 반드시 ActorTurnStarted "전"에 온다 
                     // 버그 사례 — 기절한 플레이어 유닛에게도 차례를 알리면 HUD에 "당신의 차례" 프롬프트가 뜬 채 아무 입력도 받지 않는 상태가 된다.
-                    if (!await ResolveStatusesAsync(actor)) continue;
-
+                    if (!await ResolveStatusesAsync(actor))
+                    {
+                        continue;
+                    }
                     ActorTurnStarted?.Invoke(this, new ActorTurnEventArgs(actor));
 
                     // 플레이어 셀렉터는 여기서 타겟 입력이 들어올 때까지 멈춘다(몬스터 AI는 즉시 반환).
                     IActionSelector selector = actor.Team == TeamSide.Player ? _playerSelector : _enemySelector;
                     ActionPlan plan = await selector.SelectAsync(actor, _state, cancellationToken);
-                    if (plan == null || plan.Targets.Count == 0) continue; // 때릴 대상이 없다 = 이번 차례는 아무것도 하지 않음
+                    if (plan == null || plan.Targets.Count == 0)
+                    {
+                        continue; // 때릴 대상이 없다 = 이번 차례는 아무것도 하지 않음
+                    }
 
                     // 데미지는 여기서 "전부" 확정된다. 연출은 그 뒤에 이미 정해진 결과를 재생할 뿐이라,
                     // 애니메이션 길이나 재생 실패가 전투 결과를 바꾸지 못한다.
@@ -116,7 +128,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                     // 한 유닛이 한 행동에 여러 번 맞아도 사망 이벤트가 두 번 나가지 않는다.
                     foreach (HitResult hit in result.Hits)
                     {
-                        if (!hit.WasLethal) continue;
+                        if (!hit.WasLethal)
+                        {
+                            continue;
+                        }
                         var deathArgs = new UnitDiedEventArgs(hit.Target);
                         UnitDied?.Invoke(this, deathArgs);
                         await deathArgs.WhenPlaybackComplete();
@@ -149,7 +164,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// </summary>
         private async Task<bool> ResolveStatusesAsync(Unit actor)
         {
-            if (!actor.HasAnyStatus) return true;
+            if (!actor.HasAnyStatus)
+            {
+                return true;
+            }
 
             int dot = actor.GetDotDamage();
             if (dot > 0)
@@ -203,7 +221,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             {
                 // 라인 스킬은 앞 대상이 이 공격으로 쓰러져도 나머지를 계속 때린다. 
                 // 계획을 세운 시점에 이미 죽어 있던 대상만 건너뛴다(대상 목록은 셀렉터가 생존자 중에서 고른 것).
-                if (!target.IsAlive) continue;
+                if (!target.IsAlive)
+                {
+                    continue;
+                }
 
                 DamageResult dmg = DamageCalculator.Calculate(plan.Actor, target, plan.PowerMultiplier, _rng);
                 target.ApplyDamage(dmg.Amount);
@@ -223,13 +244,16 @@ namespace Assets.MyAssets.Scripts.Battle.Core
 
         private void TryApplySkillStatus(SkillProfile skill, Unit target)
         {
-            if (skill?.Status == null) return;
+            if (skill?.Status == null)
+            {
+                return;
+            }
 
             StatusEffect effect = skill.Status.Value;
             bool applied = target.TryApplyStatus(effect, _rng);
 
-            StatusChanged?.Invoke(this, new StatusChangedEventArgs(
-                target, effect.Kind, applied ? StatusChangeReason.Applied : StatusChangeReason.Resisted));
+            StatusChanged?.Invoke(this, new StatusChangedEventArgs(target, effect.Kind,
+                                                    applied ? StatusChangeReason.Applied : StatusChangeReason.Resisted));
         }
     }
 }

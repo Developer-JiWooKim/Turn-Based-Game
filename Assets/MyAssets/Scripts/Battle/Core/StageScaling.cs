@@ -65,7 +65,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public void ApplyToMonster(Stats stats, int stage)
         {
             int steps = Math.Max(0, stage - 1);
-            if (steps == 0) return;
+            if (steps == 0)
+            {
+                return;
+            }
 
             stats.MaxHp = Scale(stats.MaxHp, _monsterHpRate, steps);
             stats.Atk = Scale(stats.Atk, _monsterAtkRate, steps);
@@ -77,13 +80,21 @@ namespace Assets.MyAssets.Scripts.Battle.Core
 
         private int Scale(int value, float rate, int steps)
         {
-            if (rate <= 0f) return value;
+            if (rate <= 0f)
+            {
+                return value;
+            }
+
             return Math.Max(1, (int)Math.Round(value * Multiplier(rate, steps)));
         }
 
         private float Multiplier(float rate, int steps)
         {
-            if (rate <= 0f || steps == 0) return 1f;
+            if (rate <= 0f || steps == 0)
+            {
+                return 1f;
+            }
+
             return _monsterCompound ? (float)Math.Pow(1f + rate, steps) : 1f + rate * steps;
         }
 
@@ -96,7 +107,11 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// </summary>
         private static int StepGrowth(int baseValue, float rate, int step)
         {
-            if (rate <= 0f || step <= 0) return 0;
+            if (rate <= 0f || step <= 0)
+            {
+                return 0;
+            }
+
             return TotalGrowth(baseValue, rate, step) - TotalGrowth(baseValue, rate, step - 1);
         }
 

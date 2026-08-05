@@ -65,7 +65,9 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             for (int i = 0; i < source.Count; i++)
             {
                 if (source[i].IsAlive)
+                {
                     destination.Add(source[i]);
+                }
             }
         }
 
@@ -74,7 +76,9 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             for (int i = 0; i < units.Count; i++)
             {
                 if (units[i].IsAlive)
+                {
                     return true;
+                }
             }
 
             return false;

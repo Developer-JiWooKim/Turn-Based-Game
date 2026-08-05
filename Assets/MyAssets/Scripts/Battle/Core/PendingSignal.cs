@@ -37,7 +37,9 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             try
             {
                 using (ct.Register(() => pending.TrySetCanceled(ct)))
+                {
                     return await pending.Task;
+                }
             }
             finally
             {

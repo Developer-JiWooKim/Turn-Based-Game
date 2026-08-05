@@ -52,7 +52,6 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public readonly Unit Actor;
         public readonly ActionKind Kind;
         public readonly IReadOnlyList<HitResult> Hits;
-
         public ActionResult(Unit actor, ActionKind kind, IReadOnlyList<HitResult> hits)
         {
             Actor = actor;

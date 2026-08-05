@@ -16,7 +16,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// <summary>선택지 효과에 담긴 디버프를 예약한다(배율은 곱연산으로 중첩).</summary>
         public void Add(in RoguelikeEffect effect)
         {
-            if (!effect.HasEnemyDebuff) return;
+            if (!effect.HasEnemyDebuff)
+            {
+                return;
+            }
 
             EnemyHpMultiplier *= effect.EnemyHpMul;
             EnemyAtkMultiplier *= effect.EnemyAtkMul;
@@ -27,10 +30,14 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public void ApplyTo(Stats enemyStats)
         {
             if (EnemyHpMultiplier != 1f)
+            {
                 enemyStats.MaxHp = System.Math.Max(1, (int)(enemyStats.MaxHp * EnemyHpMultiplier));
+            }
 
             if (EnemyAtkMultiplier != 1f)
+            {
                 enemyStats.Atk = System.Math.Max(1, (int)(enemyStats.Atk * EnemyAtkMultiplier));
+            }
         }
 
         /// <summary>스테이지에 적용을 마친 뒤 호출하여 예약을 비운다.</summary>

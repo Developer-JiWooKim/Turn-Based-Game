@@ -61,13 +61,18 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// </summary>
         public bool TryApplyStatus(in StatusEffect effect, IRandom rng)
         {
-            if (!IsAlive || !effect.IsValid) return false;
+            if (!IsAlive || !effect.IsValid)
+            {
+                return false;
+            }
 
             float effectiveRes = Math.Clamp(Stats.Res, 0f, 1f);
             float chance = effect.ApplyChance * Math.Clamp(1f - effectiveRes, 0f, 1f);
 
             if (chance <= 0f || rng.Value01() >= chance)
+            {
                 return false;
+            }
 
             AddOrRefresh(effect);
             return true;
@@ -79,7 +84,11 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// </summary>
         public void ApplyStatus(in StatusEffect effect)
         {
-            if (!IsAlive || effect.Duration <= 0) return;
+            if (!IsAlive || effect.Duration <= 0)
+            {
+                return;
+            }
+
             AddOrRefresh(effect);
         }
 
@@ -101,7 +110,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public int GetDotDamage()
         {
             ActiveStatus poison = Find(StatusKind.Poison);
-            if (poison == null) return 0;
+            if (poison == null)
+            {
+                return 0;
+            }
 
             return Math.Max(1, (int)Math.Round(Stats.MaxHp * poison.Magnitude, MidpointRounding.AwayFromZero));
         }
@@ -118,7 +130,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             {
                 ActiveStatus status = _statuses[i];
                 status.RemainingTurns--;
-                if (status.RemainingTurns > 0) continue;
+                if (status.RemainingTurns > 0)
+                {
+                    continue;
+                }
 
                 (expired ??= new List<StatusKind>()).Add(status.Kind);
                 _statuses.RemoveAt(i);
@@ -130,8 +145,12 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         private ActiveStatus Find(StatusKind kind)
         {
             for (int i = 0; i < _statuses.Count; i++)
+            {
                 if (_statuses[i].Kind == kind)
+                {
                     return _statuses[i];
+                }
+            }
 
             return null;
         }
@@ -140,7 +159,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         private int Reduced(int baseValue, StatusKind kind)
         {
             ActiveStatus status = Find(kind);
-            if (status == null) return baseValue;
+            if (status == null)
+            {
+                return baseValue;
+            }
 
             float ratio = 1f - Math.Min(1f, status.Magnitude);
             return Math.Max(0, (int)Math.Round(baseValue * ratio));
@@ -153,17 +175,25 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public void TickCooldown()
         {
             if (_skillCooldownRemaining > 0)
+            {
                 _skillCooldownRemaining--;
+            }
         }
 
         /// <summary>데미지를 적용하고 실제 감소량을 반환한다. HP는 0 미만으로 내려가지 않는다.</summary>
         public int ApplyDamage(int amount)
         {
-            if (amount < 0) amount = 0;
+            if (amount < 0)
+            {
+                amount = 0;
+            }
 
             int before = CurrentHp;
             CurrentHp = before - amount;
-            if (CurrentHp < 0) CurrentHp = 0;
+            if (CurrentHp < 0)
+            {
+                CurrentHp = 0;
+            }
 
             return before - CurrentHp;
         }
@@ -171,20 +201,30 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// <summary>로그라이크 성장 효과를 스탯에 누적하고, 늘어난 최대치·회복량만큼 HP를 채운다.</summary>
         public void ApplyGrowth(in RoguelikeEffect effect)
         {
-            if (!IsAlive) return;
+            if (!IsAlive)
+            {
+                return;
+            }
+
             ApplyHeal(effect.ApplyTo(Stats));
         }
 
         /// <summary>회복을 적용하고 실제 회복량을 반환한다. MaxHp를 넘지 않는다. (죽은 유닛은 부활 불가)</summary>
         public int ApplyHeal(int amount)
         {
-            if (amount < 0 || !IsAlive) return 0;
+            if (amount < 0 || !IsAlive)
+            {
+                return 0;
+            }
 
             int before = CurrentHp;
             CurrentHp = before + amount;
 
             // 회복을 적용한 현재 Hp가 최대 Hp를 넘으면 현재 Hp를 최대 Hp로 적용
-            if (CurrentHp > Stats.MaxHp) CurrentHp = Stats.MaxHp;
+            if (CurrentHp > Stats.MaxHp)
+            {
+                CurrentHp = Stats.MaxHp;
+            }
 
             // 회복이 적용된 현재 Hp에서 회복을 적용하기 전 Hp를 뺀 값(실제 회복할 수치)을 리턴
             return CurrentHp - before;

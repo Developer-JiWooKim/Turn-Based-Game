@@ -15,11 +15,16 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         {
             var picked = new List<int>(count);
             if (weights == null || weights.Count == 0 || count <= 0) // 가중치 X, 뽑아야 될 개수가 0개 이하면 빈 리스트 반환
+            {
                 return picked;
+            }
+
 
             var remaining = new List<int>(weights.Count);
             for (int i = 0; i < weights.Count; i++)
+            {
                 remaining.Add(i); // 원본 데이터 리스트(weights)의 인덱스를 관리하는 리스트(remaining) 생성 후 인덱스 매칭
+            }
 
             while (picked.Count < count && remaining.Count > 0)
             {

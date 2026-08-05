@@ -30,7 +30,9 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             for (int i = 0; i < aliveUnits.Count; i++)
             {
                 if (aliveUnits[i].IsAlive)
+                {
                     Buffer.Add(aliveUnits[i]);
+                }
             }
 
             Buffer.Sort(BySpeedThenId);
