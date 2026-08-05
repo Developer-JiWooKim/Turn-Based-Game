@@ -49,6 +49,7 @@ MonoBehaviour:
   _unitAnimator: {fileID: 7061339416067858036}
   _unitHealthBar: {fileID: 3883667888288648219}
   _sfx: {fileID: 11400000, guid: b805a662c491cf1448141e0322e74a2f, type: 2}
+  _popupHeight: 3
 --- !u!1001 &2330694530003350163
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -279,6 +280,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8185227412285728776}
     m_Modifications:
+    - target: {fileID: 102966726551098068, guid: db65dbd98f5a19b48a164db1ffc51c15, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4649539570397434563, guid: db65dbd98f5a19b48a164db1ffc51c15, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

@@ -65,7 +65,7 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// 같은 시너지를 받던 생존자의 스탯을 즉시 원래대로 되돌린다.
         /// </summary>
         /// <returns>표시가 바뀔 수 있는 경우 현재 시너지 목록(HUD 갱신용), 시너지와 무관한 사망이면 null.</returns>
-        public List<ActiveSynergy> OnAllyDied(Unit deadUnit)
+        public List<PartySynergy> OnAllyDied(Unit deadUnit)
         {
             CharacterStatsSO source = _run.Members.FirstOrDefault(m => m.UnitId == deadUnit.Id)?.Source;
             if (source == null || !_aliveCountBySource.TryGetValue(source, out int count))
@@ -91,23 +91,27 @@ namespace Assets.MyAssets.Scripts.Progression.Run
                 }
             }
 
-            return GetActiveSynergies();
+            return GetSynergies();
         }
 
         /// <summary>
-        /// 지금 발동 중인 시너지 목록(HUD 표시용). <see cref="CreateBattleUnits"/> 직후에는 전투 시작 상태를,
-        /// <see cref="OnAllyDied"/> 이후에는 갱신된 상태를 돌려준다 —
-        /// 판정 기준이 한 곳이라 "전투 시작 표시"와 "전투 중 갱신"이 어긋날 수 없다.
+        /// 파티가 보유한 시너지 목록(HUD 표시용). <b>인원이 모자라 아직 발동하지 않은 것도 포함</b>하며,
+        /// 발동 여부는 <see cref="PartySynergy.IsActive"/>가 인원과 임계치로 판정한다.
+        /// <see cref="CreateBattleUnits"/> 직후에는 전투 시작 상태를, <see cref="OnAllyDied"/> 이후에는
+        /// 갱신된 상태를 돌려준다 — 판정 기준이 한 곳이라 "전투 시작 표시"와 "전투 중 갱신"이 어긋날 수 없다.
+        ///
+        /// <see cref="_aliveCountBySource"/>는 시너지 보유 캐릭터만 담고 있으므로(<see cref="CreateBattleUnits"/> 참고)
+        /// 그대로 순회하면 곧 "보여줄 시너지 전부"가 된다.
         /// </summary>
-        public List<ActiveSynergy> GetActiveSynergies()
+        public List<PartySynergy> GetSynergies()
         {
-            var active = new List<ActiveSynergy>();
-            foreach (CharacterStatsSO source in _synergySourceByUnitId.Values.Distinct())
+            var synergies = new List<PartySynergy>(_aliveCountBySource.Count);
+            foreach (KeyValuePair<CharacterStatsSO, int> entry in _aliveCountBySource)
             {
-                active.Add(new ActiveSynergy(source, _aliveCountBySource[source], source.CreateSynergy()));
+                synergies.Add(new PartySynergy(entry.Key, entry.Value, entry.Key.CreateSynergy()));
             }
 
-            return active;
+            return synergies;
         }
     }
 }

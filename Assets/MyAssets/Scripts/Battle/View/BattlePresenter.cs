@@ -20,6 +20,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [Header("연결")]
         [SerializeField] private BattleHUD _hud;
         [SerializeField] private CameraShake _cameraShake;
+        [Tooltip("피해량 숫자 팝업. 비워두면 숫자 없이 진행한다.")]
+        [SerializeField] private DamagePopupSpawner _damagePopups;
 
         [Header("연출")]
         [Tooltip("공격 시작 후 타격이 적중하는 시점까지의 지연(초).")]
@@ -53,12 +55,48 @@ namespace Assets.MyAssets.Scripts.Battle.View
         }
 
         /// <summary>이번 스테이지에 발동 중인 파티 시너지를 HUD에 표시한다.</summary>
-        public void SetSynergies(IReadOnlyList<ActiveSynergy> synergies)
+        public void SetSynergies(IReadOnlyList<PartySynergy> synergies)
         {
             if (_hud != null)
             {
                 _hud.ShowSynergies(synergies);
+                _hud.RefreshPartyStats(); // 시너지는 Stats를 직접 고치므로 하단 스탯 바도 같이 갱신
             }
+        }
+
+        /// <summary>
+        /// 이번 스테이지의 파티를 하단 스탯 바에 넘긴다.
+        /// 정렬 기준 좌표는 레지스트리의 View에서 얻는다 — View는 슬롯 Transform 위치에 그대로 놓이고,
+        /// 추방·영입으로 슬롯이 재사용되므로 <see cref="RunData.Members"/> 순서로는 위치를 알 수 없다.
+        /// <see cref="RunMember"/>도 함께 넘기는 이유는 증가량 분해(기준 스탯 대비 성장분) 때문이다.
+        /// </summary>
+        public void SetParty(RunData run, IReadOnlyList<Unit> players)
+        {
+            if (_hud == null) return;
+
+            var slots = new List<PartyMemberSlot>(players.Count);
+            foreach (Unit unit in players)
+            {
+                if (_registry.TryGet(unit.Id, out UnitView view))
+                {
+                    slots.Add(new PartyMemberSlot(unit, FindMember(run, unit.Id), view.transform.position));
+                }
+            }
+
+            _hud.SetParty(slots);
+        }
+
+        /// <summary>전투 유닛에 대응하는 런 데이터(Id는 런 내내 고정이라 이걸로 짝을 찾는다).</summary>
+        private static RunMember FindMember(RunData run, int unitId)
+        {
+            if (run == null) return null;
+
+            foreach (RunMember member in run.Members)
+            {
+                if (member.UnitId == unitId) return member;
+            }
+
+            return null;
         }
 
         /// <summary>이번 웨이브의 시뮬레이션에 연출을 연결한다.</summary>
@@ -98,10 +136,21 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void OnTurnStarted(object sender, TurnStartedEventArgs e)
         {
-            if (_hud != null)
+            if (_hud == null) return;
+
+            var chips = new List<TurnChipInfo>(e.Order.Count);
+            foreach (Unit unit in e.Order)
             {
-                _hud.ShowTurnOrder(e.Order);
+                // 칩 라벨은 View가 아는 화면 배치 인덱스다.
+                // 못 찾으면 이름으로 폴백한다 — 라벨이 빈 칩이 뜨는 것보다 낫다.
+                string label = _registry.TryGet(unit.Id, out UnitView view) && !string.IsNullOrEmpty(view.SlotLabel)
+                    ? view.SlotLabel
+                    : unit.DisplayName;
+
+                chips.Add(new TurnChipInfo(unit.Id, label, unit.Team));
             }
+
+            _hud.ShowTurnOrder(chips);
         }
 
         private void OnActorTurnStarted(object sender, ActorTurnEventArgs e)
@@ -171,6 +220,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
             {
                 view.RefreshStatuses(e.Unit.Statuses);
             }
+
+            // 스탯 감소 계열이 붙거나 풀리면 유효 스탯이 바뀐다.
+            if (_hud != null)
+            {
+                _hud.RefreshPartyStats();
+            }
         }
 
         /// <summary>도트 피해는 일반 피격과 같은 연출을 재사용한다(체력바 갱신 포함).</summary>
@@ -179,6 +234,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (_registry.TryGet(e.Unit.Id, out UnitView view))
             {
                 e.RegisterPlayback(view.PlayHitAsync(e.Unit.CurrentHp, e.Unit.Stats.MaxHp, _ct));
+
+                if (_damagePopups != null)
+                {
+                    _damagePopups.Spawn(view.PopupOrigin, e.Damage, DamageKind.DoT);
+                }
             }
         }
 
@@ -202,8 +262,14 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 if (_registry.TryGet(hit.Target.Id, out UnitView targetView))
                 {
                     playback.Add(targetView.PlayHitAsync(hit.Target.CurrentHp, hit.Target.Stats.MaxHp, _ct));
-                }
 
+                    // 팝업은 연출 대기에 넣지 않는다 — 장식이라 전투 페이싱을 늦출 이유가 없다.
+                    if (_damagePopups != null)
+                    {
+                        _damagePopups.Spawn(targetView.PopupOrigin, hit.Damage,
+                                            hit.IsCritical ? DamageKind.Critical : DamageKind.Normal);
+                    }
+                }
             }
 
             if (anyCritical)

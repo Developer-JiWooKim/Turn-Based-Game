@@ -49,6 +49,7 @@ MonoBehaviour:
   _unitAnimator: {fileID: 8322637230790435032}
   _unitHealthBar: {fileID: 1522642379746451315}
   _sfx: {fileID: 11400000, guid: af1ffc09c21a62846b1b24c7690da115, type: 2}
+  _popupHeight: 3
 --- !u!1001 &36120982256176
 PrefabInstance:
   m_ObjectHideFlags: 0

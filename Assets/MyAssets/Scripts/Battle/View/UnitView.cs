@@ -20,7 +20,23 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [Tooltip("이 유닛의 전투음(등장/공격/스킬/피격/사망). 비워두면 소리 없이 진행한다.")]
         [SerializeField] private UnitSfxSO _sfx;
 
+        [Header("연출")]
+        [Tooltip("피해량 숫자가 뜨는 높이(발밑 기준, 월드 단위). 체력바와 비슷한 머리 높이가 기준이며 유닛 키에 맞춰 조정한다.")]
+        [SerializeField] private float _popupHeight = 3f;
+
         public int UnitId { get; private set; }
+
+        /// <summary>
+        /// 화면 배치 인덱스 라벨(예: "A1"). <see cref="UnitViewRegistry"/>가 스폰 시 정하며,
+        /// 체력바 표기와 상단 턴 순서 칩이 이 같은 값을 쓴다.
+        /// </summary>
+        public string SlotLabel { get; private set; }
+
+        /// <summary>
+        /// 피해량 팝업을 띄울 월드 좌표(머리 위).
+        /// 앵커 오브젝트를 두는 대신 높이 값만 갖는다 — 유닛 프리팹 계층을 건드리지 않기 위함.
+        /// </summary>
+        public Vector3 PopupOrigin => transform.position + Vector3.up * _popupHeight;
 
         /// <summary>
         /// 아웃라인 색을 결정하는 3D 모델 렌더러들과 프리팹 원본 레이어(복원용).
@@ -63,9 +79,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
             NullCheck.LogIfMissing(_unitAnimator, nameof(_unitAnimator), this, "연출 없이 즉시 진행됩니다");
         }
 
-        public void Initialize(int unitId, int currentHp, int maxHp)
+        public void Initialize(int unitId, int currentHp, int maxHp, string slotLabel)
         {
             UnitId = unitId;
+            SlotLabel = slotLabel;
 
             CacheRenderers();
 
@@ -73,6 +90,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             _unitHealthBar.SetVisible(true); // 사망으로 숨겨진 채 재사용됐을 수도 있으니 활성화 먼저
             _unitHealthBar.Set(currentHp, maxHp);
+            _unitHealthBar.SetSlotLabel(slotLabel);
 
             // 풀에서 재사용된 인스턴스에 이전 전투의 표기가 남지 않도록 둘 다 초기화한다.
             // 상태이상을 먼저 비워야 뒤이은 스폰 디버프 갱신이 이전 유닛의 목록을 다시 그리지 않는다.

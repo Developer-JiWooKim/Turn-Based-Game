@@ -19,6 +19,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [Tooltip("걸려 있는 상태이상을 표기할 텍스트. 비워두면 표시하지 않는다.")]
         [SerializeField] private TMP_Text _statusText;
 
+        [Tooltip("화면 배치 인덱스를 표기할 텍스트([A1] 등). 비워두면 표시하지 않는다.")]
+        [SerializeField] private TMP_Text _indexText;
+
         [Tooltip("카메라를 향하게 회전시킬 루트")]
         [SerializeField] private Transform _billboardRoot;
 
@@ -37,6 +40,24 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         /// <summary>체력바 전체를 켜고 끈다(사망 시 숨김 → 스폰 시 복구). 체력바는 유닛 루트의 자식이라 모델에는 영향 없다.</summary>
         public void SetVisible(bool visible) => gameObject.SetActive(visible);
+
+        /// <summary>
+        /// 화면 배치 인덱스를 표기한다(예: "A1" → <c>[A1]</c>). 진영은 A/E 접두어로 구분되며
+        /// 문자열은 <see cref="UnitViewRegistry"/>가 만든다 — 상단 턴 순서 칩과 같은 값을 쓰기 위함.
+        /// 풀에서 재사용된 인스턴스에 이전 번호가 남지 않도록 스폰마다 다시 지정된다.
+        /// </summary>
+        public void SetSlotLabel(string label)
+        {
+            if (_indexText == null) return;
+
+            bool has = !string.IsNullOrEmpty(label);
+            _indexText.gameObject.SetActive(has);
+
+            if (has)
+            {
+                _indexText.text = $"{label}";
+            }
+        }
 
         /// <summary>이번 전투 내내 유지되는 스폰 디버프 표기를 지정한다(null이면 없음).</summary>
         public void SetSpawnDebuff(string label)
@@ -99,18 +120,22 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _statusText.SetText(_statusBuilder);
         }
 
-        /// <summary>상태이상/스폰 디버프 아이콘의 공용 크기·기준선 보정. 체감상 작거나 텍스트보다 낮춰 보이면 이 둘만 조정.</summary>
-        private const string IconScale = "1.6";
+        /// <summary>아이콘 크기(폰트 크기 대비)와 기준선 보정. 작아 보이거나 텍스트와 높이가 안 맞으면 이 둘만 조정.</summary>
+        private const string IconSize = "160%";
         private const string IconVOffset = "0.12em";
 
         /// <summary>
         /// TMP 인라인 스프라이트 태그를 만든다 — 이름은 상태이상 표기(`_statusText`)에 지정된
         /// Sprite Asset(Debuff 아이콘 + Fallback 체인)의 스프라이트 이름과 일치해야 한다.
-        /// Sprite Asset이 지정되지 않으면 TMP가 태그를 그대로 텍스트로 보여준다(폴백).
-        /// 스폰 디버프 라벨(<see cref="MonsterSpawner"/>)도 같은 태그 형식을 써서 크기·기준선이 어긋나지 않는다.
+        /// 스폰 디버프 라벨(<see cref="MonsterSpawner"/>)도 이 메서드를 써서 크기·기준선이 어긋나지 않는다.
+        ///
+        /// ⚠️ 크기는 반드시 바깥의 <c>&lt;size&gt;</c>로 준다 — <c>&lt;sprite&gt;</c>가 인식하는 속성은
+        /// name/index/anim/color/tint뿐이라 <c>scale=</c> 같은 걸 넣으면 TMP가 태그 전체를 무효로 보고
+        /// <b>태그 문자열을 그대로 화면에 출력</b>한다(이름·Fallback이 멀쩡한데 전부 텍스트로 나왔던 실제 버그).
+        /// 이름을 못 찾을 때도 같은 증상이 나므로, 글자로 보이면 이 둘부터 의심할 것.
         /// </summary>
         public static string IconTag(string spriteName) =>
-            $"<voffset={IconVOffset}><sprite name=\"{spriteName}\" scale={IconScale}></voffset>";
+            $"<size={IconSize}><voffset={IconVOffset}><sprite name=\"{spriteName}\"></voffset></size>";
 
         /// <summary>상태이상 표기.</summary>
         private static string Label(StatusKind kind) => kind switch

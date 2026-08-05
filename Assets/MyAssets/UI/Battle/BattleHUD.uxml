@@ -1,12 +1,16 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
+    <!-- Common.uss가 먼저 와야 :root 색 변수와 .panel-frame을 아래에서 쓸 수 있다 -->
+    <Style src="../Common.uss" />
     <Style src="BattleHUD.uss" />
     <!-- picking-mode=Ignore: HUD가 몬스터 클릭 타겟팅을 가로채지 않도록 전부 통과 -->
     <ui:VisualElement name="battle-hud" class="battle-hud" picking-mode="Ignore">
         <ui:Label name="stage-label" class="stage-label" text="STAGE 1" picking-mode="Ignore" />
-        <!-- 발동 중인 파티 시너지. 내용은 BattleHUD가 실제 효과 수치에서 생성한다 -->
-        <ui:Label name="synergy-label" class="synergy-label" text="" picking-mode="Ignore" />
+        <!-- 파티 시너지. 행은 SynergyPanelView가 실제 효과 수치에서 만든다(미발동은 흐리게) -->
+        <ui:VisualElement name="synergy-panel" class="synergy-panel panel-frame" picking-mode="Ignore" />
         <ui:VisualElement name="turn-order" class="turn-order" picking-mode="Ignore" />
         <ui:Label name="player-prompt" class="player-prompt" text="" picking-mode="Ignore" />
+        <!-- 하단 파티 스탯 바. 패널은 PartyStatusBarView가 파티 인원만큼 만들어 캐릭터 위치에 정렬한다 -->
+        <ui:VisualElement name="party-status" class="party-status" picking-mode="Ignore" />
         <!-- 우상단 퍼즈. 루트가 picking-mode=Ignore여도 자식 버튼은 정상적으로 클릭된다 -->
         <!-- 기본은 숨김. 전투 구간에 들어갈 때 BattlePausePanel이 켠다 -->
         <ui:Button name="pause-button" class="pause-hud-button" text="II" style="display: none;" />

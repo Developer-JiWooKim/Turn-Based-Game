@@ -5,15 +5,21 @@ using Assets.MyAssets.Scripts.Battle.Data;
 
 namespace Assets.MyAssets.Scripts.Progression.Run
 {
-    /// <summary>발동 중인 파티 시너지 1건(HUD 표시용)</summary>
-    public readonly struct ActiveSynergy
+    /// <summary>
+    /// 파티가 보유한 시너지 1건(HUD 표시용). <b>발동 여부와 무관하게</b> 파티에 있는 시너지 보유 캐릭터마다 하나씩 만들어진다 —
+    /// 아직 인원이 모자란 시너지도 흐리게 보여줘야 "한 명만 더 모으면 된다"가 화면에 드러나기 때문.
+    /// </summary>
+    public readonly struct PartySynergy
     {
         public readonly CharacterStatsSO Source;
-        /// <summary>파티에 있는 해당 캐릭터 수</summary>
+        /// <summary>파티에 살아 있는 해당 캐릭터 수. 발동 판정에만 쓰고 화면에는 찍지 않는다.</summary>
         public readonly int Count;
         public readonly RoguelikeEffect Effect;
 
-        public ActiveSynergy(CharacterStatsSO source, int count, in RoguelikeEffect effect)
+        /// <summary>지금 실제로 효과가 적용 중인지. 별도 필드로 저장하지 않고 파생시켜 값이 어긋날 여지를 없앤다.</summary>
+        public bool IsActive => Source != null && Count >= Source.SynergyThreshold;
+
+        public PartySynergy(CharacterStatsSO source, int count, in RoguelikeEffect effect)
         {
             Source = source;
             Count = count;
@@ -68,7 +74,7 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         {
             foreach (RunMember member in Members)
             {
-                member.ApplyGrowth(effect);
+                member.ApplyChoiceGrowth(effect);
             }
 
             PendingModifiers.Add(effect);
@@ -83,7 +89,7 @@ namespace Assets.MyAssets.Scripts.Progression.Run
             int step = CurrentStage - 1; // 진급 직후 호출되므로 이번이 몇 번째 성장인지와 같다
             foreach (RunMember member in Members)
             {
-                member.ApplyGrowth(scaling.CreatePlayerGrowth(member.BaseStats, step));
+                member.ApplyStageGrowth(scaling.CreatePlayerGrowth(member.BaseStats, step));
             }
         }
 
@@ -131,7 +137,7 @@ namespace Assets.MyAssets.Scripts.Progression.Run
             // 기존 파티원이 진급마다 받아온 것과 같은 순서로 되짚어야 누적 결과가 정확히 일치한다.
             for (int step = 1; step < CurrentStage; step++)
             {
-                member.ApplyGrowth(scaling.CreatePlayerGrowth(member.BaseStats, step));
+                member.ApplyStageGrowth(scaling.CreatePlayerGrowth(member.BaseStats, step));
             }
         }
 
