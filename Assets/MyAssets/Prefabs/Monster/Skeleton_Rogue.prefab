@@ -50,6 +50,7 @@ MonoBehaviour:
   _unitAnimator: {fileID: 7072024042281735147}
   _unitHealthBar: {fileID: 7397750717353391770}
   _sfx: {fileID: 11400000, guid: ee107a40d78240e48a09d7d238fb3318, type: 2}
+  _popupHeight: 3
 --- !u!135 &1679773765809390236
 SphereCollider:
   m_ObjectHideFlags: 0

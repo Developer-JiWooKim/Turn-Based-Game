@@ -83,6 +83,8 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     public sealed class StatusTickedEventArgs : PlaybackEventArgs
     {
         public readonly Unit Unit;
+
+        /// <summary>계산된 도트 피해량. <see cref="HitResult.Damage"/>와 같은 기준이라 남은 HP로 깎지 않는다.</summary>
         public readonly int Damage;
 
         public StatusTickedEventArgs(Unit unit, int damage)

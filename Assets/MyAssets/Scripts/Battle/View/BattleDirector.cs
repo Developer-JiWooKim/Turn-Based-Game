@@ -159,7 +159,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             // 영입·교체·사망으로 파티 구성이 바뀌므로 시너지는 스테이지마다 다시 판정한다.
             // 표시도 트래커에서 받는다 — 전투 중 갱신과 같은 판정 기준을 쓰기 위함.
-            _presenter.SetSynergies(synergyTracker.GetActiveSynergies());
+            _presenter.SetSynergies(synergyTracker.GetSynergies());
+
+            // 하단 스탯 바도 이번 스테이지 구성으로 다시 배정한다(영입·교체·사망이 여기서 흡수된다).
+            _presenter.SetParty(_run, players);
 
             // 상태이상은 전투 단위라 스테이지가 바뀌면 사라진다(파티 Unit이 새로 생성되므로).
             // View는 런 내내 재사용되니 이전 스테이지의 표기를 여기서 지워준다.
@@ -179,7 +182,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             {
                 if (e.Unit.Team != TeamSide.Player) return;
 
-                List<ActiveSynergy> updated = synergyTracker.OnAllyDied(e.Unit);
+                List<PartySynergy> updated = synergyTracker.OnAllyDied(e.Unit);
                 if (updated != null)
                     _presenter.SetSynergies(updated);
             };

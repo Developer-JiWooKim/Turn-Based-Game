@@ -81,7 +81,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
                                   member.CurrentHp,
                                   member.Stats.MaxHp,
                                   _playerSlots,
-                                  slotIndex);
+                                  slotIndex,
+                                  TeamSide.Player);
             if (view != null)
             {
                 _slotOccupants[slotIndex] = member;
@@ -99,7 +100,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
                                   unit.CurrentHp,
                                   unit.Stats.MaxHp,
                                   _enemySlots,
-                                  index);
+                                  index,
+                                  TeamSide.Enemy);
 
             if (view != null)
             {
@@ -182,8 +184,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>현재 등록된 모든 View의 등장 연출을 기다린다(전투 시작 전 파티 스폰용).</summary>
         public Task WhenAllSpawnPlayed(CancellationToken ct) => WhenSpawnPlayed(_views.Values.ToList(), ct);
 
+        /// <summary>
+        /// 화면 배치 라벨 — 진영 접두어(A=아군/E=적군) + 1부터 시작하는 번호("A1", "E2").
+        /// 체력바 왼쪽 표기와 상단 턴 순서 칩이 같은 문자열을 쓰도록 **여기서만** 만든다.
+        /// 배열 인덱스를 그대로 노출하지 않으려고 1부터 센다.
+        /// </summary>
+        private static string CreateSlotLabel(TeamSide team, int index) =>
+            $"{(team == TeamSide.Player ? 'A' : 'E')}{index + 1}";
+
         private UnitView Spawn(int unitId, string displayName, GameObject prefab,
-                               int currentHp, int maxHp, Transform[] slots, int index)
+                               int currentHp, int maxHp, Transform[] slots, int index, TeamSide team)
         {
             if (prefab == null)
             {
@@ -201,7 +211,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             // 재사용 인스턴스에 남은 이전 전투 흔적을 지운 뒤 초기화한다(순서 이유는 ResetForSpawn 주석 참고).
             view.ResetForSpawn();
-            view.Initialize(unitId, currentHp, maxHp);
+            view.Initialize(unitId, currentHp, maxHp, CreateSlotLabel(team, index));
 
             _views[unitId] = view;
             _sourcePrefab[view] = prefab;

@@ -23,6 +23,12 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// <summary>성장 전 기준 스탯. 스테이지 자동 성장의 증가분을 계산하는 기준이며 변하지 않는다.</summary>
         public readonly Stats BaseStats;
 
+        /// <summary>
+        /// 로그라이크 선택지로 얻은 성장만의 누계(스테이지 자동 성장은 뺀 값).
+        /// 둘 다 <see cref="Stats"/>에 함께 쌓이므로, 화면에서 출처를 구분하려면 선택지 몫을 따로 세어둘 수밖에 없다.
+        /// </summary>
+        public readonly Stats ChoiceGrowth = new(0, 0, 0, 0, 0f, 0f, 0f);
+
         public int CurrentHp { get; private set; }
         public bool IsAlive => CurrentHp > 0;
 
@@ -49,12 +55,36 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// <summary>전투가 끝난 뒤 Unit의 HP를 런 데이터에 반영한다.</summary>
         public void SyncFrom(Unit unit) => CurrentHp = unit.CurrentHp;
 
-        /// <summary>성장 효과를 적용하고 늘어난 최대치·회복량만큼 HP를 채운다(사망자는 제외).</summary>
-        public void ApplyGrowth(in RoguelikeEffect effect)
+        /// <summary>로그라이크 선택지로 받은 성장. 자동 성장과 구분해 보여줄 수 있도록 몫을 따로 집계한다.</summary>
+        public void ApplyChoiceGrowth(in RoguelikeEffect effect) => ApplyGrowth(effect, ChoiceGrowth);
+
+        /// <summary>스테이지 진급 자동 성장(후반 영입자의 소급 적용 포함). 집계 대상이 아니다.</summary>
+        public void ApplyStageGrowth(in RoguelikeEffect effect) => ApplyGrowth(effect, bucket: null);
+
+        /// <summary>
+        /// 성장 효과를 적용하고 늘어난 최대치·회복량만큼 HP를 채운다(사망자는 제외).
+        /// <paramref name="bucket"/>을 주면 <b>실제로 반영된 증분</b>을 거기에 누적한다 —
+        /// 효과 값을 그대로 더하지 않는 이유는 <see cref="RoguelikeEffect.ApplyTo"/>가 치명타·저항을
+        /// 1.0으로 클램프할 수 있어 넣은 값과 실제 증가분이 다를 수 있기 때문이다.
+        /// </summary>
+        private void ApplyGrowth(in RoguelikeEffect effect, Stats bucket)
         {
             if (!IsAlive) return;
 
+            Stats before = bucket != null ? Stats.Clone() : null;
             int heal = effect.ApplyTo(Stats);
+
+            if (bucket != null)
+            {
+                bucket.MaxHp += Stats.MaxHp - before.MaxHp;
+                bucket.Atk += Stats.Atk - before.Atk;
+                bucket.Spd += Stats.Spd - before.Spd;
+                bucket.Def += Stats.Def - before.Def;
+                bucket.CritRate += Stats.CritRate - before.CritRate;
+                bucket.CritDmg += Stats.CritDmg - before.CritDmg;
+                bucket.Res += Stats.Res - before.Res;
+            }
+
             CurrentHp = System.Math.Min(Stats.MaxHp, CurrentHp + heal);
         }
     }

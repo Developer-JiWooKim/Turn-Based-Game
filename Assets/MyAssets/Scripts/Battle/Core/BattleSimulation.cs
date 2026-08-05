@@ -154,9 +154,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             int dot = actor.GetDotDamage();
             if (dot > 0)
             {
-                int applied = actor.ApplyDamage(dot);
+                actor.ApplyDamage(dot);
 
-                var tickArgs = new StatusTickedEventArgs(actor, applied);
+                // 타격과 같은 기준 — 적용량이 아니라 계산된 피해량을 넘긴다(HitResult.Damage 참고).
+                var tickArgs = new StatusTickedEventArgs(actor, dot);
                 StatusTicked?.Invoke(this, tickArgs);
                 await tickArgs.WhenPlaybackComplete();
 
@@ -205,8 +206,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 if (!target.IsAlive) continue;
 
                 DamageResult dmg = DamageCalculator.Calculate(plan.Actor, target, plan.PowerMultiplier, _rng);
-                int applied = target.ApplyDamage(dmg.Amount);
-                hits.Add(new HitResult(target, applied, dmg.IsCritical, !target.IsAlive));
+                target.ApplyDamage(dmg.Amount);
+
+                // 적용량(클램프된 값)이 아니라 계산된 피해량을 넘긴다 — 오버킬을 그대로 보여주기 위함(HitResult.Damage 참고).
+                hits.Add(new HitResult(target, dmg.Amount, dmg.IsCritical, !target.IsAlive));
 
                 // 스킬에 딸린 상태이상은 살아남은 대상에게만 부여를 시도한다(저항 판정은 Unit이 담당).
                 if (plan.Kind == ActionKind.Skill && target.IsAlive)

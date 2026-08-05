@@ -17,17 +17,74 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-/* 좌상단 파티 시너지 (스테이지/턴 순서와 겹치지 않도록 왼쪽에 배치) */
-.synergy-label {
+/* ── 좌상단 파티 시너지 패널 ──────────────────────────
+   행은 SynergyPanelView가 만든다. 미발동 시너지는 --inactive로 흐리게만 구분하고
+   숫자(×N)는 요구 인원이라 발동 여부와 무관하게 고정이다. */
+.synergy-panel {
     position: absolute;
     top: 16px;
     left: 20px;
-    max-width: 320px;
-    white-space: normal;
-    font-size: 16px;
+    width: 260px;
+    padding: 10px 12px;
+    background-color: rgba(42, 36, 64, 0.3)
+}
+
+/* 배경이 없어져 3D 전장 위에 글자가 바로 놓이므로 그림자로 가독성을 지킨다
+   (교체 전 .synergy-label이 쓰던 것과 같은 처리) */
+.synergy-title,
+.synergy-name,
+.synergy-count,
+.synergy-effects {
+    text-shadow: 0 10px 0px rgb(0, 0, 0);
+}
+
+.synergy-title {
+    font-size: 14px;
     -unity-font-style: bold;
-    color: rgb(180, 235, 190);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    color: var(--color-mint);
+    margin-bottom: 6px;
+}
+
+.synergy-row {
+    margin-bottom: 6px;
+}
+
+/* 아직 인원이 모자란 시너지 */
+.synergy-row--inactive {
+    opacity: 0.2;
+}
+
+.synergy-head {
+    flex-direction: row;
+    align-items: center;
+}
+
+.synergy-icon {
+    width: 22px;
+    height: 22px;
+    margin-right: 6px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.synergy-name {
+    flex-grow: 1;
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--color-cream);
+}
+
+/* 요구 인원 — 파티 구성이 바뀌어도 변하지 않는 값 */
+.synergy-count {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--color-cyan-light);
+}
+
+.synergy-effects {
+    font-size: 12px;
+    color: var(--color-violet-text);
+    white-space: normal;
+    margin-left: 28px;
 }
 
 /* 상단 턴 순서 바 (가로 나열) */
@@ -41,9 +98,12 @@
     flex-wrap: wrap;
 }
 
+/* 라벨이 "A1"처럼 짧아 폭이 들쭉날쭉해지므로 최소 폭을 준다 */
 .turn-chip {
     margin: 7px;
     padding: 4px 12px;
+    min-width: 34px;
+    -unity-text-align: middle-center;
     border-radius: 6px;
     font-size: 15px;
     -unity-font-style: bold;
@@ -101,12 +161,68 @@
 /* 하단 중앙 플레이어 차례 프롬프트 */
 .player-prompt {
     position: absolute;
-    bottom: 40px;
+    top: 150px;
     left: 0;
     right: 0;
     -unity-text-align: middle-center;
-    font-size: 22px;
+    font-size: 25px;
     -unity-font-style: bold;
-    color: rgb(234, 246, 255);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    color: rgb(223, 233, 255);
+    text-shadow: 0 150px 0px rgb(0,0,0);
+}
+
+/* ── 하단 파티 스탯 표기 ──────────────────────────────
+   패널은 PartyStatusBarView가 만들고, left만 코드가 캐릭터의 화면 X로 지정한다.
+   값 줄은 리치 텍스트라 증감 내역의 색은 USS가 아니라 그쪽 코드의 상수에 있다. */
+.party-status {
+    opacity: 0.9;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 24px;
+    height: 100px; /* 패널은 이 컨테이너의 아래쪽에 붙는다(bottom: 0) */
+}
+
+.party-member {
+    position: absolute;
+    bottom: 0;
+    width: 250px; /* "10 (+5) (+2) (+8) (-16)"가 한 줄에 들어가는 폭 */
+    padding: 8px 10px;
+    /* left는 캐릭터의 화면 X. 폭의 절반만큼 당겨 가운데를 맞춘다(레이아웃 전에도 유효). */
+    translate: -50% 0;
+}
+
+.party-member-name {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--color-cream);
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+
+/* 사망한 파티원 (턴 순서 칩의 turn-chip-dead와 같은 처리) */
+.party-member--dead {
+    opacity: 0.35;
+}
+
+.party-stat-row {
+    flex-direction: row;
+    align-items: center;
+    margin: 1px 0;
+}
+
+.party-stat-label {
+    width: 46px;
+    font-size: 12px;
+    color: var(--color-cream);
+    opacity: 0.75;
+}
+
+/* "52 (+12) (+8) (-16)" — 괄호 색은 코드가 리치 텍스트로 넣는다 */
+.party-stat-value {
+    flex-grow: 1;
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: var(--color-cream);
+    white-space: nowrap;
 }
