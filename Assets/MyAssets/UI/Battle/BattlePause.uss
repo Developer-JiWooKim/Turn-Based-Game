@@ -51,6 +51,14 @@
     font-size: 18px;
 }
 
+/* 연출이 재생 중이라 지금 눌러도 즉시 반영되지 않는 동안 잠기는 상태('배틀 중단').
+   Common.uss의 .btn:disabled는 opacity를 1로 끄지만(성향 배분 +/- 버튼용) 여기서는
+   눌리지 않는다는 게 한눈에 보여야 하므로 다시 낮춘다. 두 규칙의 특정도가 같아
+   나중에 로드되는 이 파일이 이긴다(UXML의 <Style> 순서: Common.uss → BattlePause.uss). */
+.pause-button:disabled {
+    opacity: 0.4;
+}
+
 .pause-hint {
     margin-top: 20px;
     font-size: 13px;

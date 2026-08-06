@@ -52,11 +52,14 @@
     -unity-background-scale-mode: scale-to-fit;
 }
 
+/* 영입 후보 카드에서는 캐릭터 이름(교체 카드는 "A1 바바리안")이 들어온다.
+   설명이 스탯 7줄로 늘어나 자리를 더 쓰므로 제목을 줄이고 아래 여백도 함께 좁혔다.
+   .card-desc(15px)보다는 커야 제목-본문 위계가 뒤집히지 않는다. */
 .card-title {
-    font-size: 22px;
+    font-size: 16px;
     -unity-font-style: bold;
     color: var(--color-cream);
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     white-space: normal;
     -unity-text-align: middle-center;
 }

@@ -103,9 +103,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _presenter.Initialize(_cts.Token, _registry);
             _spawner.Initialize(_registry);
 
+            // _rewards는 선택 참조다(없으면 성장 선택지 없이 진행 — PresentRewardAsync 참고).
+            if (_rewards != null)
+            {
+                _rewards.Initialize(_registry);
+            }
+
             if (_pausePanel != null)
             {
                 _pausePanel.AbortRequested += OnAbortRequested;
+                _pausePanel.Initialize(_presenter); // 연출 재생 중에는 '배틀 중단'을 잠그기 위함
                 _pausePanel.SetBattleActive(false); // 전투 구간에 들어갈 때만 켠다
             }
 

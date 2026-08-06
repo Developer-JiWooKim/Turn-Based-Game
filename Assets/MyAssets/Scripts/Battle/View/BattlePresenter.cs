@@ -37,6 +37,18 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private CancellationToken _ct;
 
+        /// <summary>재생 중인 연출 수(0이면 시뮬레이션이 연출을 기다리고 있지 않다).</summary>
+        private int _playbackCount;
+
+        /// <summary>
+        /// 연출이 하나라도 재생 중인가.
+        ///
+        /// 시뮬레이션이 연출을 기다리는 <c>WhenPlaybackComplete()</c>는 취소 토큰을 받지 않아,
+        /// 이 동안에는 '배틀 중단'을 눌러도 다음 유닛 행동 직전까지 반영되지 않는다.
+        /// <see cref="BattlePausePanel"/>이 그 사이 중단 버튼을 잠그는 데 쓴다.
+        /// </summary>
+        public bool IsPlayingBack => _playbackCount > 0;
+
         private void Awake() => _activeLayer = LayerMask.NameToLayer(_activeLayerName);
 
         /// <summary>씬 종료 시 연출을 취소할 토큰과 View 레지스트리를 받아둔다(전투 시작 전 1회).</summary>
@@ -202,6 +214,29 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         // ── 연출 (연출 Task를 등록하면 시뮬레이션이 완료를 대기) ──
 
+        /// <summary>
+        /// 연출 Task를 이벤트에 등록하면서 <see cref="IsPlayingBack"/>을 함께 관리한다.
+        /// 등록 경로가 셋(행동/사망/도트)이라 세는 자리를 한 곳으로 모아 짝이 어긋나지 않게 한다.
+        /// </summary>
+        private void RegisterPlayback(PlaybackEventArgs args, Task playback)
+        {
+            _playbackCount++;
+            args.RegisterPlayback(TrackPlaybackAsync(playback));
+        }
+
+        /// <summary>연출이 끝나면(취소·예외로 끝나도) 카운트를 되돌린다.</summary>
+        private async Task TrackPlaybackAsync(Task playback)
+        {
+            try
+            {
+                await playback;
+            }
+            finally
+            {
+                _playbackCount--;
+            }
+        }
+
         private void OnActionResolved(object sender, ActionResolvedEventArgs e)
         {
             if (_hud != null)
@@ -209,7 +244,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _hud.HidePrompt(); // 입력 완료 → 연출 단계이므로 "당신의 차례" 프롬프트 숨김
             }
 
-            e.RegisterPlayback(PlayActionAsync(e.Result));
+            RegisterPlayback(e, PlayActionAsync(e.Result));
         }
 
         private void OnUnitDied(object sender, UnitDiedEventArgs e)
@@ -222,7 +257,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             if (_registry.TryGet(e.Unit.Id, out UnitView view))
             {
-                e.RegisterPlayback(view.PlayDieAsync(_ct));
+                RegisterPlayback(e, view.PlayDieAsync(_ct));
             }
         }
 
@@ -251,7 +286,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             if (_registry.TryGet(e.Unit.Id, out UnitView view))
             {
-                e.RegisterPlayback(view.PlayHitAsync(e.Unit.CurrentHp, e.Unit.Stats.MaxHp, _ct));
+                RegisterPlayback(e, view.PlayHitAsync(e.Unit.CurrentHp, e.Unit.Stats.MaxHp, _ct));
 
                 if (_damagePopups != null)
                 {

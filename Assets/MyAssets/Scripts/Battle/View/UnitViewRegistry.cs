@@ -22,6 +22,24 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// </summary>
     public sealed class UnitViewRegistry : MonoBehaviour
     {
+        /// <summary>
+        /// 화면에 배치된 파티원 한 명 — 슬롯 순서대로 줄 세울 때 쓴다.
+        /// 멤버와 라벨을 함께 돌려주므로 "몇 번째 카드가 화면의 어느 자리인가"가 어긋날 수 없다.
+        /// </summary>
+        public readonly struct PartySlot
+        {
+            public readonly RunMember Member;
+
+            /// <summary>체력바 왼쪽·턴 순서 칩과 같은 배치 라벨("A1").</summary>
+            public readonly string Label;
+
+            public PartySlot(RunMember member, string label)
+            {
+                Member = member;
+                Label = label;
+            }
+        }
+
         /// <summary>프리팹 1종당 미리 잡아두는 풀 용량(슬롯 수 수준이면 충분하다)</summary>
         private const int PoolCapacityPerPrefab = 4;
 
@@ -109,6 +127,28 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             return view;
+        }
+
+        /// <summary>
+        /// 파티원을 <b>화면 배치 순서대로</b> 돌려준다(빈 슬롯은 건너뛴다).
+        ///
+        /// <see cref="RunData.Members"/>는 영입 순서라 화면 순서와 다를 수 있다 —
+        /// <see cref="SpawnMember"/>가 앞쪽 빈자리를 재사용하는 반면 영입은 리스트 끝에 붙기 때문에,
+        /// 추방으로 중간 슬롯이 빈 뒤 영입하면 그때부터 두 순서가 갈라진다.
+        /// 화면에 보이는 대로 줄 세워야 하는 UI(교체 대상 선택 등)는 이걸 쓴다.
+        /// </summary>
+        public List<PartySlot> GetPartySlots()
+        {
+            var slots = new List<PartySlot>();
+            for (int i = 0; i < _slotOccupants.Length; i++)
+            {
+                if (_slotOccupants[i] != null)
+                {
+                    slots.Add(new PartySlot(_slotOccupants[i], CreateSlotLabel(TeamSide.Player, i)));
+                }
+            }
+
+            return slots;
         }
 
         /// <summary>추방된 파티원의 View를 치우고 슬롯을 비운다.</summary>
