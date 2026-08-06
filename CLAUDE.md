@@ -34,11 +34,17 @@
 6. **Unity 6.5 기준**
    - Deprecated된 API나 구버전 방식 사용하지 않기
 
+7. **중괄호는 항상 쓴다** (2026-08 전체 코드베이스에 일괄 적용됨)
+   - `if`/`for`/`foreach`/`while`/`using`은 본문이 한 줄이어도 `{ }`로 감싼다 — `if (x == null) return;` 같은 한 줄 축약형을 쓰지 않는다
+   - 예외 없음. 새 코드도 기존 코드와 같은 모양이어야 하므로 이 규칙을 먼저 맞춘다
+   - 식 본문 멤버(`=> ...`)는 이 규칙과 무관하며 그대로 사용한다
+
 ## 하지 말아야 할 것
 - 전투 로직을 View(MonoBehaviour)에 직접 구현하지 않기
 - 매직 넘버/하드코딩된 밸런싱 값 추가하지 않기 (SO 데이터로 분리)
 - 최적화를 이유로 불필요하게 스크립트를 쪼개거나 코드량을 늘리지 않기
 - 사전 논의 없이 큰 구조 변경 진행하지 않기
+- 중괄호 없는 한 줄 `if`/`for` 작성하지 않기 (작업 원칙 7)
 
 ## 개발 환경
 
@@ -47,7 +53,7 @@
 - `com.unity.test-framework` 패키지는 설치되어 있지만 아직 테스트 어셈블리/테스트 코드가 없음. 테스트 추가 시 Editor의 Window > General > Test Runner 사용
 - `Turn-Based-Game.slnx`는 Unity가 자동 생성한 솔루션 파일로, 대부분의 `.csproj`는 Unity 패키지/에디터 어셈블리이며 실제 게임 코드는 `Assembly-CSharp.csproj`(= `Assets/MyAssets/Scripts/`)에 해당
 
-## 현재 코드 상태 (2026-07 기준)
+## 현재 코드 상태 (2026-08 기준)
 
 전체 세로 슬라이스(Intro→캐릭터 선택→전투→승리 시 성장 선택지→다음 스테이지→전멸 시 리타이어)가 실제 Unity에서 작동 검증됨.
 로그라이크 루프(선택지 9종·파티 영입/교체·파티 시너지·스테이지 스케일링·6스테이지 이후 랜덤 스폰·사망 시 영구 추방)와 전멸 결과 화면, BGM/SFX, 성향 포인트 배분, 배틀 퍼즈(ESC/HUD 버튼·중단)까지 돌아간다. 남은 것은 보스 스킬 이펙트, 옵션 메뉴(해상도/언어), 밸런싱.
@@ -101,7 +107,8 @@
     - **상태이상은 전투(스테이지) 단위다**(확정된 규칙) — 스테이지를 클리어하면 사라지고 다음 전투는 깨끗한 상태로 시작한다. 파티 `Unit`이 스테이지마다 새로 생성되므로 로직은 자동으로 초기화된다(유지하고 싶다면 `RunMember`에 저장해야 함)
     - 반면 **파티 View는 런 내내 재사용**되므로 표기는 코드가 직접 지워야 한다. 두 지점 모두 필요하다 — 전투 종료 직후 `UnitViewRegistry.ClearStatuses()`(선택지 화면에 남지 않도록)와 스테이지 시작 시 `RefreshStatuses(players)`(실제 상태를 다시 밀어넣음). 빼먹으면 효과는 사라졌는데 글자만 남는다(실제로 겪은 버그)
   - **체력바 상태이상 표기는 아이콘**(2026-08, 과거엔 `STUN`/`PSN`/`ATK-` ASCII 약어였다). 태그 조립은 `UnitHealthBar.IconTag(spriteName)` 한 곳에 모여 있고 상태이상(`Label`)과 스폰 디버프(`MonsterSpawner.DescribeDebuff`)가 같이 쓴다 — 크기(`IconSize`)·기준선(`IconVOffset`)이 두 표기에서 어긋나지 않게 하기 위함
-    - 에디터 세팅: Debuff 아이콘 6종(`Textures/Icons/Debuff/`)으로 TMP Sprite Asset을 **개별 생성**하고(생성 메뉴가 텍스처 1개당 1에셋이라 한 번에 합쳐지지 않는다), 그중 하나를 `HealthBar.prefab`의 `_statusText`에 할당한 뒤 **그 에셋의 Fallback 목록에 나머지 전부**를 넣는다. TMP는 할당된 에셋 → 그 에셋의 Fallback 순으로만 찾으므로, Fallback을 체인의 시작점이 아닌 다른 에셋에 걸면 아무 효과가 없다
+    - 에디터 세팅(**완료됨**): Debuff 아이콘 6종(`Textures/Icons/Debuff/`)으로 TMP Sprite Asset을 **개별 생성**하고(생성 메뉴가 텍스처 1개당 1에셋이라 한 번에 합쳐지지 않는다), 그중 하나를 `HealthBar.prefab`의 `_statusText`에 할당한 뒤 **그 에셋의 Fallback 목록에 나머지 전부**를 넣는다. TMP는 할당된 에셋 → 그 에셋의 Fallback 순으로만 찾으므로, Fallback을 체인의 시작점이 아닌 다른 에셋에 걸면 아무 효과가 없다
+      - 현재 체인의 **시작점은 `Debuff_AttackDown.asset`**(`Textures/Icons/Debuff/SpriteAssets/`)이고 나머지 5종이 그 Fallback에 들어 있다. Debuff 아이콘을 추가하면 새 Sprite Asset을 만들어 **이 에셋의 Fallback에** 등록할 것 — 다른 곳에 걸면 조용히 무시된다
     - ⚠️ **`<sprite>`에 없는 속성을 넣으면 태그가 통째로 글자로 출력된다.** 인식하는 건 name/index/anim/color/tint뿐이라 크기를 `scale=`로 주려다 5종 전부가 `<sprite name="...">` 문자열로 찍힌 적이 있다(실제로 겪은 버그 — 이름·Fallback이 멀쩡한데 증상이 "이름 못 찾음"과 똑같아 엉뚱한 데를 오래 뒤졌다). **크기는 바깥의 `<size=%>`로 준다.** 글자로 보이면 ①잘못된 속성 ②스프라이트 이름 불일치 순으로 의심할 것
     - ⚠️ **월드스페이스 체력바의 일반 텍스트는 여전히 ASCII만**: TMP는 폰트 에셋의 글리프 아틀라스에 있는 문자만 그리는데 기본 폰트에 한글·화살표가 없어 네모로 깨진다. 한글을 쓰려면 한글 글리프를 포함한 TMP Font Asset을 만들어 지정할 것(화면 UI는 UI Toolkit이라 이 제약이 없다)
   - **로그라이크 몬스터 디버프 3종의 처리 방식이 서로 다르다**(성격이 달라서 억지로 통일하지 않았다)
@@ -123,7 +130,8 @@
   - `BattlePausePanel`: 배틀 퍼즈 오버레이 겸 `IPauseGate` 구현. ESC(`InputManager.PauseTogglePressed`)와 HUD 우상단 버튼(`BattleHUD.PauseClicked`) 두 경로로 토글. 퍼즈 화면은 PAUSE/현재 스테이지/이전 최고 기록 + '계속하기' + '배틀 중단'. **`Time.timeScale`을 쓰지 않는다** — 연출 대기(`Awaitable.WaitForSecondsAsync`)가 timeScale에 영향받는지 보장되지 않고, 씬 전환 페이드도 같은 Awaitable 기반이라 함께 멈출 수 있다. 몬스터 차례는 게이트 대기로, 플레이어 차례는 `IsGameplayInputEnabled=false`로 멈춘다. 퍼즈 해제 시 배틀 입력 복구를 **한 프레임 미룬다**(`_enableInputAtFrame`) — 오버레이는 3D 레이캐스트를 막지 않아서, 즉시 복구하면 '계속하기' 클릭이 같은 프레임에 `TargetingController`의 타겟팅 클릭으로 새어 들어간다. 퍼즈는 전투 구간에서만 허용(`SetBattleActive`) — 로그라이크 선택지 패널과 방향키/Enter가 겹치기 때문
   - `BattleResultPanel`: 전멸 시 도달 스테이지 + 최고 기록을 보여주는 결과 팝업(UI Toolkit, 확인 버튼 대기 후 IntroScene 전환). 신기록 여부는 패널이 직접 비교하지 않고 `SaveService.RecordStage`의 반환값을 받아 표시만 한다(동점을 신기록으로 처리하지 않기 위함). `BattleRunFlow.EndRunAsync`가 저장 **전** 기록을 읽어 "이전 최고 기록"으로 넘긴다
   - 배틀 패널 3종(`RoguelikeChoicePanel`/`BattleResultPanel`/`BattlePausePanel`)은 화면 UI 패널과 같은 `BasePanelUI`를 상속한다. 루트 엘리먼트 이름은 인스펙터가 아니라 `RootElementName` 오버라이드로 **코드에 고정**한다(UXML과 1:1이라 인스펙터에 빈칸을 남길 이유가 없다)
-  - 그 외: `UnitView`(`UnitAnimator`/`UnitHealthBar`를 물고 제어), `UnitAnimator`(트리거 재생 + 연출 길이 반환), `UnitHealthBar`(uGUI 월드스페이스 게이지 + TMP 숫자 표기 + 상태이상/스폰 디버프 표기. 사망 시 `PlayDieAsync`가 `SetVisible(false)`로 숨기고 스폰 시 `Initialize`가 되살린다 — 풀에서 재사용되므로 복구를 빼먹으면 그 인스턴스는 영영 체력바가 안 보인다), `TargetingController`, `BattleHUD`(스테이지/턴 순서/현재 행동 유닛/플레이어 차례 프롬프트), `RoguelikeChoicePanel`, `CameraShake`, `DamagePopup`/`DamagePopupSpawner`, `PartyStatusBarView`
+  - `MainCameraCache`: `Camera.main` 조회 결과를 담아두는 static 캐시. `Camera.main`은 "MainCamera" 태그 검색이라 매 프레임 쓰면 비용이 쌓이는데(체력바 빌보드는 유닛마다 `LateUpdate`에서 부른다), 캐시된 카메라가 파괴되거나 비활성화되면 게터가 알아서 다시 조회하므로 **수동 무효화가 필요 없다**. 씬 전환으로 카메라가 바뀌어도 안전하다. 사용처는 `UnitHealthBar`(빌보드)·`PartyStatusBarView`(`WorldToScreenPoint`)·`TargetingController`(레이캐스트·좌→우 정렬)·`DamagePopup`. 도메인 리로드를 끈 경우를 대비해 `[RuntimeInitializeOnLoadMethod(SubsystemRegistration)]`으로 static 필드를 비운다
+  - 그 외: `UnitView`(`UnitAnimator`/`UnitHealthBar`를 물고 제어), `UnitAnimator`(트리거 재생 + 연출 길이 반환), `UnitHealthBar`(uGUI 월드스페이스 게이지 + TMP 숫자 표기 + 상태이상/스폰 디버프 표기. 사망 시 `PlayDieAsync`가 `SetVisible(false)`로 숨기고 스폰 시 `Initialize`가 되살린다 — 풀에서 재사용되므로 복구를 빼먹으면 그 인스턴스는 영영 체력바가 안 보인다), `TargetingController`, `BattleHUD`(스테이지/턴 순서/현재 행동 유닛/플레이어 차례 프롬프트), `RoguelikeChoicePanel`, `CameraShake`, `DamagePopup`/`DamagePopupSpawner`, `PartyStatusBarView`, `SynergyPanelView`
     - `PartyStatusBarView`: 화면 하단 파티 스탯 표기(순수 C# View — `BattleHUD`가 필드로 들고 `BattleHUD.uxml`의 `party-status` 컨테이너에 `Build`). 패널을 파티 최대 인원만큼 코드로 만든다. **막대가 아니라 텍스트**이며 한 행이 `현재값 (+선택지) (+자동성장) (+시너지) (-디버프)` 형태다 — 앞 숫자가 실제 적용 중인 값이고 괄호는 그 값이 어디서 왔는지의 내역이라, 디버프가 걸리면 앞 숫자는 이미 깎여 있다. 0인 항목은 괄호를 생략한다
       - 네 갈래 분해: 선택지 = `RunMember.ChoiceGrowth` / 스테이지 자동 성장 = `(Stats − BaseStats) − ChoiceGrowth` / 시너지 = `Unit.Stats − RunMember.Stats`(트래커가 전투 중에만 얹는다) / 디버프 = `Unit.Stats − 유효 스탯`. 그래서 `PartyMemberSlot`이 `Unit`과 `RunMember`를 **둘 다** 들고 다닌다
       - 괄호 색은 리치 텍스트 태그라 USS 변수를 못 쓴다 — `PartyStatusBarView`의 색 상수가 유일한 출처다
@@ -149,7 +157,7 @@
 - **성향 포인트 배분**: `PointAllocationPopupUI`(`OptionPopupUI`와 같은 오버레이 팝업 패턴). 캐릭터 선택 화면 `select-footer`의 '성향' 버튼(`CharacterSelectPanelUI.OnAllocationClicked` → `GameUIController`가 `Show`)으로 열림. 카테고리 행(9종)은 `AllocationRowsView`가 인스펙터에 할당된 `RoguelikeChoiceSO[]`를 기반으로 동적 생성(이름은 `.Title`, 매핑 키는 `.Category` 재사용, 하드코딩 없음). `[+]`/`[-]`는 `SaveData.TryAdjustPoints`를 호출하고 — **잔여 포인트가 없으면 못 늘리고 0이면 못 줄이는 규칙은 세이브 쪽이 판정한다** — 팝업은 반환값이 true일 때 헤더(`보유/총`)와 행을 다시 그리기만 한다. 초기화 버튼은 `ResetPoints()`. 몇 스테이지마다 1점인지는 `_stagesPerPoint`(인스펙터, 밸런싱 값)로 `GetEarnedPoints`에 넘김. 닫을 때(`Hide` 오버라이드) 1회만 `SaveService.Save()`(옵션 팝업과 동일 패턴). `RoguelikeRewardService.PickChoices`가 가중치 계산에 `SaveService.Current.GetPoints(category) * _weightPerPoint`(인스펙터, 기본 1)를 더해 추첨에 실제로 반영
 
 ### 아직 안 된 것
-- **영입 후보 카드 표시 방식 — 아이콘은 완료, 나머지 남음**(2026-08): 아이콘 필드는 `UnitStatsSO._icon`(캐릭터 6종)과 `RoguelikeChoiceSO._icon`(선택지 9종)에 있고, `ChoiceCard.Icon` → `RoguelikeChoice.uxml`의 `card-icon` 슬롯으로 그린다(아이콘 없는 카드는 자동 숨김). 남은 것 둘: **이름 텍스트 폰트 크기를 절반 정도로 축소**(카드 크기가 아니라 글자 크기, `.card-title`), 그리고 스탯 표기 정리 — 카드는 4줄(HP/ATK/SPD/DEF, `RoguelikeRewardService.DescribeStats`)인데 캐릭터 선택 화면(`CharacterStatBarsView`)은 치명타·저항까지 6종이라 **같은 캐릭터인데 두 화면의 항목이 다르다**
+- **영입 후보 카드 표시 방식 — 아이콘은 완료, 나머지 남음**(2026-08): 아이콘 필드는 `UnitStatsSO._icon`(캐릭터 6종)과 `RoguelikeChoiceSO._icon`(선택지 9종)에 있고, `ChoiceCard.Icon` → `RoguelikeChoice.uxml`의 `card-icon` 슬롯으로 그린다(아이콘 없는 카드는 자동 숨김). 남은 것 둘: **이름 텍스트 폰트 크기를 절반 정도로 축소**(카드 크기가 아니라 글자 크기, `RoguelikeChoice.uss`의 `.card-title` — 현재 22px 그대로), 그리고 스탯 표기 정리 — **같은 캐릭터를 세 화면이 서로 다른 항목 수로 보여준다**: 영입 카드 4줄(HP/ATK/SPD/DEF, `RoguelikeRewardService.DescribeStats`) / 캐릭터 선택 6종(치명타·저항까지, `CharacterStatBarsView`) / 전투 하단 파티 표기 7종(치명피해까지, `PartyStatusBarView`). 항목 수를 맞출지, 화면별 목적에 맞게 다른 게 맞는지부터 정할 것
 - **옵션 메뉴(해상도/언어)**: 볼륨(마스터/BGM/SFX)은 구현 완료. 해상도·전체화면·언어는 `SaveData.Options` 필드만 있고 UI·적용 로직 미구현
 - **Elite/Boss 스킬 연출**: 스킬 애니메이션 클립·`MonsterStatsSO` 세팅(Elite=단일, Boss=전체)은 끝났고, 남은 것은 스킬 사용 시 이펙트(파티클). `BattlePresenter.PlayActionAsync`에 스폰 훅을 넣을 자리가 있다
 - **타겟팅 피드백**: 겨냥된 단일 대상 아웃라인(빨강)은 있으나, 플레이어 차례에 **유효 대상 전체 하이라이트/커서 피드백**은 미구현(`TargetingController` TODO). 방향키 순환·확정과 마우스 2단계 클릭은 구현 완료

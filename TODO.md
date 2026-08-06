@@ -28,9 +28,12 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 - **스폰 구조 분리**: 웨이브 선택·몬스터 생성을 `BattleDirector`에서 `MonsterSpawner`로 분리
 - **오브젝트 풀링**: 유닛 View를 파괴하지 않고 프리팹별 `ObjectPool`에 반납·재사용(무한 스테이지 대비). 재사용 시 애니메이터/아웃라인 초기화
 - **어셈블리 분리(asmdef)**: `Game.Core`→`Data`→`Progression`→`Systems`→`View` 단방향. Core는 `noEngineReferences`라 UnityEngine 참조 시 **컴파일 에러로 차단**됨(Core/View 분리를 컴파일러가 강제). Core 유닛 테스트 도입의 전제조건도 해결
-- **리팩터링 패스**: `BattleRunFlow` 분리(런 경계 ↔ 스테이지 루프), 배틀 패널 3종 `BasePanelUI` 통합, `PendingSignal<T>`로 TCS 패턴 통합, 시너지 조회 이중 구현 제거. 성능은 `Camera.main` 캐싱·렌더러 1회 캐싱·`BattleState`/`TurnOrder` 버퍼 재사용·상태이상 이벤트 유닛당 1회로 정리
+- **리팩터링 패스**: `BattleRunFlow` 분리(런 경계 ↔ 스테이지 루프), 배틀 패널 3종 `BasePanelUI` 통합, `PendingSignal<T>`로 TCS 패턴 통합, 시너지 조회 이중 구현 제거. 성능은 `Camera.main` 캐싱(`MainCameraCache` — 파괴/비활성 시 자동 재조회라 수동 무효화 불필요)·렌더러 1회 캐싱·`BattleState`/`TurnOrder` 버퍼 재사용·상태이상 이벤트 유닛당 1회로 정리
 - **상태이상 + 몬스터 스킬 에셋**: `SkillSO` 3종 생성·연결 완료(Mage=DefDown / Rogue=Poison / Warrior=Line+Stun) — Elite/Boss가 실제로 스킬과 상태이상을 사용한다
 - **파티 시너지 수치**: 캐릭터 6종 전부 설정 완료(Knight=DEF+RES, Barbarian=ATK, Mage=CritDmg, Ranger=SPD+RES, Rogue_Dagger=CritRate, Rogue_Crossbow=ATK+SPD)
+- **배틀 정보 UI 3종(2026-08)**: 하단 파티 스탯 표기 + 좌상단 시너지 패널 + 화면 배치 인덱스(`A1`/`E2`) — 아래 3-6 참고
+- **데미지 숫자 팝업(2026-08)**: 일반/크리티컬/도트 3종 — 아래 4-1 참고
+- **코드 컨벤션 일괄 정리(2026-08, 커밋 `1da61a4`·`15400cd`)**: 한 줄짜리 `if`/`for`도 전부 중괄호로 감싸도록 코드베이스 전체를 통일. 앞으로 작성하는 코드도 이 규칙을 따른다(`CLAUDE.md` 작업 원칙 7)
 
 ---
 
@@ -43,7 +46,7 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 - ⬜ **남은 것: 스킬 연출(단일/라인) 이펙트** — 외부 파티클 에셋 필요, 4-1과 같은 에셋으로 처리 가능
 - 참고: `SpawnWaveSO.IsBossWave`(보스 BGM·보스 웨이브 강제 판정)는 `Tier==Boss`만 보므로, Elite만으로 구성된 웨이브는 스킬을 써도 "보스 웨이브" 취급은 아니다(의도된 동작)
 
-### 1-2. 상태이상 시스템  (상태: 코드·에셋 완료 — 아이콘 표기는 수동 1단계만 남음)
+### 1-2. 상태이상 시스템  (상태: ✅ 완료 — 2026-08 아이콘 표기까지 끝)
 - 계기: `Stats.Res`(디버프 저항)가 선택지·시너지로 값은 쌓이지만 소비하는 곳이 없어 사실상 죽은 스탯이었음(2026-07-23 확인) → **이제 RES가 상태이상 저항으로 소비된다**
 - ✅ `StatusKind` 5종(Stun/Poison/AtkDown/DefDown/SpdDown), 부여 정의·진행 상태·저항 판정, 턴 루프 처리(도트→감소→기절), 체력바 상태 표기까지 구현
 - ✅ **확장성**: 스킬 데이터를 `SkillSO`(유닛 종류에 안 묶인 별도 에셋)로 분리 — 캐릭터 스킬 추가 시 `CharacterStatsSO`에 참조 필드 하나만 더하면 되고 상태이상 코드는 그대로 재사용
@@ -51,18 +54,20 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
   - `Skill_SkeletonMage` (MageSO) — 쿨타임 5 / Single / 배율 1.4 / **방어력 감소(DefDown)**, 지속 2턴, 크기 0.5, 부여 확률 0.7
   - `Skill_SkeletonRogue` (RogueSO) — 쿨타임 5 / Single / 배율 1.1 / **중독(Poison)**, 지속 3턴, 크기 0.05, 부여 확률 0.8
   - `Skill_SkeltonWarrior` (WarriorSO) — 쿨타임 3 / **Line** / 배율 1.8 / 기절(Stun), 지속 1턴, 크기 0, 부여 확률 0.35
-- ✅ **2026-08 아이콘 연결**: `UnitHealthBar.Label()`이 ASCII 대신 TMP 인라인 스프라이트 태그(`<sprite name="Debuff_Stun">` 등)를 반환하도록 변경
-- ⬜ **수동 1회 작업 남음**: Debuff 아이콘 5종(`Textures/Icons/Debuff/`) 선택 → 우클릭 → Create → Text → Sprite Asset → `HealthBar.prefab`의 `_statusText`(TMP) `Sprite Asset` 슬롯에 할당. 생성된 스프라이트 이름이 `Label()`의 태그 이름(`Debuff_Stun` 등)과 다르면 코드 쪽 문자열을 맞춘다
+- ✅ **2026-08 아이콘 연결**: 태그 조립은 `UnitHealthBar.IconTag(spriteName)` 한 곳에 모였고, 상태이상(`Label`)과 스폰 디버프(`MonsterSpawner.DescribeDebuff`)가 같이 쓴다(크기·기준선이 두 표기에서 어긋나지 않도록)
+- ✅ **에디터 세팅 완료**: Debuff 아이콘 6종으로 TMP Sprite Asset 개별 생성(`Textures/Icons/Debuff/SpriteAssets/`) → `Debuff_AttackDown.asset`을 `HealthBar.prefab`의 `_statusText`에 할당 → 나머지 5종을 **그 에셋의 Fallback**에 등록. 아이콘 추가 시 같은 체인의 시작점에 붙일 것(다른 에셋에 걸면 조용히 무시된다)
+- ⚠️ **겪은 함정(1d9b459 → 해결)**: `<sprite>`가 인식하는 속성은 name/index/anim/color/tint뿐인데 크기를 `scale=`로 주려다 태그 5종 전부가 문자열로 그대로 출력됐다. 증상이 "스프라이트 이름 못 찾음"과 똑같아 엉뚱한 곳을 오래 뒤졌다 — **크기는 바깥의 `<size=%>`로 준다**. 글자로 보이면 ①잘못된 속성 ②이름 불일치 순으로 의심할 것
 
 ---
 
 ## 🟡 3순위 — UI / UX
 
-### 3-1. 영입 후보 카드 아이콘화  (상태: ✅ 완료 — 2026-08)
+### 3-1. 영입 후보 카드 아이콘화  (상태: 부분구현 — 아이콘 ✅ 2026-08 / 글자 크기·스탯 항목 ⬜)
 - `UnitStatsSO`에 `_icon`(Sprite) 추가, `CharacterStatsSO` 6종 에셋에 `Textures/Icons/CharacterProfile/` 아이콘 연결
 - `ChoiceCard`(`RoguelikeChoicePanel.cs`)에 `Icon` 필드 추가, `RoguelikeRewardService.PresentRecruitAsync`가 후보 캐릭터의 아이콘을 카드에 전달
 - `RoguelikeChoice.uxml`에 `card-icon` 슬롯 추가 + `RoguelikeChoicePanel.PresentAsync`가 바인딩(아이콘 없는 카드는 자동 숨김)
-- 이름 폰트 축소(3-1의 원래 하위 항목)는 아직 안 함 — 필요하면 `RoguelikeChoice.uss`의 `.card-title`에서 조정
+- ⬜ **이름 폰트 축소**: 카드 크기가 아니라 글자 크기를 절반 정도로 — `RoguelikeChoice.uss`의 `.card-title`(현재 22px)
+- ⬜ **스탯 항목 수가 화면마다 다름**: 영입 카드 4줄(HP/ATK/SPD/DEF, `RoguelikeRewardService.DescribeStats`) / 캐릭터 선택 6종(`CharacterStatBarsView`) / 전투 하단 파티 표기 7종(`PartyStatusBarView`). 같은 캐릭터인데 화면마다 다른 항목이 보인다 — 맞출지, 화면 목적에 맞게 다른 게 맞는지부터 결정할 것
 
 ### 3-2. 타겟팅 피드백  (상태: 부분구현)
 - 마우스 2단계 클릭 + 방향키 순환/Enter·Space 확정은 구현 완료. 겨냥된 **단일** 대상은 빨강 아웃라인 표시
@@ -97,6 +102,9 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 - ✅ **시너지 패널**(2026-08): 좌상단에 `아이콘 + 이름 + ×요구인원 + 효과` 행 목록(`SynergyPanelView`). **아직 인원이 모자란 시너지도 흐리게 함께 표시**해 "한 명만 더 모으면 발동"이 보이므로 영입 선택지의 판단 근거가 된다
   - 부수 수정: `×N`이 현재 파티 인원을 찍고 있어 숫자가 흔들리던 것을 **요구 인원 고정**으로 바로잡음. 발동 여부는 농담(濃淡)으로만 구분
   - `ActiveSynergy` → `PartySynergy`로 rename(미발동도 담게 되어 이름이 거짓이 됨), 발동 여부는 `IsActive`로 파생
+- ✅ **화면 배치 인덱스**(2026-08): 체력바 왼쪽에 `[A1]`, 상단 턴 순서 칩에는 이름 대신 `A1`을 찍어 **칩과 화면 위 유닛을 1:1로 맞춘다**(같은 캐릭터를 2명 영입해도 구분됨). A=아군/E=적군. 문자열은 `UnitViewRegistry.CreateSlotLabel` 한 곳에서만 만들어 두 표기가 어긋날 수 없다
+  - `UnitHealthBar._indexText`는 **선택 참조**라 프리팹에 연결하지 않으면 체력바 표기만 조용히 빠지고 칩은 정상 동작한다
+- ⬜ 남은 것: 스킬 쿨타임·다음 행동 예고 등 전투 중 정보는 아직 없음(필요성 재검토 후 결정)
 
 ---
 
@@ -119,7 +127,7 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 ## 🔧 기술 부채 / 알려진 이슈
 
 - ~~**영입 스탯 불일치 의심**(2026-08 발견)~~ → **버그 아님으로 종결(2026-08)**. 영입한 캐릭터가 파티에 이미 있던 같은 캐릭터보다 약한 건 계산 오류가 아니라 **의도된 규칙**이다 — `ApplyCatchUp`은 스테이지 자동 성장만 소급하고 로그라이크 선택지 성장은 소급하지 않는다("그건 그 시점 파티가 벌어들인 몫"). 하단 파티 스탯 표기의 파란 `(+선택지)` 괄호가 새 영입자에게만 비어 있는 것이 이 규칙의 정상적인 결과다. 규칙 자체를 바꾸려면 밸런싱 패스에서 다룰 것(전부 소급 / 일정 비율만 소급)
-- **미사용 USS 변수**: `Common.uss`의 `--color-cyan-mid`가 버튼 팔레트 교체(3-5) 이후 실사용처 없음 — 캐릭터 선택 잔여 시안 톤(3-5의 nav-arrow 등) 정리 시 같이 삭제
+- **미사용 USS 변수**: `Common.uss`의 `--color-cyan-mid`가 버튼 팔레트 교체(3-5) 이후 실사용처 없음 — 정리 시 삭제. 반면 `--color-cyan-light`는 시너지 패널의 `×N`(`.synergy-count`)에서 새로 쓰이므로 **남겨둘 것**(캐릭터 선택 잔여 시안 톤과 함께 지우지 말 것)
 - **에셋 이름 오타**: `ScriptableObjects/Skill/Skill_SkeltonWarrior.asset` — `Skeleton`이 `Skelton`으로 빠져 있다. 참조가 늘기 전에 고치는 편이 낫다
 - **`MinionSO.asset`에 구 필드 잔여**: `_skillCooldown`/`_skillScope`/`_skillPowerMultiplier` — `SkillSO` 분리 이전의 인라인 필드가 YAML에 남아 있다. Unity가 무시하므로 동작엔 무해하고, 에디터에서 해당 에셋을 한 번 수정·저장하면 사라진다
 - **Core 유닛 테스트 미도입**: asmdef 분리로 전제조건은 해결됐고 `com.unity.test-framework`도 설치돼 있으나 테스트 어셈블리가 아직 없다. 회귀 가치가 높은 후보 — `DamageCalculator`(비율 감소+크리), `TurnOrder`(SPD 정렬), `StageScaling.CreatePlayerGrowth`(반올림 누적 방지), `Unit.TryApplyStatus`(RES 저항 확률)
