@@ -24,6 +24,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [Tooltip("피해량 숫자가 뜨는 높이(발밑 기준, 월드 단위). 체력바와 비슷한 머리 높이가 기준이며 유닛 키에 맞춰 조정한다.")]
         [SerializeField] private float _popupHeight = 3f;
 
+        [Tooltip("타격 이펙트가 터지는 높이(발밑 기준, 월드 단위). 숫자 팝업보다 낮은 몸통 높이가 기준이다.")]
+        [SerializeField] private float _hitEffectHeight = 1.2f;
+
         public int UnitId { get; private set; }
 
         /// <summary>
@@ -37,6 +40,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// 앵커 오브젝트를 두는 대신 높이 값만 갖는다 — 유닛 프리팹 계층을 건드리지 않기 위함.
         /// </summary>
         public Vector3 PopupOrigin => transform.position + Vector3.up * _popupHeight;
+
+        /// <summary>타격 이펙트를 터뜨릴 월드 좌표(몸통 높이). 팝업과 같이 앵커 없이 높이 값만 갖는다.</summary>
+        public Vector3 HitEffectOrigin => transform.position + Vector3.up * _hitEffectHeight;
 
         /// <summary>
         /// 아웃라인 색을 결정하는 3D 모델 렌더러들과 프리팹 원본 레이어(복원용).
@@ -215,6 +221,28 @@ namespace Assets.MyAssets.Scripts.Battle.View
             AudioManager.Sfx(_sfx?.Skill);
 
             await Awaitable.WaitForSecondsAsync(_unitAnimator.PlaySkill(), ct);
+        }
+
+        /// <summary>
+        /// 이 유닛의 공격/스킬 연출에서 타격이 맞는 시점까지 기다린다.
+        /// 클립에 타격 이벤트를 심어 뒀으면 그 프레임에, 아니면 <paramref name="fallbackSeconds"/> 뒤에 풀린다
+        /// (판단은 <see cref="UnitAnimator.WaitForImpactAsync"/>가 한다).
+        /// </summary>
+        public Task WaitForImpactAsync(float fallbackSeconds, CancellationToken ct = default) =>
+            _unitAnimator != null
+                ? _unitAnimator.WaitForImpactAsync(fallbackSeconds, ct)
+                : WaitSecondsAsync(fallbackSeconds, ct); // 애니메이터가 없으면 기존 고정 지연으로 진행
+
+        private static async Task WaitSecondsAsync(float seconds, CancellationToken ct) =>
+            await Awaitable.WaitForSecondsAsync(Mathf.Max(0f, seconds), ct);
+
+        /// <summary>히트 스톱용 연출 속도 배율(1 = 보통). <see cref="HitStop"/>이 호출한다.</summary>
+        public void SetAnimationSpeed(float scale)
+        {
+            if (_unitAnimator != null)
+            {
+                _unitAnimator.SetSpeedScale(scale);
+            }
         }
 
         public async Task PlayHitAsync(int currentHp, int maxHp, CancellationToken ct = default)

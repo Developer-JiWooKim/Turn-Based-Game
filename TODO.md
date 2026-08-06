@@ -151,22 +151,35 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 ### 4-1. 히트 이펙트 / 데미지 표시  (상태: 부분구현 — 2026-08 데미지 팝업 완료)
 - ✅ **데미지 숫자 팝업**: `DamagePopup`(팝업 1개의 표현 + 떠오르며 사라지는 연출) + `DamagePopupSpawner`(`ObjectPool` 소유, 월드 좌표에 스폰). 일반=흰색 / 크리티컬=빨강+확대 / 도트=별도 색 3종. `BattlePresenter`의 히트 루프와 `OnStatusTicked` 두 곳에서 스폰하며, **연출 대기(`RegisterPlayback`)에는 넣지 않아** 전투 페이싱은 그대로다. 위치는 `UnitView.PopupOrigin`(`_popupHeight` 값 하나, 유닛 프리팹 계층 수정 없음)
   - ⚠️ 팝업은 스포너의 자식이다 — 유닛 View는 풀 반납 시 비활성화되므로 유닛 밑에 두면 재생 중인 팝업이 함께 꺼진다
-- ⬜ **타격 이펙트**: 기존에 만들어뒀던 파티클 효과를 다시 가져와 연결. 스폰 위치는 데미지 팝업과 같은 히트 루프(`BattlePresenter.PlayActionAsync`)
+- ✅ **타격 이펙트**: 스폰 구조(`HitEffectSpawner`)까지 완료 — 프리팹 연결만 남았다(아래 4-1-a)
 
-#### 4-1-a. 타격 순간 연출 시퀀스  (설계 확정 — 2026-08-06)
+#### 4-1-a. 타격 순간 연출 시퀀스  (✅ 코드 완료 — 2026-08-06 / 에디터 세팅 남음)
 
-현재 팝업·피격 연출은 `_impactDelay`(인스펙터 고정값) 뒤에 일괄 재생된다. 이걸 **공격 애니메이션 클립의 애니메이션 이벤트**로 옮기고, 그 한 시점에 아래 넷을 함께 터뜨린다.
+팝업·피격 연출을 `_impactDelay`(고정값) 대신 **공격 클립의 애니메이션 이벤트** 시점에 맞추고, 그 한 지점에서 넷을 함께 터뜨린다.
 
-| 연출 | 현재 상태 | 비고 |
+| 연출 | 상태 | 담당 |
 |---|---|---|
-| 타격 파티클 | ⬜ 미구현 | 외부 에셋 필요(1-1 스킬 이펙트와 같은 에셋으로 처리) |
-| 피격(Hit) 애니메이션 | ✅ 있음 | 재생 시점만 이벤트로 이동 |
-| 데미지 팝업 | ✅ 있음 | 재생 시점만 이벤트로 이동 |
-| **히트 스톱**(타격 순간 시간을 잠깐 느리게) | ⬜ 신규 | 아래 주의사항 참고 |
+| 타격 파티클 | ✅ 코드 완료 (프리팹 연결 남음) | `HitEffectSpawner` (신규) |
+| 피격(Hit) 애니메이션 | ✅ 시점 이동 완료 | `UnitView.PlayHitAsync` |
+| 데미지 팝업 | ✅ 시점 이동 완료 | `DamagePopupSpawner` |
+| 히트 스톱 | ✅ 코드 완료 | `HitStop` (신규) |
 
-- ⚠️ **히트 스톱에 `Time.timeScale`을 쓰면 안 된다.** 전투 연출·씬 전환 페이드가 전부 `Awaitable`(`WaitForSecondsAsync`) 기반이라 timeScale에 함께 묶일 수 있고, `BattlePausePanel`이 timeScale을 쓰지 않기로 한 것도 같은 이유다. **연출 대상(애니메이터 `speed`, 파티클)만 골라서 늦추는** 방식이 이 프로젝트 구조에 맞는다
-- ⚠️ **애니메이션 이벤트는 클립 에셋에 박히므로 Core가 관여할 수 없다.** 시뮬레이션은 `RegisterPlayback`으로 "연출이 끝났다"만 기다리는 구조를 유지하고, 이벤트→시퀀스 트리거는 전부 View(`UnitAnimator`/`BattlePresenter`) 안에서 끝내야 한다
-- 구현 방식 TBD: 이벤트 하나에 여러 연출을 묶는 시퀀스 구조가 필요하다. 유닛 프리팹 10종 + 클립 다수에 이벤트를 심어야 하므로 **작업량은 코드보다 에셋 쪽이 크다**
+- **타격 시점**: `UnitAnimator.WaitForImpactAsync(fallback, ct)`가 판단한다. 유닛별 토글 `_useImpactEvent`가 켜져 있으면 클립의 `OnImpactFrame` 이벤트를 기다리고, 꺼져 있으면 `BattlePresenter._impactDelay`를 그대로 쓴다(**기존 동작**) — 클립 작업을 유닛 하나씩 점진적으로 옮길 수 있다
+  - ⚠️ 이벤트를 켜 뒀는데 클립에 이벤트가 없으면 전투가 멈추므로, 연출 길이(`_attackDuration`/`_skillDuration` 중 큰 값)를 **안전 타임아웃**으로 두고 타임아웃으로 풀리면 **경고 로그**를 남긴다. 조용히 넘어가지 않는다
+  - ⚠️ 애니메이션 이벤트는 **Animator와 같은 GameObject의 컴포넌트만** 호출할 수 있다. `UnitAnimator`가 `[RequireComponent(typeof(Animator))]`로 그 자리에 묶여 있어 성립하는 구조다. 클립은 메서드를 **이름 문자열로** 참조하므로 `OnImpactFrame`을 rename하면 이벤트가 조용히 끊긴다
+- **히트 스톱**: `Time.timeScale` 대신 **관여한 유닛(때린 쪽 + 맞은 쪽)의 `Animator.speed`만** 낮춘다. 인스펙터 값 3개(지속시간/느려지는 정도/크리티컬 배율)이며 지속시간 0이면 꺼진다
+  - ⚠️ 늦춘 만큼 애니메이션이 뒤로 밀린다. 길게 잡으면 `UnitAnimator`의 연출 시간을 그만큼 늘려야 끝이 잘리지 않는다
+  - `finally`에서 속도를 되돌리고 `ResetToSpawn`도 `speed = 1`로 초기화한다 — 취소나 풀 반납 중에 느려진 채로 굳지 않도록
+- **파티클**: `HitEffectSpawner`가 `DamagePopupSpawner`와 같은 풀 구조(단, 프리팹이 여러 종일 수 있어 `UnitViewRegistry`처럼 **프리팹별** 풀). 프리팹은 스크립트 없는 순수 `ParticleSystem`이면 되고, 크기·오프셋·수명·크리티컬 배율을 인스펙터에서 조정한다(수명 0 = 파티클 설정에서 자동 계산)
+  - 이펙트·팝업은 `RegisterPlayback`에 넣지 않는다(장식) / 히트 스톱은 **기다린다**(늦추는 동안 다음 연출이 겹치면 효과가 사라진다)
+  - 스폰 위치는 `UnitView.HitEffectOrigin`(`_hitEffectHeight` 값 하나) — 팝업과 같이 앵커 오브젝트를 두지 않아 유닛 프리팹 계층을 건드리지 않는다
+  - 도트 피해(`OnStatusTicked`)에는 붙이지 않았다 — 중독 피해에 물리 타격 스파클은 어울리지 않는다. 필요하면 전용 이펙트를 따로 둘 것
+
+**⬜ 남은 에디터 작업**
+1. BattleDirector 오브젝트에 `HitEffectSpawner`·`HitStop` 컴포넌트를 추가하고 `BattlePresenter`의 `_hitEffects`/`_hitStop` 슬롯에 연결 (둘 다 **선택 참조** — 비워두면 해당 연출만 빠지고 나머지는 정상 동작)
+2. 구해둔 스파클 프리팹을 `HitEffectSpawner`의 `_hitEffect`(+ 원하면 `_criticalEffect`)에 연결하고 `_scale`·`_positionOffset`으로 크기·위치 조정
+3. 유닛별 `UnitView._hitEffectHeight`를 키에 맞춰 조정(기본 1.2 = 몸통 높이)
+4. (점진적) 공격/스킬 클립에 `OnImpactFrame` 애니메이션 이벤트를 심고, 해당 유닛의 `UnitAnimator._useImpactEvent`를 켠다. 켜기 전까지는 기존 고정 지연으로 동작하므로 한 번에 다 하지 않아도 된다
 
 #### 4-1-b. 체력바 감소 애니메이션  (⬜ 신규 — 2026-08-06)
 - 현재 `UnitHealthBar`가 `_fill.fillAmount`를 즉시 대입해 게이지가 뚝 끊긴다. 목표 값까지 부드럽게 줄어드는 연출 추가
