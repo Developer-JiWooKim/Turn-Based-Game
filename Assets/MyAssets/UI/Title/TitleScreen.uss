@@ -44,8 +44,9 @@
 
 /* ===== TITLE 패널 ===== */
 .title-wrap {
+    position: absolute;
+    top: 200px;
     align-items: center;
-    margin-bottom: 60px;
 }
 
 .title-logo {
@@ -71,9 +72,50 @@
     -unity-background-image-tint-color: rgba(0,0,0,0.6);
 }
 
+/* ===== TITLE 메뉴 ===== */
 .menu {
+    position: absolute;
+    bottom: 120px;
+    width: 600px;              /* 폭을 명시해야 자식이 늘어날 기준이 생긴다 */
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;      /* center면 버튼이 글자 폭으로 줄어든다 */
+}
+
+/* Common.uss의 .btn에 고정 width/margin이 있다면 여기서 무력화 */
+.menu-btn {
+    width: auto;
+    margin: 0 0 12px 0;
+    flex-shrink: 0;
+}
+
+.menu-btn--cta {
+    height: 100px;
+    font-size: 38px;
+    letter-spacing: 2px;
+}
+
+.menu-btn--sub {
+    height: 100px;
+    font-size: 38px;
+}
+
+/* 마지막 줄: 가로 2분할 */
+.menu-row {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.menu-btn--half {
+    flex-grow: 1;
+    flex-basis: 0;             /* 글자 길이와 무관하게 정확히 반반 */
+    width: auto;
+    height: 100px;
+    font-size: 38px;
+    margin: 0;
+}
+
+.menu-btn--half-right {
+    margin-left: 12px;
 }
 
 /* ===== CHARACTER SELECT 패널 ===== */

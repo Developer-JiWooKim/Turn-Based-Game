@@ -51,7 +51,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private const string SkipRecruitTitle = "영입 안 함";
         private const string SkipRecruitDescription = "현재 파티를 유지합니다.";
 
+        /// <summary>교체 대상 카드를 화면 배치 순서로 세우기 위한 조회용(스폰·배치는 관여하지 않는다).</summary>
+        private UnitViewRegistry _registry;
+
         private void Awake() => ValidateReferences();
+
+        /// <summary>
+        /// View 레지스트리를 받아둔다(전투 시작 전 1회).
+        /// 인스펙터 슬롯을 따로 두지 않는 이유는 <see cref="BattlePresenter"/>·<see cref="MonsterSpawner"/>와 같다 —
+        /// 슬롯이 여럿이면 서로 다른 오브젝트를 가리켜도 알아챌 방법이 없다.
+        /// </summary>
+        public void Initialize(UnitViewRegistry registry) => _registry = registry;
 
         /// <summary>
         /// 인스펙터 연결 누락 보고한다.
@@ -130,7 +140,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 return new RecruitResult(run.Recruit(chosen, scaling), null);
             }
 
-            RunMember outgoing = await PresentReplaceTargetAsync(run, ct);
+            RunMember outgoing = await PresentReplaceTargetAsync(ct);
             if (outgoing == null)
             {
                 return default;
@@ -140,12 +150,23 @@ namespace Assets.MyAssets.Scripts.Battle.View
             return recruited == null ? default : new RecruitResult(recruited, outgoing);
         }
 
-        /// <summary>파티가 꽉 찼을 때 누구를 내보낼지 현재 파티원 카드로 묻는다.</summary>
-        private async Task<RunMember> PresentReplaceTargetAsync(RunData run, CancellationToken ct)
+        /// <summary>
+        /// 파티가 꽉 찼을 때 누구를 내보낼지 현재 파티원 카드로 묻는다.
+        ///
+        /// 카드 순서는 <see cref="RunData.Members"/>(영입 순서)가 아니라 <b>화면 배치 순서</b>다 —
+        /// 추방으로 중간 슬롯이 빈 뒤 영입하면 두 순서가 갈라져서, 1번 자리에 선 캐릭터와
+        /// 1번 카드의 캐릭터가 달라지는 문제가 있었다(<see cref="UnitViewRegistry.GetPartySlots"/> 참고).
+        /// 카드 제목에 배치 라벨을 같이 실어 순서에 기대지 않고도 짝이 눈에 보이게 한다.
+        /// </summary>
+        private async Task<RunMember> PresentReplaceTargetAsync(CancellationToken ct)
         {
-            var cards = run.Members.Select(m => new ChoiceCard(m.DisplayName, DescribeMember(m))).ToList();
+            List<UnitViewRegistry.PartySlot> slots = _registry.GetPartySlots();
+            var cards = slots.Select(s => new ChoiceCard($"{s.Label} {s.Member.DisplayName}",
+                                                        DescribeMember(s.Member),
+                                                        s.Member.Source != null ? s.Member.Source.Icon : null)).ToList();
+
             int index = await _panel.PresentAsync("교체할 파티원 선택", cards, ct);
-            return index < 0 || index >= run.Members.Count ? null : run.Members[index];
+            return index < 0 || index >= slots.Count ? null : slots[index].Member;
         }
 
         /// <summary>로스터에서 중복 없이 무작위로 후보를 뽑는다(가중치 없음 — 균등).</summary>
@@ -190,9 +211,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>교체 대상 카드에 표시할 현재 파티원 상태 요약.</summary>
         private static string DescribeMember(RunMember m) => DescribeStats(m.Stats, m.CurrentHp);
 
-        /// <summary>영입 후보와 교체 대상이 같은 형식으로 비교되도록 스탯 표기를 한 곳에서 만든다.</summary>
+        /// <summary>
+        /// 영입 후보와 교체 대상이 같은 형식으로 비교되도록 스탯 표기를 한 곳에서 만든다.
+        /// 항목·순서·% 표기는 전투 하단 파티 표기(<see cref="PartyStatusBarView"/>)와 일부러 맞춰 뒀다 —
+        /// 같은 캐릭터를 두 화면이 다른 항목 수로 보여주면 비교가 되지 않기 때문.
+        /// </summary>
         private static string DescribeStats(Stats s, int currentHp) =>
-            $"HP {currentHp}/{s.MaxHp}\nATK {s.Atk}\nSPD {s.Spd}\nDEF {s.Def}";
+            $"HP {currentHp}/{s.MaxHp}\nATK {s.Atk}\nSPD {s.Spd}\nDEF {s.Def}\n" +
+            $"치명타 {Percent(s.CritRate)}\n치명피해 {Percent(s.CritDmg)}\n저항 {Percent(s.Res)}";
+
+        /// <summary>배율(0~1 또는 1.5 같은 배수)을 정수 %로. 치명피해 1.5 → "150%".</summary>
+        private static string Percent(float value) => $"{Mathf.RoundToInt(value * 100f)}%";
 
         /// <summary>
         /// 선택지 풀에서 중복 없이 뽑는다(SO의 가중치 반영).

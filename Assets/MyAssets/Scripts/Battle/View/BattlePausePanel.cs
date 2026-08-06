@@ -27,6 +27,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private Label _stageLabel;
         private Label _bestLabel;
+        private Button _abortButton;
+
+        /// <summary>
+        /// 연출 재생 여부를 알려주는 프레젠터(<see cref="BattleDirector"/>가 주입).
+        /// 없으면 중단 버튼을 잠그지 않고 기존대로 항상 누를 수 있다.
+        /// </summary>
+        private BattlePresenter _presenter;
 
         /// <summary>
         /// 퍼즈 해제를 기다리는 신호. null이면 퍼즈 중이 아니다.
@@ -67,14 +74,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 resume.clicked += Resume;
             }
 
-            Button abort = root.Q<Button>("pause-abort");
-            if (abort != null)
+            _abortButton = root.Q<Button>("pause-abort");
+            if (_abortButton != null)
             {
-                abort.clicked += Abort;
+                _abortButton.clicked += Abort;
             }
 
             HideOverlay();
         }
+
+        /// <summary>연출 재생 여부를 알려줄 프레젠터를 받아둔다(전투 시작 전 1회).</summary>
+        public void Initialize(BattlePresenter presenter) => _presenter = presenter;
 
         private void OnEnable()
         {
@@ -108,6 +118,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Update()
         {
+            if (IsPaused)
+            {
+                // 퍼즈 중에도 진행 중이던 연출은 계속 재생되므로, 끝나는 시점에 잠금이 풀리도록 매 프레임 확인한다.
+                RefreshAbortAvailability();
+            }
+
             InputManager input = InputManager.Instance;
             if (input == null)
             {
@@ -171,7 +187,28 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             RefreshTexts();
+            RefreshAbortAvailability(); // 첫 프레임부터 올바른 상태로 뜨도록 Update를 기다리지 않는다
             ShowOverlay();
+        }
+
+        /// <summary>
+        /// 지금 눌러도 중단이 즉시 반영되는지에 따라 '배틀 중단' 버튼을 잠근다.
+        ///
+        /// 시뮬레이션이 연출을 기다리는 <c>WhenPlaybackComplete()</c>는 취소 토큰을 받지 않는다.
+        /// 그래서 적의 공격 모션이 재생되는 동안 중단을 눌러도 그 행동이 끝난 뒤에야 결과 화면으로 넘어가
+        /// <b>버튼이 먹지 않는 것처럼</b> 보인다. 그 사이에는 아예 눌리지 않게 막고 흐리게 표시한다.
+        ///
+        /// 반대로 플레이어 차례(타겟 입력 대기)와 게이트 대기는 취소 토큰을 받으므로 즉시 중단된다 —
+        /// 그때는 잠그지 않는다.
+        /// </summary>
+        private void RefreshAbortAvailability()
+        {
+            if (_abortButton == null)
+            {
+                return;
+            }
+
+            _abortButton.SetEnabled(_presenter == null || !_presenter.IsPlayingBack);
         }
 
         public void Resume()

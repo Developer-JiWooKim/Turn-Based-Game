@@ -16,9 +16,13 @@
                 <ui:VisualElement name="game-title" class="title-logo" picking-mode="Ignore" />                    
             </ui:VisualElement>
             <ui:VisualElement name="menu" class="menu" picking-mode="Ignore">
-                <ui:Button text="게임 시작" name="start-button" class="btn btn-cta" />
-                <ui:Button text="옵션" name="option-button" class="btn btn-secondary" />
-                <ui:Button text="게임 종료" name="quit-button" class="btn btn-secondary" />
+                    <ui:Button text="◆  NEW EXPEDITION  ◆" name="start-button" class="btn btn-cta menu-btn menu-btn--cta" />
+                    <ui:Button text="CONTINUE" name="continue-button" class="btn btn-secondary menu-btn menu-btn--sub" />
+
+                <ui:VisualElement name="menu-row" class="menu-row" picking-mode="Ignore">
+                    <ui:Button text="OPTION" name="option-button" class="btn btn-secondary menu-btn--half" />
+                    <ui:Button text="QUIT" name="quit-button" class="btn btn-secondary menu-btn--half menu-btn--half-right" />
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
 

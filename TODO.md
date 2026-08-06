@@ -60,14 +60,52 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 
 ---
 
+## 🔴 2순위 — 플레이 테스트에서 발견된 수정 사항 (2026-08-06)
+
+> 실제로 플레이하며 뽑은 목록. 아래 원인 분석은 코드를 확인해 채운 것이라 그대로 착수 가능하다.
+
+### 2-1. 교체 대상 카드가 화면 배치 순서와 어긋남  (✅ 수정 완료 — 2026-08-06)
+- 증상: 파티가 꽉 찬 상태에서 영입 → 교체 대상 선택 화면에서 **1번 자리가 바바리안인데 1번 카드는 레인저**로 뜬다
+- **원인**: 순서의 출처가 둘로 갈라져 있다
+  - 화면 순서 = `UnitViewRegistry._slotOccupants` — `SpawnMember`가 `Array.IndexOf(_slotOccupants, null)`로 **앞쪽 빈자리를 재사용**한다
+  - 카드 순서 = `RunData.Members` — `Recruit`이 리스트 **끝에 추가**한다
+  - 즉 사망·추방으로 중간 슬롯이 빈 뒤 영입하면 그때부터 두 순서가 영구히 어긋난다. 초기 파티(추방 없음)에서는 재현되지 않는다
+- **선례**: `PartyStatusBarView`가 같은 함정을 이미 피해 갔다 — 좌표를 `Members` 순서가 아니라 `UnitId → UnitViewRegistry.TryGet`으로 얻는다. 여기도 같은 방식으로 맞추면 된다
+- ✅ **수정 내용**: `UnitViewRegistry.GetPartySlots()`가 슬롯 순서대로 `PartySlot`(멤버 + 배치 라벨)을 돌려주고, `PresentReplaceTargetAsync`가 그 순서로 카드를 만든다. 레지스트리는 인스펙터 슬롯을 새로 두지 않고 **`Initialize(registry)` 주입**으로 받는다(`BattlePresenter`/`MonsterSpawner`/`TargetingController`와 같은 규약)
+- ✅ 카드 제목에 **배치 라벨을 같이 실었다**(`A1 바바리안`) — 순서에 기대지 않고도 짝이 눈에 보인다. 라벨은 `CreateSlotLabel`이 유일한 출처라 체력바·턴 순서 칩과 어긋날 수 없다(`GetPartySlots`가 내부에서 호출하므로 `private` 유지)
+- ⚠️ 멤버와 라벨을 **한 struct로 묶어** 돌려준 이유: 순서와 라벨을 따로 조회하면 둘이 어긋날 여지가 다시 생긴다
+
+### 2-2. 교체 대상 카드에 캐릭터 아이콘이 없음  (✅ 수정 완료 — 2026-08-06)
+- 원인은 `PresentReplaceTargetAsync`가 아이콘 인자를 안 넘긴 것(후보 쪽은 `c.Icon`을 넘김). `RunMember.Source`(`CharacterStatsSO`)에서 `Icon`을 꺼내 넘기도록 수정
+
+### 2-3. 카드 스탯 표기를 7종 전부로  (✅ 수정 완료 — 2026-08-06)
+- `DescribeStats`가 7종(HP/ATK/SPD/DEF/치명타/치명피해/저항)을 만든다. 영입 후보와 교체 대상이 같은 함수를 쓰므로 양쪽에 함께 반영됐다
+- 배율 3종은 `PartyStatusBarView`와 같은 기준으로 정수 %(치명피해 1.5 → `150%`). **항목·순서·% 표기를 그쪽과 일부러 맞춰 뒀다** — 같은 캐릭터를 두 화면이 다른 항목 수로 보여주면 비교가 되지 않기 때문
+- 레이아웃은 3-1의 제목 축소와 함께 처리(카드 크기 220×300은 그대로 — 7줄이 들어간다)
+
+### 2-4. 적 행동 중 '배틀 중단'이 먹지 않는 것처럼 보임  (✅ A안으로 수정 완료 — 2026-08-06)
+- 증상: 적이 행동하는 동안 퍼즈 → '배틀 중단'을 눌러도 반응이 없어 보이고, 적의 공격이 끝까지 재생된 뒤에야 결과 화면으로 넘어간다
+- **원인**: 중단은 `_stageCts.Cancel()`인데, 시뮬레이션은 그 순간 `await actionArgs.WhenPlaybackComplete()`에 들어가 있다. `WhenPlaybackComplete()`는 **취소 토큰을 받지 않고**, 재생 중인 연출은 스테이지 토큰이 아니라 씬 토큰(`_cts.Token`)으로 돌기 때문에 취소가 전달되지 않는다. 결국 **다음 유닛 행동 직전의 `ThrowIfCancellationRequested`**까지 가서야 중단이 반영된다
+- 참고: 퍼즈 오버레이가 뜨는 시점과 시뮬레이션이 실제로 멈추는 시점이 다른 것은 **의도된 설계**다(`IPauseGate`는 진행 중인 연출을 자르지 않으려고 행동 직전에만 대기). 이 증상은 그 설계의 부작용이지 게이트 자체의 버그가 아니다
+- **채택: (A) 버튼을 잠근다** (2026-08-06 결정). (B) 중단 즉시 반영은 `WhenPlaybackComplete(ct)`로 Core 시그니처를 바꾸고 연출을 중간에 자르게 되므로, "진행 중인 연출은 자르지 않는다"는 기존 설계와 어긋나 채택하지 않았다
+- ✅ **수정 내용**
+  - `BattlePresenter.IsPlayingBack` — 재생 중인 연출 수를 세어 노출. 등록 경로가 셋(행동/사망/도트)이라 `RegisterPlayback(args, task)` 한 곳으로 모아 증감 짝이 어긋나지 않게 했다(`finally`에서 감소하므로 취소·예외로 끝나도 샌다)
+  - `BattlePausePanel`이 이 값을 보고 '배틀 중단'을 `SetEnabled(false)`로 잠근다. 퍼즈 중에도 연출은 계속 재생되므로 `Update`에서 매 프레임 확인해 **연출이 끝나는 순간 잠금이 풀린다**
+  - 프레젠터는 `Initialize(presenter)` 주입(인스펙터 슬롯 추가 없음). 주입이 없으면 잠그지 않고 기존과 동일하게 동작한다
+  - USS: `.pause-button:disabled { opacity: 0.4 }` — `Common.uss`의 `.btn:disabled`는 `opacity: 1`(성향 배분 +/- 버튼용)이라 여기서 다시 낮춘다. 특정도가 같아 나중에 로드되는 `BattlePause.uss`가 이긴다
+- ⚠️ **조건이 "연출 재생 중"인 것이 핵심**이다 — 플레이어 차례(타겟 입력 대기)와 게이트 대기는 취소 토큰을 받아 즉시 중단되므로 잠그면 안 된다. 시뮬레이션의 await 중 **토큰을 받지 않는 것은 `WhenPlaybackComplete()`뿐**이라 이 조건이 정확히 들어맞는다
+
+---
+
 ## 🟡 3순위 — UI / UX
 
-### 3-1. 영입 후보 카드 아이콘화  (상태: 부분구현 — 아이콘 ✅ 2026-08 / 글자 크기·스탯 항목 ⬜)
+### 3-1. 영입 후보 카드 아이콘화  (상태: ✅ 완료 — 2026-08-06 글자 크기·스탯 항목까지)
 - `UnitStatsSO`에 `_icon`(Sprite) 추가, `CharacterStatsSO` 6종 에셋에 `Textures/Icons/CharacterProfile/` 아이콘 연결
 - `ChoiceCard`(`RoguelikeChoicePanel.cs`)에 `Icon` 필드 추가, `RoguelikeRewardService.PresentRecruitAsync`가 후보 캐릭터의 아이콘을 카드에 전달
 - `RoguelikeChoice.uxml`에 `card-icon` 슬롯 추가 + `RoguelikeChoicePanel.PresentAsync`가 바인딩(아이콘 없는 카드는 자동 숨김)
-- ⬜ **이름 폰트 축소**: 카드 크기가 아니라 글자 크기를 절반 정도로 — `RoguelikeChoice.uss`의 `.card-title`(현재 22px)
-- ⬜ **스탯 항목 수가 화면마다 다름**: 영입 카드 4줄(HP/ATK/SPD/DEF, `RoguelikeRewardService.DescribeStats`) / 캐릭터 선택 6종(`CharacterStatBarsView`) / 전투 하단 파티 표기 7종(`PartyStatusBarView`). 같은 캐릭터인데 화면마다 다른 항목이 보인다 — 맞출지, 화면 목적에 맞게 다른 게 맞는지부터 결정할 것
+- ✅ **이름 폰트 축소**: `.card-title` 22px → **16px**, 아래 여백 16px → 10px(스탯 7줄에 자리를 내주기 위함)
+  - 요청은 "절반 정도"였으나 11px면 `.card-desc`(15px)보다 작아져 제목-본문 위계가 뒤집힌다. 더 줄이려면 `.card-desc`를 함께 낮춰야 한다 — 값 하나 수정이라 언제든 조정 가능
+- ✅ **스탯 항목 수**: 카드가 2-3에서 7종이 되어 전투 하단 파티 표기와 일치. 남은 차이는 **캐릭터 선택 화면 6종**(`CharacterStatBarsView` — 치명피해 없음)뿐이며, 그쪽은 막대 그래프라 표현 방식이 달라 3-3에서 별도 판단
 
 ### 3-2. 타겟팅 피드백  (상태: 부분구현)
 - 마우스 2단계 클릭 + 방향키 순환/Enter·Space 확정은 구현 완료. 겨냥된 **단일** 대상은 빨강 아웃라인 표시
@@ -114,7 +152,28 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 - ✅ **데미지 숫자 팝업**: `DamagePopup`(팝업 1개의 표현 + 떠오르며 사라지는 연출) + `DamagePopupSpawner`(`ObjectPool` 소유, 월드 좌표에 스폰). 일반=흰색 / 크리티컬=빨강+확대 / 도트=별도 색 3종. `BattlePresenter`의 히트 루프와 `OnStatusTicked` 두 곳에서 스폰하며, **연출 대기(`RegisterPlayback`)에는 넣지 않아** 전투 페이싱은 그대로다. 위치는 `UnitView.PopupOrigin`(`_popupHeight` 값 하나, 유닛 프리팹 계층 수정 없음)
   - ⚠️ 팝업은 스포너의 자식이다 — 유닛 View는 풀 반납 시 비활성화되므로 유닛 밑에 두면 재생 중인 팝업이 함께 꺼진다
 - ⬜ **타격 이펙트**: 기존에 만들어뒀던 파티클 효과를 다시 가져와 연결. 스폰 위치는 데미지 팝업과 같은 히트 루프(`BattlePresenter.PlayActionAsync`)
-- ⬜ **연출 동기화**: 현재 팝업·피격 연출은 `_impactDelay`(인스펙터 고정값) 뒤에 일괄 재생된다. 애니메이션 클립에 애니메이션 이벤트를 넣어 Hit 발동 시점에 파티클 + 숫자 + 사운드가 함께 나가도록 바꾸는 안(이벤트 하나에 여러 연출을 묶는 시퀀스 구조 필요, 구현 방식 TBD)
+
+#### 4-1-a. 타격 순간 연출 시퀀스  (설계 확정 — 2026-08-06)
+
+현재 팝업·피격 연출은 `_impactDelay`(인스펙터 고정값) 뒤에 일괄 재생된다. 이걸 **공격 애니메이션 클립의 애니메이션 이벤트**로 옮기고, 그 한 시점에 아래 넷을 함께 터뜨린다.
+
+| 연출 | 현재 상태 | 비고 |
+|---|---|---|
+| 타격 파티클 | ⬜ 미구현 | 외부 에셋 필요(1-1 스킬 이펙트와 같은 에셋으로 처리) |
+| 피격(Hit) 애니메이션 | ✅ 있음 | 재생 시점만 이벤트로 이동 |
+| 데미지 팝업 | ✅ 있음 | 재생 시점만 이벤트로 이동 |
+| **히트 스톱**(타격 순간 시간을 잠깐 느리게) | ⬜ 신규 | 아래 주의사항 참고 |
+
+- ⚠️ **히트 스톱에 `Time.timeScale`을 쓰면 안 된다.** 전투 연출·씬 전환 페이드가 전부 `Awaitable`(`WaitForSecondsAsync`) 기반이라 timeScale에 함께 묶일 수 있고, `BattlePausePanel`이 timeScale을 쓰지 않기로 한 것도 같은 이유다. **연출 대상(애니메이터 `speed`, 파티클)만 골라서 늦추는** 방식이 이 프로젝트 구조에 맞는다
+- ⚠️ **애니메이션 이벤트는 클립 에셋에 박히므로 Core가 관여할 수 없다.** 시뮬레이션은 `RegisterPlayback`으로 "연출이 끝났다"만 기다리는 구조를 유지하고, 이벤트→시퀀스 트리거는 전부 View(`UnitAnimator`/`BattlePresenter`) 안에서 끝내야 한다
+- 구현 방식 TBD: 이벤트 하나에 여러 연출을 묶는 시퀀스 구조가 필요하다. 유닛 프리팹 10종 + 클립 다수에 이벤트를 심어야 하므로 **작업량은 코드보다 에셋 쪽이 크다**
+
+#### 4-1-b. 체력바 감소 애니메이션  (⬜ 신규 — 2026-08-06)
+- 현재 `UnitHealthBar`가 `_fill.fillAmount`를 즉시 대입해 게이지가 뚝 끊긴다. 목표 값까지 부드럽게 줄어드는 연출 추가
+- 기존 `CameraShake`/`DamagePopup`과 같은 `async Awaitable` 프레임 루프 + `destroyCancellationToken` 패턴을 그대로 쓰면 된다
+- ⚠️ **`RegisterPlayback`에 넣지 말 것**(데미지 팝업과 같은 판단) — 장식이라 시뮬레이션을 기다리게 할 이유가 없고, 넣으면 전투 페이싱이 느려진다
+- ⚠️ **풀에서 재사용되는 인스턴스**라 진행 중인 트윈이 다음 스폰까지 살아남지 않게 `Initialize`/`ResetForSpawn`에서 즉시 목표값으로 끊을 것. 사망 시 `SetVisible(false)`와 겹치는 순서도 확인 필요
+- 4-1-a와 같이 하면 자연스럽다 — 히트 스톱으로 느려진 순간에 게이지가 줄어드는 그림이 타격감의 핵심
 
 ### 4-2. 입력 시스템 정식화  (상태: ✅ 완료)
 - ✅ 바인딩을 `.inputactions` 에셋의 액션맵(Battle/Menu/UI)으로 이전, 코드 하드코딩 제거, 생성 래퍼 삭제
