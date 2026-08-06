@@ -34,7 +34,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public void Build(VisualElement container)
         {
             _container = container;
-            if (_container == null) return;
+            if (_container == null)
+            {
+                return;
+            }
 
             _container.Clear();
             _rows.Clear();
@@ -86,7 +89,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>파티가 보유한 시너지를 그린다(발동 중이 아닌 것 포함). 하나도 없으면 패널 전체를 숨긴다.</summary>
         public void Show(IReadOnlyList<PartySynergy> synergies)
         {
-            if (_container == null) return;
+            if (_container == null)
+            {
+                return;
+            }
 
             bool any = synergies != null && synergies.Count > 0;
             _container.style.display = any ? DisplayStyle.Flex : DisplayStyle.None;
@@ -97,7 +103,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 bool used = any && i < synergies.Count;
 
                 row.Root.style.display = used ? DisplayStyle.Flex : DisplayStyle.None;
-                if (!used) continue;
+                if (!used)
+                {
+                    continue;
+                }
 
                 PartySynergy synergy = synergies[i];
                 CharacterStatsSO source = synergy.Source;
@@ -130,12 +139,35 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             var parts = new List<string>();
 
-            if (e.AtkFlat != 0) parts.Add($"ATK +{e.AtkFlat}");
-            if (e.SpdFlat != 0) parts.Add($"SPD +{e.SpdFlat}");
-            if (e.DefFlat != 0) parts.Add($"DEF +{e.DefFlat}");
-            if (e.CritRateFlat != 0f) parts.Add($"치명타 +{e.CritRateFlat * 100f:0}%");
-            if (e.CritDmgFlat != 0f) parts.Add($"치명피해 +{e.CritDmgFlat * 100f:0}%");
-            if (e.ResFlat != 0f) parts.Add($"저항 +{e.ResFlat * 100f:0}%");
+            if (e.AtkFlat != 0)
+            {
+                parts.Add($"ATK +{e.AtkFlat}");
+            }
+
+            if (e.SpdFlat != 0)
+            {
+                parts.Add($"SPD +{e.SpdFlat}");
+            }
+
+            if (e.DefFlat != 0)
+            {
+                parts.Add($"DEF +{e.DefFlat}");
+            }
+
+            if (e.CritRateFlat != 0f)
+            {
+                parts.Add($"치명타 +{e.CritRateFlat * 100f:0}%");
+            }
+
+            if (e.CritDmgFlat != 0f)
+            {
+                parts.Add($"치명피해 +{e.CritDmgFlat * 100f:0}%");
+            }
+
+            if (e.ResFlat != 0f)
+            {
+                parts.Add($"저항 +{e.ResFlat * 100f:0}%");
+            }
 
             return string.Join(" · ", parts);
         }

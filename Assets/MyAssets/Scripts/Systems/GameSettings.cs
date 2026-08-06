@@ -65,7 +65,10 @@ namespace Assets.MyAssets.Scripts.Systems
         public static void ApplyAudio()
         {
             AudioManager audio = AudioManager.Instance;
-            if (audio == null) return;
+            if (audio == null)
+            {
+                return;
+            }
 
             audio.SetMasterVolume(Options.MasterVolume);
             audio.SetBgmVolume(Options.BgmVolume);

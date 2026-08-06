@@ -54,8 +54,15 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         {
             int current = GetPoints(category);
 
-            if (delta > 0 && GetAvailablePoints(stagesPerPoint) <= 0) return false;
-            if (delta < 0 && current <= 0) return false;
+            if (delta > 0 && GetAvailablePoints(stagesPerPoint) <= 0)
+            {
+                return false;
+            }
+
+            if (delta < 0 && current <= 0)
+            {
+                return false;
+            }
 
             SetPoints(category, current + delta);
             return true;

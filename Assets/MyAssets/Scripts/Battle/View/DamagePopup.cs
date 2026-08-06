@@ -56,8 +56,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void Awake()
         {
             // UnitView와 같은 자동 탐색 — 프리팹마다 일일이 연결하지 않아도 되도록.
-            if (_text == null) _text = GetComponentInChildren<TMP_Text>(true);
-            if (_billboardRoot == null) _billboardRoot = transform;
+            if (_text == null)
+            {
+                _text = GetComponentInChildren<TMP_Text>(true);
+            }
+
+            if (_billboardRoot == null)
+            {
+                _billboardRoot = transform;
+            }
 
             _baseScale = transform.localScale;
 
@@ -140,11 +147,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void LateUpdate()
         {
-            if (_billboardRoot == null) return;
+            if (_billboardRoot == null)
+            {
+                return;
+            }
 
             // 체력바와 같은 방식 — Camera.main은 태그 검색이라 캐시를 통해 조회한다.
             Transform camera = MainCameraCache.CurrentTransform;
-            if (camera == null) return;
+            if (camera == null)
+            {
+                return;
+            }
 
             _billboardRoot.forward = camera.forward;
         }

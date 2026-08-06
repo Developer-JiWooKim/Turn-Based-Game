@@ -18,7 +18,10 @@ namespace Assets.MyAssets.Scripts.UI
         /// <summary>상태 전환 메소드, 이전 상태의 Exit와 새 상태의 Enter 호출</summary>
         public void ChangeState(IGameFlowState next)
         {
-            if (_current == next) return;
+            if (_current == next)
+            {
+                return;
+            }
 
             _current?.Exit(_controller);
             _current = next;

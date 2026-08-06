@@ -81,10 +81,16 @@ namespace Assets.MyAssets.Scripts.UI
         private void Update()
         {
             // 패널이 보일 때만 방향키로 좌/우 순환(prev/next 버튼과 동일 동작)
-            if (!_visible) return;
+            if (!_visible)
+            {
+                return;
+            }
 
             InputManager input = InputManager.Instance;
-            if (input == null) return;
+            if (input == null)
+            {
+                return;
+            }
 
             // 방향키 순환은 prev/next 버튼 클릭과 동등하므로 버튼과 같은 클릭음을 낸다
             // (마우스 클릭은 UiClickSfx가 ClickEvent로 재생하고, 여기선 키보드 경로만 재생).
@@ -100,7 +106,10 @@ namespace Assets.MyAssets.Scripts.UI
 
         private void Cycle(int direction)
         {
-            if (_roster == null || _roster.Count == 0) return;
+            if (_roster == null || _roster.Count == 0)
+            {
+                return;
+            }
 
             _selectedIndex = (_selectedIndex + direction + _roster.Count) % _roster.Count;
             ApplySelection();
@@ -110,7 +119,10 @@ namespace Assets.MyAssets.Scripts.UI
         private void ApplySelection()
         {
             CharacterStatsSO character = SelectedCharacter;
-            if (character == null) return;
+            if (character == null)
+            {
+                return;
+            }
 
             if (_nameLabel != null)
             {

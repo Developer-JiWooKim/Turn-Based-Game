@@ -50,7 +50,9 @@ namespace Assets.MyAssets.Scripts.UI
         {
             Slider slider = Root.Q<Slider>(elementName);
             if (NullCheck.LogIfNull(slider, nameof(slider), this, $"UXML에 '{elementName}' 슬라이더가 없습니다"))
+            {
                 return;
+            }
 
             slider.value = initial;
             slider.RegisterValueChangedCallback(evt => onChange(evt.newValue));

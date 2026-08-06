@@ -29,8 +29,16 @@ namespace Assets.MyAssets.Scripts.UI
 
             if (container == null || _input == null)
             {
-                if (container != null) container.style.display = DisplayStyle.None;
-                if (resetButton != null) resetButton.style.display = DisplayStyle.None;
+                if (container != null)
+                {
+                    container.style.display = DisplayStyle.None;
+                }
+
+                if (resetButton != null)
+                {
+                    resetButton.style.display = DisplayStyle.None;
+                }
+
                 return;
             }
 

@@ -51,10 +51,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Update()
         {
-            if (!_awaitingInput) return;
+            if (!_awaitingInput)
+            {
+                return;
+            }
 
             InputManager input = InputManager.Instance;
-            if (input == null) return;
+            if (input == null)
+            {
+                return;
+            }
 
             // 방향키: 유효 대상을 순환 겨냥(대기 유지)
             if (input.BattleCycleNextPressed)
@@ -83,16 +89,28 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void HandleClick(Vector2 pointer)
         {
             Camera cam = _camera != null ? _camera : MainCameraCache.Current;
-            if (cam == null) return;
+            if (cam == null)
+            {
+                return;
+            }
 
             Ray ray = cam.ScreenPointToRay(pointer);
-            if (!Physics.Raycast(ray, out RaycastHit hit, _rayDistance, _targetLayers)) return;
+            if (!Physics.Raycast(ray, out RaycastHit hit, _rayDistance, _targetLayers))
+            {
+                return;
+            }
 
             UnitView view = hit.collider.GetComponentInParent<UnitView>();
-            if (view == null) return;
+            if (view == null)
+            {
+                return;
+            }
 
             Unit target = FindValidTarget(view.UnitId);
-            if (target == null) return; // 유효하지 않은 대상(아군/사망 등) 클릭은 무시
+            if (target == null)
+            {
+                return; // 유효하지 않은 대상(아군/사망 등) 클릭은 무시
+            }
 
             if (target == _selectedTarget)
             {
@@ -111,7 +129,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void CycleTarget(int direction)
         {
             List<Unit> ordered = BuildScreenOrderedTargets();
-            if (ordered.Count == 0) return;
+            if (ordered.Count == 0)
+            {
+                return;
+            }
 
             int index = ordered.IndexOf(_selectedTarget);
             int next = index < 0
@@ -132,7 +153,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private List<Unit> BuildScreenOrderedTargets()
         {
             _orderBuffer.Clear();
-            if (_validTargets == null) return _orderBuffer;
+            if (_validTargets == null)
+            {
+                return _orderBuffer;
+            }
 
             Camera cam = _camera != null ? _camera : MainCameraCache.Current;
             for (int i = 0; i < _validTargets.Count; i++)
@@ -197,7 +221,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private Unit FindValidTarget(int unitId)
         {
-            if (_validTargets == null) return null;
+            if (_validTargets == null)
+            {
+                return null;
+            }
+
             for (int i = 0; i < _validTargets.Count; i++)
             {
                 if (_validTargets[i].Id == unitId)

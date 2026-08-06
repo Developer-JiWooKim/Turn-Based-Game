@@ -202,7 +202,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             ObjectPool<UnitView> pool = GetPool(prefab, displayName);
-            if (pool == null) return null;
+            if (pool == null)
+            {
+                return null;
+            }
 
             UnitView view = pool.Get();
 
@@ -227,7 +230,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private Transform ResolveSlot(Transform[] slots, int index, string displayName)
         {
             if (slots != null && index < slots.Length && slots[index] != null)
+            {
                 return slots[index];
+            }
 
             Debug.LogError($"[UnitViewRegistry] '{displayName}'을 배치할 {index}번 슬롯이 없습니다" +
                            $"(슬롯 {(slots != null ? slots.Length : 0)}개) — 겹쳐서 스폰됩니다.", this);
@@ -237,10 +242,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void DespawnById(int unitId)
         {
-            if (!_views.TryGetValue(unitId, out UnitView view)) return;
+            if (!_views.TryGetValue(unitId, out UnitView view))
+            {
+                return;
+            }
 
             _views.Remove(unitId);
-            if (view == null) return;
+            if (view == null)
+            {
+                return;
+            }
 
             if (_sourcePrefab.TryGetValue(view, out GameObject prefab))
             {
@@ -261,7 +272,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         private ObjectPool<UnitView> GetPool(GameObject prefab, string displayName)
         {
-            if (_pools.TryGetValue(prefab, out ObjectPool<UnitView> pool)) return pool;
+            if (_pools.TryGetValue(prefab, out ObjectPool<UnitView> pool))
+            {
+                return pool;
+            }
 
             if (prefab.GetComponentInChildren<UnitView>(true) == null)
             {

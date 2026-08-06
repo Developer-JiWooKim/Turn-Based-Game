@@ -45,7 +45,10 @@ namespace Assets.MyAssets.Scripts.Systems
         protected override void Awake()
         {
             base.Awake();
-            if (!IsValidInstance) return;
+            if (!IsValidInstance)
+            {
+                return;
+            }
 
             DontDestroyOnLoad(gameObject);
 
@@ -91,7 +94,10 @@ namespace Assets.MyAssets.Scripts.Systems
         /// </summary>
         public void PlayBgm(AudioClip clip)
         {
-            if (clip == null || _currentBgmClip == clip) return;
+            if (clip == null || _currentBgmClip == clip)
+            {
+                return;
+            }
 
             _currentBgmClip = clip;
             _ = CrossfadeAsync(clip);
@@ -113,7 +119,10 @@ namespace Assets.MyAssets.Scripts.Systems
             float elapsed = 0f;
             while (elapsed < duration)
             {
-                if (generation != _bgmGeneration) return; // 더 최신 크로스페이드가 시작됨 — 이 코루틴은 손을 뗀다
+                if (generation != _bgmGeneration)
+                {
+                    return; // 더 최신 크로스페이드가 시작됨 — 이 코루틴은 손을 뗀다
+                }
 
                 // 목표 볼륨을 매 프레임 다시 읽는다. 시작 시점 값으로 고정하면 페이드가 도는 동안
                 // 옵션 슬라이더를 움직여도 매 프레임 옛 값으로 덮어써져 조절이 먹지 않는다.
@@ -130,7 +139,10 @@ namespace Assets.MyAssets.Scripts.Systems
                 await Awaitable.NextFrameAsync();
             }
 
-            if (generation != _bgmGeneration) return;
+            if (generation != _bgmGeneration)
+            {
+                return;
+            }
 
             to.volume = _masterVolume * _bgmVolume;
             if (from != null)
@@ -153,7 +165,10 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <summary>단일 소스에 PlayOneShot으로 재생 — 동시 재생이 기본 지원된다.</summary>
         public void PlaySfx(AudioClip clip)
         {
-            if (clip == null || _sfx == null) return;
+            if (clip == null || _sfx == null)
+            {
+                return;
+            }
 
             _sfx.PlayOneShot(clip);
         }

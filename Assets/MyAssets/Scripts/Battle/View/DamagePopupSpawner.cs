@@ -28,7 +28,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void Awake()
         {
             _isValid = !NullCheck.LogIfMissing(_prefab, nameof(_prefab), this, "피해량 숫자가 표시되지 않습니다");
-            if (!_isValid) return;
+            if (!_isValid)
+            {
+                return;
+            }
 
             _pool = new ObjectPool<DamagePopup>(
                 // 스포너의 자식으로 만든다 — 유닛 밑에 두면 유닛이 풀에 반납될 때 함께 꺼진다.
@@ -45,7 +48,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         public void Spawn(Vector3 worldPosition, int amount, DamageKind kind)
         {
-            if (!_isValid || amount <= 0) return; // 0은 보여줄 변화가 없다
+            if (!_isValid || amount <= 0)
+            {
+                return; // 0은 보여줄 변화가 없다
+            }
 
             DamagePopup popup = _pool.Get();
             popup.transform.position = worldPosition + Vector3.right * Random.Range(-_horizontalSpread, _horizontalSpread);

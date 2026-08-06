@@ -72,17 +72,29 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <returns>영입 결과(영입 선택지가 아니거나 취소되면 Recruited가 null)</returns>
         public async Task<RecruitResult> PresentAsync(RunData run, IRandom rng, StageScaling scaling, CancellationToken ct)
         {
-            if (_panel == null) return default;
+            if (_panel == null)
+            {
+                return default;
+            }
 
             List<RoguelikeChoiceSO> choices = PickChoices(run, rng);
-            if (choices.Count == 0) return default;
+            if (choices.Count == 0)
+            {
+                return default;
+            }
 
             RoguelikeChoiceSO picked = await _panel.PresentAsync(choices, ct);
-            if (picked == null) return default;
+            if (picked == null)
+            {
+                return default;
+            }
 
             RoguelikeEffect effect = picked.CreateEffect();
             run.ApplyChoice(effect);
-            if (!effect.Recruit) return default;
+            if (!effect.Recruit)
+            {
+                return default;
+            }
 
             return await PresentRecruitAsync(run, rng, scaling, ct);
         }
@@ -94,21 +106,35 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private async Task<RecruitResult> PresentRecruitAsync(RunData run, IRandom rng, StageScaling scaling, CancellationToken ct)
         {
             List<CharacterStatsSO> candidates = PickRecruitCandidates(rng);
-            if (candidates.Count == 0) return default;
+            if (candidates.Count == 0)
+            {
+                return default;
+            }
 
             bool needsReplace = !run.CanRecruit;
             var cards = candidates.Select(c => new ChoiceCard(c.DisplayName, DescribeCandidate(c, run, scaling), c.Icon)).ToList();
             if (needsReplace)
+            {
                 cards.Add(new ChoiceCard(SkipRecruitTitle, SkipRecruitDescription));
+            }
 
             int index = await _panel.PresentAsync("동료 영입", cards, ct);
-            if (index < 0 || index >= candidates.Count) return default; // 취소 또는 "영입 안 함"
+            if (index < 0 || index >= candidates.Count)
+            {
+                return default; // 취소 또는 "영입 안 함"
+            }
 
             CharacterStatsSO chosen = candidates[index];
-            if (!needsReplace) return new RecruitResult(run.Recruit(chosen, scaling), null);
+            if (!needsReplace)
+            {
+                return new RecruitResult(run.Recruit(chosen, scaling), null);
+            }
 
             RunMember outgoing = await PresentReplaceTargetAsync(run, ct);
-            if (outgoing == null) return default;
+            if (outgoing == null)
+            {
+                return default;
+            }
 
             RunMember recruited = run.ReplaceMember(outgoing, chosen, scaling);
             return recruited == null ? default : new RecruitResult(recruited, outgoing);
@@ -126,11 +152,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private List<CharacterStatsSO> PickRecruitCandidates(IRandom rng)
         {
             var pool = new List<CharacterStatsSO>();
-            if (_roster == null) return pool;
+            if (_roster == null)
+            {
+                return pool;
+            }
 
             for (int i = 0; i < _roster.Count; i++)
             {
-                if (_roster[i] != null) pool.Add(_roster[i]);
+                if (_roster[i] != null)
+                {
+                    pool.Add(_roster[i]);
+                }
             }
 
             var picked = new List<CharacterStatsSO>();
@@ -140,6 +172,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 picked.Add(pool[i]);
                 pool.RemoveAt(i);
             }
+
             return picked;
         }
 

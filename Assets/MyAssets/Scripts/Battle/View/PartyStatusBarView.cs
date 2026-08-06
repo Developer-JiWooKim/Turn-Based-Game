@@ -72,7 +72,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public void Build(VisualElement container)
         {
             _container = container;
-            if (_container == null) return;
+            if (_container == null)
+            {
+                return;
+            }
 
             _container.Clear();
             _panels.Clear();
@@ -123,7 +126,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>이번 스테이지의 파티를 패널에 배정하고 캐릭터 위치에 맞춰 정렬한다.</summary>
         public void SetParty(IReadOnlyList<PartyMemberSlot> slots)
         {
-            if (_container == null) return;
+            if (_container == null)
+            {
+                return;
+            }
 
             for (int i = 0; i < _panels.Count; i++)
             {
@@ -150,7 +156,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             foreach (MemberPanel panel in _panels)
             {
-                if (panel.Unit == null) continue;
+                if (panel.Unit == null)
+                {
+                    continue;
+                }
 
                 for (int i = 0; i < Rows.Length; i++)
                 {
@@ -197,7 +206,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             _text.Clear();
             _text.Append(current);
-            if (percent) _text.Append('%');
+            if (percent)
+            {
+                _text.Append('%');
+            }
 
             Append(choice, '+', ChoiceColor, percent);
             Append(grown - origin - choice, '+', StageColor, percent); // 성장 총량에서 선택지 몫을 뺀 나머지
@@ -210,10 +222,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>0이 아닐 때만 색이 붙은 괄호를 덧붙인다(변화 없는 항목으로 줄이 길어지지 않도록).</summary>
         private void Append(int delta, char sign, string color, bool percent)
         {
-            if (delta <= 0) return;
+            if (delta <= 0)
+            {
+                return;
+            }
 
             _text.Append(" <color=").Append(color).Append(">(").Append(sign).Append(delta);
-            if (percent) _text.Append('%');
+            if (percent)
+            {
+                _text.Append('%');
+            }
+
             _text.Append(")</color>");
         }
 
@@ -248,11 +267,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void AlignAll()
         {
             Camera camera = MainCameraCache.Current;
-            if (camera == null || _container?.panel == null) return;
+            if (camera == null || _container?.panel == null)
+            {
+                return;
+            }
 
             foreach (MemberPanel panel in _panels)
             {
-                if (panel.Unit == null) continue;
+                if (panel.Unit == null)
+                {
+                    continue;
+                }
 
                 Vector3 screen = camera.WorldToScreenPoint(panel.WorldPosition);
 

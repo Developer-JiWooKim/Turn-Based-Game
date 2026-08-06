@@ -37,15 +37,24 @@ namespace Assets.MyAssets.Scripts.UI
             _rows.Clear();
 
             // 누락은 화면이 비는 것으로만 드러나 원인 파악이 늦어지므로 로그를 남긴다.
-            if (NullCheck.LogIfNull(container, nameof(container), this, "UXML에서 행 컨테이너를 찾지 못했습니다")) return;
+            if (NullCheck.LogIfNull(container, nameof(container), this, "UXML에서 행 컨테이너를 찾지 못했습니다"))
+            {
+                return;
+            }
 
             // 이 배열의 출처는 PointAllocationPopupUI의 인스펙터라 그쪽을 확인해야 한다.
             if (NullCheck.LogIfEmpty(categories, nameof(categories), this,
-                                    $"{nameof(PointAllocationPopupUI)}의 카테고리 목록이 비어 있습니다")) return;
+                                    $"{nameof(PointAllocationPopupUI)}의 카테고리 목록이 비어 있습니다"))
+            {
+                return;
+            }
 
             foreach (RoguelikeChoiceSO category in categories)
             {
-                if (category == null) continue;
+                if (category == null)
+                {
+                    continue;
+                }
 
                 var row = new VisualElement();
                 row.AddToClassList("allocation-row");
@@ -87,7 +96,10 @@ namespace Assets.MyAssets.Scripts.UI
         /// <summary>각 행의 현재 포인트와 버튼 활성 상태를 세이브 값으로 다시 그린다.</summary>
         public void Refresh(SaveData save, int available)
         {
-            if (save == null) return;
+            if (save == null)
+            {
+                return;
+            }
 
             foreach (CategoryRow row in _rows)
             {

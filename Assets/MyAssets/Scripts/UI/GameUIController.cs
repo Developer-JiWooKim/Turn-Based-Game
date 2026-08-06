@@ -50,7 +50,10 @@ namespace Assets.MyAssets.Scripts.UI
         private void OnEnable()
         {
             // 검증 실패로 Awake에서 꺼진 뒤 외부에서 되살린 경우 — 참조가 없으므로 배선하지 않는다
-            if (!_isValid) return;
+            if (!_isValid)
+            {
+                return;
+            }
 
             _titlePanel.OnPlayClicked += GoToCharacterSelect;
             _titlePanel.OnOptionClicked += _optionPopup.Show;
@@ -64,7 +67,10 @@ namespace Assets.MyAssets.Scripts.UI
         private void OnDisable()
         {
             // OnEnable에서 배선하지 않았으므로 해제할 것도 없다(가드를 양쪽에 대칭으로 둔다)
-            if (!_isValid) return;
+            if (!_isValid)
+            {
+                return;
+            }
 
             _titlePanel.OnPlayClicked -= GoToCharacterSelect;
             _titlePanel.OnOptionClicked -= _optionPopup.Show;

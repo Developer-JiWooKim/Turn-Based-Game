@@ -75,7 +75,9 @@ namespace Assets.MyAssets.Scripts.UI
             int available = save.GetAvailablePoints(_stagesPerPoint);
 
             if (_headerLabel is not null)
+            {
                 _headerLabel.text = $"보유 {available} / 총 {earned}";
+            }
 
             _rows.Refresh(save, available);
         }

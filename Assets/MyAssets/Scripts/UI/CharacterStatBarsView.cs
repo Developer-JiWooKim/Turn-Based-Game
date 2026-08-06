@@ -25,7 +25,10 @@ namespace Assets.MyAssets.Scripts.UI
         public void Build(VisualElement statPanel, Stats ceiling)
         {
             _ceiling = ceiling;
-            if (statPanel == null) return;
+            if (statPanel == null)
+            {
+                return;
+            }
 
             _fills = statPanel.Query<VisualElement>("stat-fill").ToList();
             _values = statPanel.Query<Label>("stat-value").ToList();
@@ -37,7 +40,10 @@ namespace Assets.MyAssets.Scripts.UI
         /// </summary>
         public void Refresh(Stats s)
         {
-            if (_fills == null || _ceiling == null) return;
+            if (_fills == null || _ceiling == null)
+            {
+                return;
+            }
 
             SetRow(index: 0, value: s.MaxHp, ceiling: _ceiling.MaxHp, text: s.MaxHp.ToString());
             SetRow(index: 1, value: s.Atk, ceiling: _ceiling.Atk, text: s.Atk.ToString());

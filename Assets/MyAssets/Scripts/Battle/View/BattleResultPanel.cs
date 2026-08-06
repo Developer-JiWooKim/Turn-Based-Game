@@ -48,7 +48,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public async Task PresentAsync(int reachedStage, int bestStage, bool isNewRecord, CancellationToken ct)
         {
             if (_stage != null)
+            {
                 _stage.text = reachedStage.ToString();
+            }
 
             if (_best != null)
             {

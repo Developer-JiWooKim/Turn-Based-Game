@@ -71,10 +71,14 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public async Task<int> PresentAsync(string header, IReadOnlyList<ChoiceCard> cards, CancellationToken ct)
         {
             if (cards == null || cards.Count == 0)
+            {
                 return -1;
+            }
 
             if (_header != null)
+            {
                 _header.text = header;
+            }
 
             _cardCount = Mathf.Min(cards.Count, _cards.Count);
             SetHover(-1); // 방향키 겨냥 초기화(첫 방향키 입력 전까지 겨냥 없음)
@@ -114,10 +118,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Update()
         {
-            if (!_pending.IsWaiting || _cardCount == 0) return;
+            if (!_pending.IsWaiting || _cardCount == 0)
+            {
+                return;
+            }
 
             InputManager input = InputManager.Instance;
-            if (input == null) return;
+            if (input == null)
+            {
+                return;
+            }
 
             // 방향키: 카드 겨냥 이동(마우스 호버와 같은 하이라이트 + 이동음)
             if (input.UiNavigateNextPressed)
@@ -151,7 +161,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void OnPick(int index)
         {
-            if (!_pending.IsWaiting || index >= _cardCount) return;
+            if (!_pending.IsWaiting || index >= _cardCount)
+            {
+                return;
+            }
 
             _pending.Complete(index);
         }
