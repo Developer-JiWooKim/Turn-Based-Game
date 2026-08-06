@@ -96,7 +96,10 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// <summary>파티에 새 멤버를 추가한다(자리가 없으면 null).</summary>
         public RunMember AddMember(CharacterStatsSO source)
         {
-            if (source == null || !CanRecruit) return null;
+            if (source == null || !CanRecruit)
+            {
+                return null;
+            }
 
             var member = new RunMember(NextUnitId(), source);
             Members.Add(member);
@@ -109,7 +112,10 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         public RunMember Recruit(CharacterStatsSO source, in StageScaling scaling)
         {
             RunMember member = AddMember(source);
-            if (member == null) return null;
+            if (member == null)
+            {
+                return null;
+            }
 
             ApplyCatchUp(member, scaling);
             return member;
@@ -121,7 +127,10 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// </summary>
         public Stats PreviewRecruitStats(CharacterStatsSO source, in StageScaling scaling)
         {
-            if (source == null) return null;
+            if (source == null)
+            {
+                return null;
+            }
 
             var preview = new RunMember(0, source); // Id 0 = 미리보기 전용(파티에 넣지 않으므로 식별자를 소모하지 않는다)
             ApplyCatchUp(preview, scaling);
@@ -147,7 +156,10 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// </summary>
         public RunMember ReplaceMember(RunMember outgoing, CharacterStatsSO source, in StageScaling scaling)
         {
-            if (source == null || outgoing == null || !Members.Remove(outgoing)) return null;
+            if (source == null || outgoing == null || !Members.Remove(outgoing))
+            {
+                return null;
+            }
 
             return Recruit(source, scaling); // 자리가 방금 비었으므로 기존 영입 경로(소급 성장 포함)를 그대로 탄다
         }

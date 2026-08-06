@@ -50,6 +50,7 @@ MonoBehaviour:
   _unitAnimator: {fileID: 6399015051089811547}
   _unitHealthBar: {fileID: 8340437445756279072}
   _sfx: {fileID: 11400000, guid: 5ef9f75b77e0c6340b0cf55dbcbef735, type: 2}
+  _popupHeight: 3
 --- !u!135 &3293325009884510362
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -149,7 +150,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4649539570397434563, guid: db65dbd98f5a19b48a164db1ffc51c15, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 3
+      value: 2.7
       objectReference: {fileID: 0}
     - target: {fileID: 4649539570397434563, guid: db65dbd98f5a19b48a164db1ffc51c15, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

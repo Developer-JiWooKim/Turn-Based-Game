@@ -84,7 +84,10 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         /// <returns>신기록이면 true</returns>
         public static bool RecordStage(int reachedStage)
         {
-            if (reachedStage <= Current.BestStage) return false;
+            if (reachedStage <= Current.BestStage)
+            {
+                return false;
+            }
 
             Current.BestStage = reachedStage;
             Save();
@@ -97,7 +100,10 @@ namespace Assets.MyAssets.Scripts.Progression.Save
             try
             {
                 if (File.Exists(FilePath))
+                {
                     File.Delete(FilePath);
+                }
+
             }
             catch (Exception ex)
             {

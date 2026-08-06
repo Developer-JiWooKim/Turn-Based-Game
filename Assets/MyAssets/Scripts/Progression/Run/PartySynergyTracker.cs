@@ -37,7 +37,10 @@ namespace Assets.MyAssets.Scripts.Progression.Run
 
             foreach (RunMember member in _run.Members)
             {
-                if (member.Source == null || !member.Source.HasSynergy) continue;
+                if (member.Source == null || !member.Source.HasSynergy)
+                {
+                    continue;
+                }
                 _aliveCountBySource.TryGetValue(member.Source, out int count);
                 _aliveCountBySource[member.Source] = count + 1;
             }
@@ -69,7 +72,9 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         {
             CharacterStatsSO source = _run.Members.FirstOrDefault(m => m.UnitId == deadUnit.Id)?.Source;
             if (source == null || !_aliveCountBySource.TryGetValue(source, out int count))
+            {
                 return null; // 시너지가 없는 캐릭터라 다른 시너지에 영향 없음
+            }
 
             int remaining = count - 1;
             _aliveCountBySource[source] = remaining;
@@ -83,7 +88,10 @@ namespace Assets.MyAssets.Scripts.Progression.Run
             {
                 foreach (Unit unit in _units)
                 {
-                    if (!_synergySourceByUnitId.TryGetValue(unit.Id, out CharacterStatsSO s) || s != source) continue;
+                    if (!_synergySourceByUnitId.TryGetValue(unit.Id, out CharacterStatsSO s) || s != source)
+                    {
+                        continue;
+                    }
 
                     unit.Stats.CopyFrom(_preSynergyByUnitId[unit.Id]);
                     _synergySourceByUnitId.Remove(unit.Id);

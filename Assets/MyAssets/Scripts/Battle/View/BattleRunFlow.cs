@@ -31,7 +31,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public RunData ResolveRun()
         {
             RunData run = GameManager.Instance != null ? GameManager.Instance.CurrentRun : null;
-            if (run != null && run.Members.Count > 0) return run;
+            if (run != null && run.Members.Count > 0)
+            {
+                return run;
+            }
 
             if (_testParty == null || _testParty.Length == 0)
             {

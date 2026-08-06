@@ -49,13 +49,17 @@ namespace Assets.MyAssets.Scripts.UI
             bool hasError = false;
             hasError |= NullCheck.LogIfMissing(_previewRig, nameof(_previewRig), this);
             hasError |= NullCheck.LogIfMissing(_modelAnchor, nameof(_modelAnchor), this);
+
             return !hasError;
         }
 
         /// <summary>프리뷰 리그를 켜고 끈다(선택 화면 진입/이탈). 꺼진 동안에는 모델도 함께 멈춘다.</summary>
         public void SetVisible(bool visible)
         {
-            if (!_isValid) return;
+            if (!_isValid)
+            {
+                return;
+            }
 
             _previewRig.SetActive(visible);
         }
@@ -63,7 +67,10 @@ namespace Assets.MyAssets.Scripts.UI
         /// <summary>지정한 캐릭터의 모델을 보여준다(이전 모델은 숨김). null이면 아무것도 표시하지 않는다.</summary>
         public void Show(CharacterStatsSO character)
         {
-            if (!_isValid) return;
+            if (!_isValid)
+            {
+                return;
+            }
 
             if (_current != null)
             {
@@ -72,7 +79,11 @@ namespace Assets.MyAssets.Scripts.UI
 
             _current = null;
 
-            if (character == null) return;
+            if (character == null)
+            {
+                return;
+            }
+
             if (character.Prefab == null)
             {
                 Debug.LogError($"[CharacterPreview] {character.name}에 프리뷰용 Prefab이 없습니다.", character);
@@ -86,7 +97,10 @@ namespace Assets.MyAssets.Scripts.UI
         /// <summary>이 캐릭터의 프리뷰 인스턴스를 가져온다. 없으면(또는 파괴됐으면) 이때 한 번 만든다.</summary>
         private GameObject GetOrCreate(CharacterStatsSO character)
         {
-            if (_instances.TryGetValue(character, out GameObject instance) && instance != null) return instance;
+            if (_instances.TryGetValue(character, out GameObject instance) && instance != null)
+            {
+                return instance;
+            }
 
             instance = Instantiate(character.Prefab, _modelAnchor.position, _modelAnchor.rotation, _modelAnchor);
             _instances[character] = instance;

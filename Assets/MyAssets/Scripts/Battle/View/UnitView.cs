@@ -50,7 +50,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void CacheRenderers()
         {
-            if (_modelRenderers != null) return;
+            if (_modelRenderers != null)
+            {
+                return;
+            }
 
             _modelRenderers = GetComponentsInChildren<Renderer>(true);
             _originalLayers = new int[_modelRenderers.Length];
@@ -63,8 +66,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void Awake()
         {
             // includeInactive:true 하는 이유 ㅡ 사망 시 숨긴 채로 풀에 반납된 인스턴스는 체력바가 비활성 상태다.
-            if (_unitAnimator == null) _unitAnimator = GetComponentInChildren<UnitAnimator>(true);
-            if (_unitHealthBar == null) _unitHealthBar = GetComponentInChildren<UnitHealthBar>(true);
+            if (_unitAnimator == null)
+            {
+                _unitAnimator = GetComponentInChildren<UnitAnimator>(true);
+            }
+
+            if (_unitHealthBar == null)
+            {
+                _unitHealthBar = GetComponentInChildren<UnitHealthBar>(true);
+            }
 
             ValidateReferences();
         }
@@ -86,7 +96,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             CacheRenderers();
 
-            if (_unitHealthBar == null) return; // 누락은 Awake에서 보고 완료
+            if (_unitHealthBar == null)
+            {
+                return;
+            }
 
             _unitHealthBar.SetVisible(true); // 사망으로 숨겨진 채 재사용됐을 수도 있으니 활성화 먼저
             _unitHealthBar.Set(currentHp, maxHp);
@@ -137,7 +150,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         public void SetOutlineLayer(int layer)
         {
-            if (_modelRenderers == null) return;
+            if (_modelRenderers == null)
+            {
+                return;
+            }
 
             for (int i = 0; i < _modelRenderers.Length; i++)
             {
@@ -151,7 +167,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>모델 렌더러 레이어를 스폰 당시 원래 값으로 되돌린다(기본 검정 아웃라인 복귀).</summary>
         public void ResetOutlineLayer()
         {
-            if (_modelRenderers == null || _originalLayers == null) return;
+            if (_modelRenderers == null || _originalLayers == null)
+            {
+                return;
+            }
 
             for (int i = 0; i < _modelRenderers.Length; i++)
             {

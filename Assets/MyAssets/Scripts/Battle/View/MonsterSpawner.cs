@@ -40,9 +40,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         public SpawnWaveSO ResolveWave(int stage, IRandom rng)
         {
-            if (_monsterWaves == null || _monsterWaves.Length == 0) return null;
+            if (_monsterWaves == null || _monsterWaves.Length == 0)
+            {
+                return null;
+            }
 
-            if (stage <= _monsterWaves.Length) return _monsterWaves[stage - 1];
+            if (stage <= _monsterWaves.Length)
+            {
+                return _monsterWaves[stage - 1];
+            }
 
             bool wantBoss = _bossStageInterval > 0 && stage % _bossStageInterval == 0;
             return PickFromPool(wantBoss, rng)
@@ -65,7 +71,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
             for (int i = 0; i < wave.Monsters.Count; i++)
             {
                 MonsterStatsSO so = wave.Monsters[i];
-                if (so == null) continue;
+                if (so == null)
+                {
+                    continue;
+                }
 
                 Stats stats = so.CreateStats();
                 scaling.ApplyToMonster(stats, stage);
@@ -103,7 +112,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             string label = null;
 
             if (modifiers.EnemyHpMultiplier != 1f)
+            {
                 label = $"{UnitHealthBar.IconTag("Debuff_HealthDown")} -{Mathf.RoundToInt((1f - modifiers.EnemyHpMultiplier) * 100f)}%";
+            }
 
             if (modifiers.EnemyAtkMultiplier != 1f)
             {
@@ -118,11 +129,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private SpawnWaveSO PickFromPool(bool boss, IRandom rng)
         {
             if (_randomWavePool == null)
+            {
                 return null;
+            }
 
             var candidates = _randomWavePool.Where(w => w != null && w.IsBossWave == boss).ToList();
             if (candidates.Count == 0)
+            {
                 return null;
+            }
 
             List<int> picked = WeightedPicker.PickDistinct(candidates.Select(c => c.Weight).ToList(), 1, rng);
             return picked.Count > 0 ? candidates[picked[0]] : null;

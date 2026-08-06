@@ -19,7 +19,6 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 return picked;
             }
 
-
             var remaining = new List<int>(weights.Count);
             for (int i = 0; i < weights.Count; i++)
             {

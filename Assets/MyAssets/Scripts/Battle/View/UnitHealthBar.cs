@@ -48,7 +48,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         public void SetSlotLabel(string label)
         {
-            if (_indexText == null) return;
+            if (_indexText == null)
+            {
+                return;
+            }
 
             bool has = !string.IsNullOrEmpty(label);
             _indexText.gameObject.SetActive(has);
@@ -84,7 +87,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             _lastStatuses = statuses;
 
-            if (_statusText == null) return;
+            if (_statusText == null)
+            {
+                return;
+            }
 
             bool hasStatuses = statuses != null && statuses.Count > 0;
             if (!hasStatuses && _spawnDebuff == null)
@@ -150,11 +156,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void LateUpdate()
         {
-            if (_billboardRoot == null) return;
+            if (_billboardRoot == null)
+            {
+                return;
+            }
 
             // Camera.main은 태그 검색이라 유닛마다 매 프레임 부르면 비용이 쌓인다 — 캐시를 통해 조회한다.
             Transform camera = MainCameraCache.CurrentTransform;
-            if (camera == null) return;
+            if (camera == null)
+            {
+                return;
+            }
 
             _billboardRoot.forward = camera.forward;
         }

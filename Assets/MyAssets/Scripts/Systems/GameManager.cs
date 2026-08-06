@@ -17,7 +17,10 @@ namespace Assets.MyAssets.Scripts.Systems
         protected override void Awake()
         {
             base.Awake();
-            if (!IsValidInstance) return;
+            if (!IsValidInstance)
+            {
+                return;
+            }
 
             ValidateReferences(); // 인스펙터 연결 누락을 시작 시 1회 보고한다.
 

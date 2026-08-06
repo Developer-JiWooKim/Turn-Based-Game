@@ -116,11 +116,11 @@
 }
 
 .turn-chip-player {
-    background-color: rgba(46, 105, 178, 0.85);
+    background-color: rgba(36, 80, 181, 0.85);
 }
 
 .turn-chip-enemy {
-    background-color: rgba(168, 58, 58, 0.85);
+    background-color: rgba(176, 28, 53, 0.85);
 }
 
 /* 현재 행동 유닛 강조 */

@@ -109,7 +109,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private void Update()
         {
             InputManager input = InputManager.Instance;
-            if (input == null) return;
+            if (input == null)
+            {
+                return;
+            }
 
             if (_enableInputAtFrame >= 0 && Time.frameCount >= _enableInputAtFrame)
             {
@@ -117,7 +120,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 input.IsGameplayInputEnabled = true;
             }
 
-            if (!input.PauseTogglePressed) return;
+            if (!input.PauseTogglePressed)
+            {
+                return;
+            }
 
             if (IsPaused)
             {
@@ -150,7 +156,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         public void Pause()
         {
-            if (!_battleActive || IsPaused) return;
+            if (!_battleActive || IsPaused)
+            {
+                return;
+            }
 
             _resumeSignal = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -167,7 +176,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         public void Resume()
         {
-            if (!IsPaused) return;
+            if (!IsPaused)
+            {
+                return;
+            }
 
             ReleaseGate()?.TrySetResult(true);
             HideOverlay();
@@ -180,7 +192,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         private void Abort()
         {
-            if (!IsPaused) return;
+            if (!IsPaused)
+            {
+                return;
+            }
 
             HideOverlay();
             AbortRequested?.Invoke();
@@ -198,7 +213,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private static async Task AwaitResumeAsync(TaskCompletionSource<bool> pending, CancellationToken ct)
         {
             using (ct.Register(() => pending.TrySetCanceled(ct)))
+            {
                 await pending.Task;
+            }
+
         }
 
         /// <summary>퍼즈 상태를 끝내고 대기 신호를 돌려준다(호출자가 완료/취소 중 하나로 매듭짓는다).</summary>
@@ -217,7 +235,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _stageLabel.text = _stage.ToString();
             }
 
-            if (_bestLabel == null) return;
+            if (_bestLabel == null)
+            {
+                return;
+            }
 
             // 이번 런은 아직 기록되지 않았으므로 여기 값이 곧 "이전 최고 기록"이다.
             int best = SaveService.Current.BestStage;

@@ -49,6 +49,7 @@ MonoBehaviour:
   _unitAnimator: {fileID: 2663826194520173772}
   _unitHealthBar: {fileID: 5618611364463943607}
   _sfx: {fileID: 11400000, guid: 78fc1e2a1e5ab474494dd4acfbfcd4b3, type: 2}
+  _popupHeight: 3
 --- !u!1001 &1045582376174236400
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -337,7 +338,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4649539570397434563, guid: db65dbd98f5a19b48a164db1ffc51c15, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 4649539570397434563, guid: db65dbd98f5a19b48a164db1ffc51c15, type: 3}
       propertyPath: m_LocalRotation.w
@@ -361,7 +362,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4649539570397434563, guid: db65dbd98f5a19b48a164db1ffc51c15, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 3
+      value: 2.7
       objectReference: {fileID: 0}
     - target: {fileID: 4649539570397434563, guid: db65dbd98f5a19b48a164db1ffc51c15, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

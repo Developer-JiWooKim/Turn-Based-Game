@@ -28,9 +28,13 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <returns>비어 있으면 true(= 문제 있음).</returns>
         public static bool LogIfMissing(Object target, string name, object owner, string consequence = null)
         {
-            if (target != null) return false;
+            if (target != null)
+            {
+                return false;
+            }
 
             Log($"{name}가 연결되지 않았습니다", owner, consequence, inspector: true);
+
             return true;
         }
 
@@ -38,9 +42,13 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <returns>비어 있으면 true(= 문제 있음).</returns>
         public static bool LogIfEmpty<T>(T[] array, string name, object owner, string consequence = null)
         {
-            if (array != null && array.Length > 0) return false;
+            if (array != null && array.Length > 0)
+            {
+                return false;
+            }
 
             Log($"{name}가 비어 있습니다", owner, consequence, inspector: true);
+
             return true;
         }
 
@@ -53,9 +61,13 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <returns>null이면 true(= 문제 있음).</returns>
         public static bool LogIfNull(object target, string name, object owner, string consequence = null)
         {
-            if (target != null) return false;
+            if (target != null)
+            {
+                return false;
+            }
 
             Log($"{name}가 null입니다", owner, consequence, inspector: false);
+
             return true;
         }
 

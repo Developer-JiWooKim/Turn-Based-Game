@@ -72,7 +72,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         public void SetParty(RunData run, IReadOnlyList<Unit> players)
         {
-            if (_hud == null) return;
+            if (_hud == null)
+            {
+                return;
+            }
 
             var slots = new List<PartyMemberSlot>(players.Count);
             foreach (Unit unit in players)
@@ -89,11 +92,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>전투 유닛에 대응하는 런 데이터(Id는 런 내내 고정이라 이걸로 짝을 찾는다).</summary>
         private static RunMember FindMember(RunData run, int unitId)
         {
-            if (run == null) return null;
+            if (run == null)
+            {
+                return null;
+            }
 
             foreach (RunMember member in run.Members)
             {
-                if (member.UnitId == unitId) return member;
+                if (member.UnitId == unitId)
+                {
+                    return member;
+                }
             }
 
             return null;
@@ -116,7 +125,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         public void Unbind()
         {
-            if (_simulation == null) return;
+            if (_simulation == null)
+            {
+                return;
+            }
 
             _simulation.TurnStarted -= OnTurnStarted;
             _simulation.ActorTurnStarted -= OnActorTurnStarted;
@@ -136,7 +148,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void OnTurnStarted(object sender, TurnStartedEventArgs e)
         {
-            if (_hud == null) return;
+            if (_hud == null)
+            {
+                return;
+            }
 
             var chips = new List<TurnChipInfo>(e.Order.Count);
             foreach (Unit unit in e.Order)
@@ -214,7 +229,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>상태이상이 붙거나 풀렸을 때 체력바 옆 표기를 다시 그린다(저항은 표기 변화가 없다).</summary>
         private void OnStatusChanged(object sender, StatusChangedEventArgs e)
         {
-            if (e.Reason == StatusChangeReason.Resisted) return;
+            if (e.Reason == StatusChangeReason.Resisted)
+            {
+                return;
+            }
 
             if (_registry.TryGet(e.Unit.Id, out UnitView view))
             {
@@ -244,7 +262,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private async Task PlayActionAsync(ActionResult result)
         {
-            if (!_registry.TryGet(result.Actor.Id, out UnitView actorView)) return;
+            if (!_registry.TryGet(result.Actor.Id, out UnitView actorView))
+            {
+                return;
+            }
 
             // 1) 공격/스킬 애니메이션 시작
             Task actorAnim = result.Kind == ActionKind.Skill
@@ -258,7 +279,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
             bool anyCritical = false;
             foreach (HitResult hit in result.Hits)
             {
-                if (hit.IsCritical) anyCritical = true;
+                if (hit.IsCritical)
+                {
+                    anyCritical = true;
+                }
                 if (_registry.TryGet(hit.Target.Id, out UnitView targetView))
                 {
                     playback.Add(targetView.PlayHitAsync(hit.Target.CurrentHp, hit.Target.Stats.MaxHp, _ct));

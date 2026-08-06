@@ -21,7 +21,10 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <summary>저장소에서 바인딩 오버라이드 데이터를 불러와 적용</summary>
         public void LoadBindings()
         {
-            if (!_isValid) return; // 누락은 생성자에서 보고 완료
+            if (!_isValid)
+            {
+                return;
+            }
 
             string overrides = SaveService.Current.Options.InputBindingOverrides;
             if (!string.IsNullOrEmpty(overrides))
@@ -33,7 +36,10 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <summary>현재 적용된 바인딩 오버라이드를 저장소에 기록</summary>
         public void SaveBindings()
         {
-            if (!_isValid) return;
+            if (!_isValid)
+            {
+                return;
+            }
 
             SaveService.Current.Options.InputBindingOverrides = _inputActions.SaveBindingOverridesAsJson();
             SaveService.Save();
@@ -41,7 +47,10 @@ namespace Assets.MyAssets.Scripts.Systems
 
         public void ResetAllBindings()
         {
-            if (!_isValid) return;
+            if (!_isValid)
+            {
+                return;
+            }
 
             _inputActions.RemoveAllBindingOverrides();
             SaveBindings();

@@ -75,11 +75,17 @@ namespace Assets.MyAssets.Scripts.Systems
         protected override void Awake()
         {
             base.Awake();
-            if (!IsValidInstance) return;
+            if (!IsValidInstance)
+            {
+                return;
+            }
 
             DontDestroyOnLoad(gameObject);
 
-            if (NullCheck.LogIfMissing(_actions, nameof(_actions), this, "어떤 입력도 받을 수 없습니다")) return;
+            if (NullCheck.LogIfMissing(_actions, nameof(_actions), this, "어떤 입력도 받을 수 없습니다"))
+            {
+                return;
+            }
 
             _saver = new InputBindingSaver(_actions);
             _rebinder = new InputRebinder(_actions, _saver);
@@ -133,7 +139,10 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <summary>논리 컨트롤에 현재 할당된 키의 표시 문자열(예: "Left Arrow")</summary>
         public string GetRebindDisplay(int index)
         {
-            if (_actions == null) return "-";
+            if (_actions == null)
+            {
+                return "-";
+            }
 
             string path = InputControls.Rebindable[index].ActionPaths[0];
             InputAction action = _actions.FindAction(path);

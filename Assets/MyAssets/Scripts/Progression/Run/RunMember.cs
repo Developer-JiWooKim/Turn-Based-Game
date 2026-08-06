@@ -69,7 +69,10 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// </summary>
         private void ApplyGrowth(in RoguelikeEffect effect, Stats bucket)
         {
-            if (!IsAlive) return;
+            if (!IsAlive)
+            {
+                return;
+            }
 
             Stats before = bucket != null ? Stats.Clone() : null;
             int heal = effect.ApplyTo(Stats);
