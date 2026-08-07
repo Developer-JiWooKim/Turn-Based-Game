@@ -21,10 +21,20 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     /// </summary>
     public static class DamageCalculator
     {
-        /// <summary>DEF 감쇠 상수. 최종 데미지 = ATK × (K / (K + DEF)).</summary>
-        private const float DefenseConstant = 100f;
+        /// <summary>
+        /// DEF 감쇠 상수. 최종 데미지 = ATK × (K / (K + DEF)).
+        ///
+        /// ⚠️ <b>스탯 스케일과 함께 움직여야 하는 값이다.</b> K는 "피해가 절반으로 줄어드는 DEF 값"이라
+        /// 스탯만 10배 하고 이 값을 두면 방어력이 10배 세져 모두가 탱커가 된다
+        /// (DEF 20에서 통과율 83% → DEF 200에서 33%). 2026-08 전체 스탯 10배 리스케일에 맞춰 100 → 1000.
+        /// </summary>
+        private const float DefenseConstant = 1000f;
 
-        /// <summary>모든 유효 타격의 최소 데미지(0 방지).</summary>
+        /// <summary>
+        /// 모든 유효 타격의 최소 데미지(0 방지).
+        /// 스탯 스케일이 커질수록 이 바닥이 실제 계산에 개입하는 빈도가 줄어드는 것이 정상이다 —
+        /// 10배 리스케일 후에도 1로 두는 이유이며, 같이 올리면 오히려 초저데미지 구간을 다시 왜곡한다.
+        /// </summary>
         private const int MinimumDamage = 1;
 
         /// <summary>

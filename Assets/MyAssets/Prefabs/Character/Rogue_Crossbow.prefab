@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 498391863296127187}
   m_Layer: 0
-  m_Name: ShotPoint
+  m_Name: MuzzlePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,6 +81,22 @@ MonoBehaviour:
   _unitHealthBar: {fileID: 399213739216701896}
   _sfx: {fileID: 11400000, guid: bec49bca968b11d4196f8a22649a57d1, type: 2}
   _popupHeight: 3
+  _hitEffectHeight: 1.2
+  _approachTarget: 0
+  _approachDistance: 1.5
+  _approachDuration: 0.25
+  _approachJumpHeight: 0.8
+  _turnDuration: 0.15
+  _projectile: {fileID: 8279534137011481278, guid: 6593b77f7aab353499675157480d8efa, type: 3}
+  _muzzleFlash: {fileID: 7917120168021017062, guid: 9b50124b9c21e814892aee9419ee1c29, type: 3}
+  _hitEffect: {fileID: 7917120168021017062, guid: 079de72b89b92fc45920409aa3f61598, type: 3}
+  _muzzlePoint: {fileID: 498391863296127187}
+  _skillProjectile: {fileID: 0}
+  _skillMuzzleFlash: {fileID: 0}
+  _skillHitEffect: {fileID: 0}
+  _skillFallsOnTarget: 0
+  _skillFallHeight: 5
+  _skillMovesToCenter: 0
 --- !u!1001 &5462780633866409559
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -219,6 +235,7 @@ MonoBehaviour:
   _skillDuration: 0
   _hitDuration: 0.867
   _dieDuration: 2.633
+  _useImpactEvent: 1
 --- !u!4 &5495811523349639612 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 88b56db83028ee843aa4dd95306d9257, type: 3}

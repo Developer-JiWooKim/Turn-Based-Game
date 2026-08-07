@@ -20,7 +20,7 @@ MonoBehaviour:
   _atkFlat: 0
   _spdFlat: 0
   _defFlat: 0
-  _healFlat: 100
+  _healFlat: 1000
   _resFlat: 0
   _critRateFlat: 0
   _critDmgFlat: 0

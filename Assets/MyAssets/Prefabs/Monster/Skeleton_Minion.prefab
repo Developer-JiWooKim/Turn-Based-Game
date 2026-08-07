@@ -51,6 +51,22 @@ MonoBehaviour:
   _unitHealthBar: {fileID: 7512739240663964553}
   _sfx: {fileID: 11400000, guid: 95f216b303920674e9b07d885e054ef4, type: 2}
   _popupHeight: 3
+  _hitEffectHeight: 1.2
+  _approachTarget: 1
+  _approachDistance: 1.5
+  _approachDuration: 0.25
+  _approachJumpHeight: 0.8
+  _turnDuration: 0.15
+  _projectile: {fileID: 1349770773815262494, guid: 469bcc0c68b19764388994d3f0b7f301, type: 3}
+  _muzzleFlash: {fileID: 0}
+  _hitEffect: {fileID: 0}
+  _muzzlePoint: {fileID: 2370991350137689168}
+  _skillProjectile: {fileID: 0}
+  _skillMuzzleFlash: {fileID: 0}
+  _skillHitEffect: {fileID: 0}
+  _skillFallsOnTarget: 0
+  _skillFallHeight: 5
+  _skillMovesToCenter: 0
 --- !u!135 &6761007285259004475
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -72,6 +88,37 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1.1
   m_Center: {x: 0, y: 1.1, z: 0}
+--- !u!1 &5133752307297912777
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2370991350137689168}
+  m_Layer: 3
+  m_Name: MuzzlePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2370991350137689168
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5133752307297912777}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.157, y: 0.754, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7710541405012793963}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &960026819976013579
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -550,6 +597,7 @@ MonoBehaviour:
   _skillDuration: 0
   _hitDuration: 0.867
   _dieDuration: 2
+  _useImpactEvent: 1
 --- !u!4 &8136691435125493846 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -5515783359193845756, guid: 547713320007b8546be662d94e3397a7, type: 3}
@@ -617,7 +665,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: ea51bc67bb14504468672ed31bf1d023, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2370991350137689168}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ea51bc67bb14504468672ed31bf1d023, type: 3}
 --- !u!4 &7710541405012793963 stripped

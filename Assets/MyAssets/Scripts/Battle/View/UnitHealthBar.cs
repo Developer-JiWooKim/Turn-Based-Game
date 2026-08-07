@@ -109,12 +109,20 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             if (hasStatuses)
             {
+                // 상태이상은 개수와 무관하게 "한 줄"에 나열한다.
+                // 과거엔 항목마다 줄을 나눴는데(ASCII 약어 시절엔 폭이 넓어 뒤가 잘렸다) 표기가 아이콘으로 바뀌어
+                // 항목 하나가 훨씬 좁아졌고, 무엇보다 줄이 늘면 글자 블록이 아래로 자라 체력바를 덮는 문제가 있었다.
+                // 종류가 5개뿐이라 전부 걸려도 가로 폭에 들어간다(넘치면 TMP가 알아서 다음 줄로 접는다).
+                if (_statusBuilder.Length > 0)
+                {
+                    _statusBuilder.Append('\n');
+                }
+
                 for (int i = 0; i < statuses.Count; i++)
                 {
-                    // 한 줄에 나열하면 폭이 좁은 월드스페이스 텍스트에서 뒤쪽이 잘려 안 보인다 — 항목마다 줄을 나눈다.
-                    if (_statusBuilder.Length > 0)
+                    if (i > 0)
                     {
-                        _statusBuilder.Append('\n');
+                        _statusBuilder.Append(EntrySeparator);
                     }
 
                     _statusBuilder.Append(Label(statuses[i].Kind)).Append(' ').Append(statuses[i].RemainingTurns);
@@ -129,6 +137,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>아이콘 크기(폰트 크기 대비)와 기준선 보정. 작아 보이거나 텍스트와 높이가 안 맞으면 이 둘만 조정.</summary>
         private const string IconSize = "160%";
         private const string IconVOffset = "0.12em";
+
+        /// <summary>
+        /// 같은 줄에 여러 항목을 나열할 때의 간격.
+        /// 상태이상 목록과 스폰 디버프 라벨(<see cref="MonsterSpawner.DescribeDebuff"/>)이 같이 쓴다 —
+        /// <see cref="IconTag"/>와 같은 이유로, 두 표기의 간격이 어긋나지 않게 한곳에 둔다.
+        /// </summary>
+        public const string EntrySeparator = "   ";
 
         /// <summary>
         /// TMP 인라인 스프라이트 태그를 만든다 — 이름은 상태이상 표기(`_statusText`)에 지정된

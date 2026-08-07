@@ -20,7 +20,7 @@ MonoBehaviour:
     Crit Dmg +0.4'
   _category: 3
   _icon: {fileID: 21300000, guid: 44c24dad40b7f8c438b86371e0f751c2, type: 3}
-  _hpFlat: 5
+  _hpFlat: 50
   _atkFlat: 0
   _spdFlat: 0
   _defFlat: 0

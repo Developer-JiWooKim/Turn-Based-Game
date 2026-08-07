@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.MonsterStatsSO
   _displayName: Skeleton Warrior
   _prefab: {fileID: 8524646091852153869, guid: 2bf7cbd5cb5e12f4dbd88b4f3b9f0ed9, type: 3}
-  _maxHp: 150
-  _atk: 23
-  _spd: 10
-  _def: 20
+  _maxHp: 1500
+  _atk: 230
+  _spd: 100
+  _def: 200
   _critRate: 0.1
   _critDmg: 3
   _res: 0.3

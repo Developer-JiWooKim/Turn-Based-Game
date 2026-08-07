@@ -51,6 +51,22 @@ MonoBehaviour:
   _unitHealthBar: {fileID: 7397750717353391770}
   _sfx: {fileID: 11400000, guid: ee107a40d78240e48a09d7d238fb3318, type: 2}
   _popupHeight: 3
+  _hitEffectHeight: 1.2
+  _approachTarget: 0
+  _approachDistance: 1.5
+  _approachDuration: 0.25
+  _approachJumpHeight: 0.8
+  _turnDuration: 0.15
+  _projectile: {fileID: 3804598909023672672, guid: 6b78af83ad3cba343bd32c927fb29a9b, type: 3}
+  _muzzleFlash: {fileID: 7917120168021017062, guid: 85859c19852f64d43b1f296d4a7fca03, type: 3}
+  _hitEffect: {fileID: 3039980818029749698, guid: 083c17ed86759cc4487ffa6ca1c4eb1a, type: 3}
+  _muzzlePoint: {fileID: 2349139422806537363}
+  _skillProjectile: {fileID: 7300938123587259680, guid: 8ee144fa352342747b2c2588f0d5df2d, type: 3}
+  _skillMuzzleFlash: {fileID: 7917120168021017062, guid: 6fbdf26e67b789145bf3bb29d1e42142, type: 3}
+  _skillHitEffect: {fileID: 7917120168021017062, guid: 4b780a14d074f2f4cb9b853b6644dce1, type: 3}
+  _skillFallsOnTarget: 0
+  _skillFallHeight: 5
+  _skillMovesToCenter: 0
 --- !u!135 &1679773765809390236
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -72,6 +88,37 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1.2
   m_Center: {x: 0, y: 1.2, z: 0}
+--- !u!1 &5913842360090992473
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2349139422806537363}
+  m_Layer: 3
+  m_Name: MuzzlePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2349139422806537363
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5913842360090992473}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.0097, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6606837713218077316}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &268589604369599000
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -259,7 +306,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8b09546349e9cbb4cb214b8587526ae3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2349139422806537363}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8b09546349e9cbb4cb214b8587526ae3, type: 3}
 --- !u!4 &6606837713218077316 stripped
@@ -833,6 +883,7 @@ MonoBehaviour:
   _skillDuration: 1.067
   _hitDuration: 0.867
   _dieDuration: 2
+  _useImpactEvent: 1
 --- !u!4 &6548850880166667229 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2e0a992285622f041960e08967c11f0a, type: 3}

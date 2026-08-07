@@ -50,6 +50,48 @@ MonoBehaviour:
   _unitHealthBar: {fileID: 2281449201027252614}
   _sfx: {fileID: 11400000, guid: 623d996403f7b634c9402c188538356b, type: 2}
   _popupHeight: 3
+  _hitEffectHeight: 1.2
+  _approachTarget: 0
+  _approachDistance: 1.5
+  _approachDuration: 0.25
+  _approachJumpHeight: 0.8
+  _turnDuration: 0.15
+  _castEffect: {fileID: 0}
+  _projectile: {fileID: 3804598909023672672, guid: 56a31e3fb12a7da4cb69ab4dfcc420ac, type: 3}
+  _muzzleFlash: {fileID: 7917120168021017062, guid: 8bc41e1472c45464980c8feeed5f1649, type: 3}
+  _hitEffect: {fileID: 3039980818029749698, guid: 7d3425a96b729534e9e11b2591f8fd20, type: 3}
+  _muzzlePoint: {fileID: 2751411655445708950}
+--- !u!1 &4006363818228054018
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2751411655445708950}
+  m_Layer: 0
+  m_Name: MuzzlePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2751411655445708950
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4006363818228054018}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.247, z: -0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 183834940462976152}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &362440380117199731
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -108,7 +150,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: bceedc3f1e172cd469879ae41c91db6a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2751411655445708950}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bceedc3f1e172cd469879ae41c91db6a, type: 3}
 --- !u!4 &183834940462976152 stripped
@@ -263,6 +308,7 @@ MonoBehaviour:
   _skillDuration: 0
   _hitDuration: 0.867
   _dieDuration: 2.6333
+  _useImpactEvent: 1
 --- !u!4 &3792808422714824560 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -5515783359193845756, guid: cac59e4e50f290845855f68c77674b6b, type: 3}
