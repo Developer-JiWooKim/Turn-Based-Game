@@ -151,6 +151,71 @@ namespace Assets.MyAssets.Scripts.Battle.View
             return slots;
         }
 
+        /// <summary>
+        /// 아군 진영 중앙과 적 진영 중앙의 <b>중간 지점</b>.
+        /// 전체 공격처럼 "무대 한가운데로 나와서" 시전하는 연출의 목적지로 쓴다.
+        ///
+        /// 기준은 살아 있는 유닛이 아니라 <b>배치 슬롯</b>이다 — 유닛 위치의 평균을 쓰면
+        /// 몬스터가 4마리인데 파티가 1명일 때 중심이 몬스터 쪽으로 쏠리고, 누가 죽을 때마다 자리가 달라진다.
+        /// 슬롯 기준이면 웨이브 구성·생존자 수와 무관하게 늘 같은 자리가 나온다.
+        /// 슬롯이 하나도 없는 진영은 계산에서 빠지고, 양쪽 다 없으면 레지스트리 위치를 돌려준다.
+        /// </summary>
+        public Vector3 GetBattlefieldCenter()
+        {
+            bool hasParty = TryGetSlotCenter(_playerSlots, out Vector3 party);
+            bool hasEnemies = TryGetSlotCenter(_enemySlots, out Vector3 enemies);
+
+            if (hasParty && hasEnemies)
+            {
+                return (party + enemies) * 0.5f;
+            }
+
+            if (hasParty)
+            {
+                return party;
+            }
+
+            return hasEnemies ? enemies : transform.position;
+        }
+
+        /// <summary>
+        /// 슬롯 배열의 <b>첫 칸과 마지막 칸의 중간점</b>(비어 있는 칸은 건너뛴다).
+        /// 전체 평균이 아니라 양 끝을 쓰는 이유 — 슬롯 간격이 고르지 않아도 줄의 한가운데가 나온다.
+        /// </summary>
+        private static bool TryGetSlotCenter(Transform[] slots, out Vector3 center)
+        {
+            center = Vector3.zero;
+            if (slots == null)
+            {
+                return false;
+            }
+
+            Transform first = null;
+            Transform last = null;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (slots[i] == null)
+                {
+                    continue;
+                }
+
+                if (first == null)
+                {
+                    first = slots[i];
+                }
+
+                last = slots[i];
+            }
+
+            if (first == null)
+            {
+                return false;
+            }
+
+            center = (first.position + last.position) * 0.5f;
+            return true;
+        }
+
         /// <summary>추방된 파티원의 View를 치우고 슬롯을 비운다.</summary>
         public void RemoveMember(RunMember member)
         {

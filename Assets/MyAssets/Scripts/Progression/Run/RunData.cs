@@ -14,12 +14,12 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         public readonly CharacterStatsSO Source;
         /// <summary>파티에 살아 있는 해당 캐릭터 수. 발동 판정에만 쓰고 화면에는 찍지 않는다.</summary>
         public readonly int Count;
-        public readonly RoguelikeEffect Effect;
+        public readonly SynergyBonus Effect;
 
         /// <summary>지금 실제로 효과가 적용 중인지. 별도 필드로 저장하지 않고 파생시켜 값이 어긋날 여지를 없앤다.</summary>
         public bool IsActive => Source != null && Count >= Source.SynergyThreshold;
 
-        public PartySynergy(CharacterStatsSO source, int count, in RoguelikeEffect effect)
+        public PartySynergy(CharacterStatsSO source, int count, in SynergyBonus effect)
         {
             Source = source;
             Count = count;

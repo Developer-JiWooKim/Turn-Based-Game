@@ -2,6 +2,7 @@
 
 이 문서는 앞으로 해야 할 작업을 정리한 목록입니다.
 게임 기획은 `README.md`, 코드 작업 규칙·현재 코드 상태는 `CLAUDE.md`를 참고하세요.
+**적용된 계산식과 밸런싱 기준은 `SystemFormulaBalance.md`에 따로 정리돼 있습니다.**
 UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 별도 문서 없이 `CLAUDE.md`의 InputManager 항목에 통합돼 있음).
 
 > 우선순위 표기: 🔴 높음(핵심 재미·구조) / 🟡 중간 / 🟢 낮음(폴리시·후순위)
@@ -32,18 +33,23 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 - **상태이상 + 몬스터 스킬 에셋**: `SkillSO` 3종 생성·연결 완료(Mage=DefDown / Rogue=Poison / Warrior=Line+Stun) — Elite/Boss가 실제로 스킬과 상태이상을 사용한다
 - **파티 시너지 수치**: 캐릭터 6종 전부 설정 완료(Knight=DEF+RES, Barbarian=ATK, Mage=CritDmg, Ranger=SPD+RES, Rogue_Dagger=CritRate, Rogue_Crossbow=ATK+SPD)
 - **배틀 정보 UI 3종(2026-08)**: 하단 파티 스탯 표기 + 좌상단 시너지 패널 + 화면 배치 인덱스(`A1`/`E2`) — 아래 3-6 참고
-- **데미지 숫자 팝업(2026-08)**: 일반/크리티컬/도트 3종 — 아래 4-1 참고
+- **전투 연출 일괄(2026-08-06)**: 타격 순간 시퀀스(애니메이션 이벤트 → 파티클·피격·숫자·히트스톱) + 근접 이동/회전 + 원거리 투사체 + 스킬별 연출 분기(메이지=머리 위 낙하 / 워리어=중앙 이동). 유닛 10종 프리팹 배정과 씬 배선까지 완료 — 아래 4-1 참고
+- **스탯 10배 리스케일 + 시너지 비율화(2026-08-06)**: 반올림 해상도 확보와 후반 시너지 유효성 확보. `DefenseConstant`도 함께 이동 — 아래 밸런싱 항목 참고
+- **공식 문서화**: 적용된 계산식 14종을 `SystemFormulaBalance.md`에 정리(입력·출력·예시·상한/하한·조심할 점)
 - **코드 컨벤션 일괄 정리(2026-08, 커밋 `1da61a4`·`15400cd`)**: 한 줄짜리 `if`/`for`도 전부 중괄호로 감싸도록 코드베이스 전체를 통일. 앞으로 작성하는 코드도 이 규칙을 따른다(`CLAUDE.md` 작업 원칙 7)
 
 ---
 
 ## 🔴 1순위 — 핵심 시스템 완성
 
-### 1-1. 보스/엘리트 스킬 실체화  (상태: 부분구현 — 이펙트만 남음)
+### 1-1. 보스/엘리트 스킬 실체화  (상태: ✅ 완료 — 2026-08-06 이펙트까지)
 - 설계: **Elite=단일 대상 스킬, Boss=전체(라인) 대상 스킬**, Normal은 스킬 없음(2026-07-23 확정)
 - ✅ 스킬 전용 애니 클립 준비 및 연결 완료 — `Skill_SkeletonMage`/`Skill_SkeletonRogue`/`Skill_SkeletonWarrior`가 각 override 컨트롤러에 물려 있음(더 이상 Attack 클립 공유 아님)
 - ✅ `MonsterStatsSO` 세팅 완료 — `MinionSO`=Normal·스킬 없음, `MageSO`/`RogueSO`=Elite·단일 스킬, `WarriorSO`=Boss·전체 스킬
-- ⬜ **남은 것: 스킬 연출(단일/라인) 이펙트** — 외부 파티클 에셋 필요, 4-1과 같은 에셋으로 처리 가능
+- ✅ **스킬 이펙트 완료**: 세 몬스터 모두 `UnitView._skillProjectile` 배정. 연출도 종류별로 갈린다 —
+  - Skeleton_Mage: `_skillFallsOnTarget` ON → 번개가 대상 머리 위에서 떨어진다
+  - Skeleton_Warrior: `_skillMovesToCenter` ON → 전장 한가운데로 나가서 전체 공격
+  - Skeleton_Rogue: 평타와 같은 발사 방식에 스킬 전용 투사체만 교체
 - 참고: `SpawnWaveSO.IsBossWave`(보스 BGM·보스 웨이브 강제 판정)는 `Tier==Boss`만 보므로, Elite만으로 구성된 웨이브는 스킬을 써도 "보스 웨이브" 취급은 아니다(의도된 동작)
 
 ### 1-2. 상태이상 시스템  (상태: ✅ 완료 — 2026-08 아이콘 표기까지 끝)
@@ -175,11 +181,37 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
   - 스폰 위치는 `UnitView.HitEffectOrigin`(`_hitEffectHeight` 값 하나) — 팝업과 같이 앵커 오브젝트를 두지 않아 유닛 프리팹 계층을 건드리지 않는다
   - 도트 피해(`OnStatusTicked`)에는 붙이지 않았다 — 중독 피해에 물리 타격 스파클은 어울리지 않는다. 필요하면 전용 이펙트를 따로 둘 것
 
-**⬜ 남은 에디터 작업**
-1. BattleDirector 오브젝트에 `HitEffectSpawner`·`HitStop` 컴포넌트를 추가하고 `BattlePresenter`의 `_hitEffects`/`_hitStop` 슬롯에 연결 (둘 다 **선택 참조** — 비워두면 해당 연출만 빠지고 나머지는 정상 동작)
-2. 구해둔 스파클 프리팹을 `HitEffectSpawner`의 `_hitEffect`(+ 원하면 `_criticalEffect`)에 연결하고 `_scale`·`_positionOffset`으로 크기·위치 조정
-3. 유닛별 `UnitView._hitEffectHeight`를 키에 맞춰 조정(기본 1.2 = 몸통 높이)
-4. (점진적) 공격/스킬 클립에 `OnImpactFrame` 애니메이션 이벤트를 심고, 해당 유닛의 `UnitAnimator._useImpactEvent`를 켠다. 켜기 전까지는 기존 고정 지연으로 동작하므로 한 번에 다 하지 않아도 된다
+**✅ 에디터 세팅 완료 (2026-08-06)**
+- `HitEffectSpawner`·`HitStop` 씬 배치 + `BattlePresenter` 슬롯 연결 완료
+- **애니메이션 이벤트 전면 적용** — 유닛 10종 전부 `_useImpactEvent: 1`이고, 실제 재생되는 Attack/Skill 클립에 `OnImpactFrame`이 심겨 있다. 이제 타격 시점이 고정 지연이 아니라 클립 프레임에서 나온다(`_impactDelay 0.35`는 폴백으로만 남음)
+- 유일한 예외는 `Skill_SkeletonMinion.anim`(이벤트 없음) — Minion은 `Tier=Normal`이라 스킬 자체가 없어 재생되지 않으므로 무해하다
+
+#### 4-1-c. 공격 시 대상 바라보기 + 근접 이동 연출  (✅ 코드 완료 — 2026-08-06 / 조정 남음)
+- 공격 전 대상을 향하고 공격 후 제자리로 되돌아온다. **근접·원거리 차이는 `UnitView`가 흡수**하므로 `BattlePresenter`는 구분하지 않는다(`FaceTargetAsync` → 공격 → `RestorePoseAsync`)
+  - 근접(`_approachTarget` ON — 바바리안·기사·도적(대거)·스켈레톤 미니언): 대상 앞까지 점프 이동 + 회전
+  - 원거리(OFF — 메이지·레인저·석궁·스켈레톤 메이지/로그/워리어): 제자리 회전만(`_turnDuration` 0.15초)
+  - 공격하는 동안 자기 체력바를 숨긴다(양쪽 공통) — 게이지가 공격 연출 위로 겹치지 않게
+  - ⚠️ 복귀 판정은 근접 토글이 아니라 **`_isDisplaced`(실제로 자리를 떠났는지)**로 한다 — 근접이 아닌 워리어도 전체 공격 연출로 중앙까지 나가기 때문
+- **점프 클립 없이 트랜스폼 포물선**으로 구현했다 — 애니메이터에 점프 상태가 없기 때문. 이동 중에는 Idle 포즈로 미끄러지듯 날아간다
+- 각도 차 5도 미만이면 회전을 건너뛴다 — 정면 대상까지 매번 왕복 회전을 기다리면 페이싱만 쓰게 된다
+- ⬜ **인스펙터 조정 필요**: `_approachDistance`(1.5) 모델이 겹치지 않는지, `_approachJumpHeight`(0.8) 궤적이 자연스러운지, `_approachDuration`(0.25) 페이싱이 늘어지지 않는지
+- ⬜ **선택**: 점프/이동 클립을 만들어 애니메이터에 추가하면 `MoveAsync`에서 트리거만 같이 재생하면 된다. 지금도 동작하므로 급하지 않다
+- ✅ **회전**: 갈 때 대상 쪽, 올 때 원래 회전으로 `Slerp` 보간(이동과 같은 구간). 착지 후 스냅이 없다
+- ✅ **체력바**: 이동하는 동안 숨기고 복귀 후 다시 켠다(대상 위에 겹쳐 떠다니지 않도록). 취소로 끊겨도 `SnapHome`이 되살린다
+- 참고: 왕복이 연출 대기에 포함돼 **공격 1회당 0.5초**가 페이싱에 더해진다. 늘어지면 `_approachDuration`부터 줄일 것
+
+#### 4-1-d. 투사체 + 스킬별 연출 분기  (✅ 완료 — 2026-08-06, 프리팹 배정까지)
+- `ProjectileSpawner`(신규) — 발사 → 비행 → 도착. **도착을 기다린 뒤에** 피격 연출이 나간다(화살이 닿기 전에 숫자가 뜨지 않도록)
+- 타격 시점의 의미가 원거리에게는 **"명중"이 아니라 "발사"**다. 비행 시간(거리÷속도, 상한 있음)이 그 사이에 들어간다
+- 이펙트 3종(`_projectile`/`_muzzleFlash`/`_hitEffect`)은 **유닛별**이고, `_skill*` 3종을 채우면 스킬에만 쓰인다(비우면 평타 것 재사용)
+- 에셋: `Assets/MasterStylizedProjectiles/Projectiles/` 24종, 각 폴더에 `*Bullet`/`*Hit`/`*Muzzle` 3종. 루트에 `ParticleSystem`이 있고 이동 스크립트가 없어 그대로 쓸 수 있다
+- **씬 배선 완료**: `ProjectileSpawner` 배치 + `BattlePresenter._projectiles` 연결
+- **프리팹 배정 완료**: 유닛 10종 전부 `_projectile`·`_muzzlePoint` 배정. 근접 4종(Barbarian/Knight/Rogue_Dagger/Skeleton_Minion)도 투사체를 쓰는데, 대상 앞으로 점프한 뒤 짧게 날아가므로 참격 계열 이펙트로 기능한다
+
+**⬜ 남은 자잘한 것**
+- `_hitEffect`가 비어 있는 유닛 3종(Knight / Rogue_Dagger / Skeleton_Minion) — `HitEffectSpawner`의 전역 기본값으로 떨어지므로 동작은 정상이다. 무기별 타격감을 주려면 채울 것
+- `_muzzleFlash`는 근접 4종에 비어 있다(총구가 없는 무기라 자연스러움 — 필요 없으면 그대로 둘 것)
+- 페이싱 조정: `ProjectileSpawner._speed`(18) / `_arcHeight`(0이면 직선, 올리면 곡사) / `_muzzleLeadSeconds`(0.05)
 
 #### 4-1-b. 체력바 감소 애니메이션  (⬜ 신규 — 2026-08-06)
 - 현재 `UnitHealthBar`가 `_fill.fillAmount`를 즉시 대입해 게이지가 뚝 끊긴다. 목표 값까지 부드럽게 줄어드는 연출 추가
@@ -214,6 +246,36 @@ UI 비주얼 규칙은 `UI_DesignReference.md`에 있습니다(입력 구조는 
 ## ⚖️ 밸런싱 (TBD — 별도 패스)
 
 기획·구현과 분리해 수치만 조정하는 단계. 전부 SO 데이터로 관리 중이라 코드 수정 없이 조정 가능.
+
+> **2026-08-06 스탯 10배 리스케일 + 시너지 비율화 + 시너지 1차 조정 완료.** 자세한 규칙은 `CLAUDE.md`의 "스탯 스케일"·"파티 시너지" 항목 참고.
+> - **10배 리스케일은 양측을 함께 올렸으므로 상대 밸런스를 바꾸지 않았다**(`DefenseConstant`도 같이 올림). 몬스터를 여기에 맞춰 올릴 이유가 없다 — 올리면 리스케일 전보다 어려워진다
+> - 실질 강화는 **시너지 비율화뿐**이며, 그것도 같은 캐릭터를 2명 이상 모은 파티에만 적용된다. 그래서 전역인 몬스터 성장률이 아니라 시너지 수치로 조정했다
+
+### ⚠️ 시너지 조정 시 반드시 볼 것 — 스탯마다 같은 %의 가치가 다르다
+
+| 스탯 | 실제 효과 | 조정 감각 |
+|---|---|---|
+| ATK | 피해량에 **선형** 반영 | +20% = 피해 +20% |
+| 치명타/치명피해 | 기대 피해 배율에 반영 | 현재 크리율에 따라 달라짐 |
+| DEF | `K/(K+DEF)` 감쇠라 **수익 급감** | DEF 150→300(+100%)이 받는 피해 −11.5%뿐 |
+| SPD | 모든 유닛이 턴당 1회 행동 → **순서만** 바뀜 | 전투력 환산 가치가 가장 낮음 |
+
+비율 필드는 `Range(0, 2)`라 DEF처럼 큰 값이 필요한 스탯도 표현할 수 있다.
+
+**1차 조정 결과(효과 기준 +15~18% 대로 정렬):**
+
+| 캐릭터 | 값 | 실제 효과 |
+|---|---|---|
+| Barbarian | ATK +18% | 피해 +18% |
+| Rogue_Dagger | 치명타 +20%p | 피해 +17% |
+| Mage | 치명피해 +90%p | 피해 +17% |
+| Knight | DEF +100%, RES +15%p | 받는 피해 −11.5% (실효 HP +13%) + 저항 |
+| Rogue_Crossbow | ATK +12%, SPD +20% | 피해 +12% + 선공 |
+| Ranger | SPD +50%, RES +15%p | 선공 + 저항 (유틸리티 성격) |
+
+- 조정 전에는 최상(Barbarian 피해 +30%)과 최하(Ranger 사실상 0)가 3배 넘게 벌어져 있었다. 표시값만 보면 Knight(+53%)·Ranger(+50%)가 과해 보였지만 **실제로 과했던 건 Barbarian**이다
+- Ranger는 수치로 환산되지 않는 유틸리티 성격이라 정렬이 어렵다 — 플레이해보고 약하면 RES를 더 올리는 게 자연스럽다
+
 - 캐릭터/몬스터 세부 스탯 (`CharacterStatsSO`/`MonsterStatsSO`)
 - 로그라이크 선택지 수치 및 **카테고리별 등장 가중치** (`RoguelikeChoiceSO`)
 - 데미지 공식 상수 (`DamageCalculator.DefenseConstant` 등)

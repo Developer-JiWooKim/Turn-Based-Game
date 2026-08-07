@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.MonsterStatsSO
   _displayName: Skeleton Rogue
   _prefab: {fileID: 433056104178104984, guid: 8ec7ba8b736920e488324b366825d77c, type: 3}
-  _maxHp: 80
-  _atk: 17
-  _spd: 13
-  _def: 5
+  _maxHp: 800
+  _atk: 170
+  _spd: 130
+  _def: 50
   _critRate: 0.3
   _critDmg: 2
   _res: 0.1

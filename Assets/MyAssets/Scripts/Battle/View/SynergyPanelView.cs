@@ -131,42 +131,45 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// 실제 효과 값에서 생성한다.
         ///
         /// 아래 6개 분기는 <c>CharacterStatsSO.CreateSynergy</c>가 채우는 6개 필드와 1:1이다.
-        /// <c>HpFlat</c>·<c>HealFlat</c>에 분기가 없는 건 빠뜨린 게 아니라 시너지가 그 둘을 항상 0으로 두기 때문 —
-        /// 조건이 깨지면 되돌려야 하는 효과라 최대 HP·회복은 시너지 대상에서 제외돼 있다.
+        /// 최대 HP·회복에 분기가 없는 건 빠뜨린 게 아니라 시너지 대상이 아니기 때문 —
+        /// 조건이 깨지면 되돌려야 하는 효과라 제외돼 있다(<see cref="SynergyBonus"/> 참고).
         /// ⚠️ 시너지 필드가 늘면 여기도 같이 늘려야 한다(다른 어셈블리라 컴파일러가 잡아주지 않는다).
+        ///
+        /// ATK/SPD/DEF는 비율이라 그대로 %로 찍고, 치명타·치명피해·저항은 가산치라 <c>%p</c>로 구분해 적는다 —
+        /// 같은 "+10%"로 보이면 15%가 16.5%가 되는 건지 25%가 되는 건지 플레이어가 알 수 없다.
         /// </summary>
-        private static string DescribeEffect(in RoguelikeEffect e)
+        private static string DescribeEffect(in SynergyBonus e)
         {
             var parts = new List<string>();
 
-            if (e.AtkFlat != 0)
+            if (e.AtkRate != 0f)
             {
-                parts.Add($"ATK +{e.AtkFlat}");
+                parts.Add($"ATK +{e.AtkRate * 100f:0}%");
             }
 
-            if (e.SpdFlat != 0)
+            if (e.SpdRate != 0f)
             {
-                parts.Add($"SPD +{e.SpdFlat}");
+                parts.Add($"SPD +{e.SpdRate * 100f:0}%");
             }
 
-            if (e.DefFlat != 0)
+            if (e.DefRate != 0f)
             {
-                parts.Add($"DEF +{e.DefFlat}");
+                parts.Add($"DEF +{e.DefRate * 100f:0}%");
             }
 
-            if (e.CritRateFlat != 0f)
+            if (e.CritRate != 0f)
             {
-                parts.Add($"치명타 +{e.CritRateFlat * 100f:0}%");
+                parts.Add($"치명타 +{e.CritRate * 100f:0}%p");
             }
 
-            if (e.CritDmgFlat != 0f)
+            if (e.CritDmg != 0f)
             {
-                parts.Add($"치명피해 +{e.CritDmgFlat * 100f:0}%");
+                parts.Add($"치명피해 +{e.CritDmg * 100f:0}%p");
             }
 
-            if (e.ResFlat != 0f)
+            if (e.Res != 0f)
             {
-                parts.Add($"저항 +{e.ResFlat * 100f:0}%");
+                parts.Add($"저항 +{e.Res * 100f:0}%p");
             }
 
             return string.Join(" · ", parts);

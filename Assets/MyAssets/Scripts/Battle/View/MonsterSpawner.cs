@@ -119,7 +119,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (modifiers.EnemyAtkMultiplier != 1f)
             {
                 string atk = $"{UnitHealthBar.IconTag("Debuff_AttackDown")} -{Mathf.RoundToInt((1f - modifiers.EnemyAtkMultiplier) * 100f)}%";
-                label = label == null ? atk : $"{label}\n{atk}";
+
+                // 줄을 나누지 않고 옆에 붙인다 — 줄이 늘면 글자 블록이 아래로 자라 체력바를 덮는다(SetStatuses 주석 참고).
+                label = label == null ? atk : $"{label}{UnitHealthBar.EntrySeparator}{atk}";
             }
 
             return label;

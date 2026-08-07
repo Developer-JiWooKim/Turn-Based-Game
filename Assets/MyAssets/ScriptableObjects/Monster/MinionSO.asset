@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.MonsterStatsSO
   _displayName: Skeleton Minion
   _prefab: {fileID: 1853872766813388552, guid: c6aa89b6eebcab34294ea414ef917f54, type: 3}
-  _maxHp: 50
-  _atk: 10
-  _spd: 7
-  _def: 8
+  _maxHp: 500
+  _atk: 100
+  _spd: 70
+  _def: 80
   _critRate: 0.1
   _critDmg: 1.5
   _res: 0

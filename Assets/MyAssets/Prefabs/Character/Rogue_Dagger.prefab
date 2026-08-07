@@ -50,6 +50,53 @@ MonoBehaviour:
   _unitHealthBar: {fileID: 1522642379746451315}
   _sfx: {fileID: 11400000, guid: af1ffc09c21a62846b1b24c7690da115, type: 2}
   _popupHeight: 3
+  _hitEffectHeight: 1.2
+  _approachTarget: 1
+  _approachDistance: 1.5
+  _approachDuration: 0.25
+  _approachJumpHeight: 0.8
+  _turnDuration: 0.15
+  _projectile: {fileID: 6919508843601783932, guid: 85f52a0919ec2a74b8599bb8493dd888, type: 3}
+  _muzzleFlash: {fileID: 0}
+  _hitEffect: {fileID: 0}
+  _muzzlePoint: {fileID: 5444616238906060129}
+  _skillProjectile: {fileID: 0}
+  _skillMuzzleFlash: {fileID: 0}
+  _skillHitEffect: {fileID: 0}
+  _skillFallsOnTarget: 0
+  _skillFallHeight: 5
+  _skillMovesToCenter: 0
+--- !u!1 &827426081222822078
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5444616238906060129}
+  m_Layer: 0
+  m_Name: MuzzlePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5444616238906060129
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 827426081222822078}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.00000047683716, y: 0.7071066, z: 0.707107, w: -0.0000007682113}
+  m_LocalPosition: {x: -0.218, y: 0.264, z: 1.235}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7453428179333146707}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &36120982256176
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -203,6 +250,9 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5500811601672728753, guid: f35ad663713535f4fb42d4e661249847, type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 5444616238906060129}
     - targetCorrespondingSourceObject: {fileID: 7214371169738337839, guid: f35ad663713535f4fb42d4e661249847, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6716000690771432355}
@@ -266,6 +316,7 @@ MonoBehaviour:
   _skillDuration: 0
   _hitDuration: 0.867
   _dieDuration: 2.633
+  _useImpactEvent: 1
 --- !u!4 &3221079841549352713 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f35ad663713535f4fb42d4e661249847, type: 3}
@@ -274,6 +325,11 @@ Transform:
 --- !u!4 &5703723349634954957 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7214371169738337839, guid: f35ad663713535f4fb42d4e661249847, type: 3}
+  m_PrefabInstance: {fileID: 3114567285243975906}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7453428179333146707 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5500811601672728753, guid: f35ad663713535f4fb42d4e661249847, type: 3}
   m_PrefabInstance: {fileID: 3114567285243975906}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6538873126796194888

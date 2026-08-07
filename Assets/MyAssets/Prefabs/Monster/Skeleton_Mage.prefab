@@ -51,6 +51,22 @@ MonoBehaviour:
   _unitHealthBar: {fileID: 2910642383794243410}
   _sfx: {fileID: 11400000, guid: 9bac64f2a25a819429a5b6375b67a8d0, type: 2}
   _popupHeight: 3
+  _hitEffectHeight: 1.2
+  _approachTarget: 0
+  _approachDistance: 1.5
+  _approachDuration: 0.25
+  _approachJumpHeight: 0.8
+  _turnDuration: 0.15
+  _projectile: {fileID: 3353930492869173016, guid: e2b635f69d498db438acfebe4d14f57b, type: 3}
+  _muzzleFlash: {fileID: 3555048423278318226, guid: 0001259a2d80bda44ae7afc7638da652, type: 3}
+  _hitEffect: {fileID: 3268661081165131906, guid: 82eb2380e8f93e64b9f170537430be84, type: 3}
+  _muzzlePoint: {fileID: 1319691353852358624}
+  _skillProjectile: {fileID: 7300938123587259680, guid: 174b164cad6fbdb4eb2769a452399510, type: 3}
+  _skillMuzzleFlash: {fileID: 0}
+  _skillHitEffect: {fileID: 5750003618440004882, guid: a73108d561dbdf34ba462e73e97ed541, type: 3}
+  _skillFallsOnTarget: 1
+  _skillFallHeight: 5
+  _skillMovesToCenter: 0
 --- !u!135 &193381492465792008
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -72,6 +88,37 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 1.2
   m_Center: {x: 0, y: 1.2, z: 0}
+--- !u!1 &8638532525693124050
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1319691353852358624}
+  m_Layer: 3
+  m_Name: MuzzlePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1319691353852358624
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8638532525693124050}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.308, y: 1.135, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 422454349434678149}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &168430352621243502
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -134,7 +181,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 47207fb5a5dfc8e4bbf838e06ad86256, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1319691353852358624}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 47207fb5a5dfc8e4bbf838e06ad86256, type: 3}
 --- !u!4 &422454349434678149 stripped
@@ -425,6 +475,7 @@ MonoBehaviour:
   _skillDuration: 2.1
   _hitDuration: 0.867
   _dieDuration: 2
+  _useImpactEvent: 1
 --- !u!4 &4188990087030859387 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: cd0dd89848dd99f4a8e0da9d7e5a9049, type: 3}

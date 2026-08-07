@@ -1150,6 +1150,56 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!1 &1216444923
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1216444925}
+  - component: {fileID: 1216444924}
+  m_Layer: 0
+  m_Name: ProjectileSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1216444924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1216444923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a76591deeac4294e893c9f0be1913f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.View::Assets.MyAssets.Scripts.Battle.View.ProjectileSpawner
+  _speed: 18
+  _arcHeight: 0
+  _maxFlightSeconds: 1.5
+  _lingerSeconds: 0.5
+  _muzzleSeconds: 0.6
+  _muzzleLeadSeconds: 0.05
+--- !u!4 &1216444925
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1216444923}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1846023251}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1221640479
 GameObject:
   m_ObjectHideFlags: 0
@@ -1471,6 +1521,7 @@ MonoBehaviour:
   _damagePopups: {fileID: 413219660}
   _hitEffects: {fileID: 2036083245}
   _hitStop: {fileID: 622993423}
+  _projectiles: {fileID: 1216444924}
   _impactDelay: 0.35
   _activeLayerName: ActiveUnit
 --- !u!1 &1790049741
@@ -1654,6 +1705,7 @@ Transform:
   - {fileID: 413219661}
   - {fileID: 2036083246}
   - {fileID: 622993424}
+  - {fileID: 1216444925}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1880058005
@@ -1686,9 +1738,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.View::Assets.MyAssets.Scripts.Battle.View.BattleRunFlow
   _testParty:
-  - {fileID: 11400000, guid: 24f0c13aeaa7a634296ecd746dc0014f, type: 2}
-  - {fileID: 11400000, guid: 85840ed0ebc567042a15e3fb877518ef, type: 2}
-  - {fileID: 11400000, guid: f4a97011575ba244b841899ca03c7599, type: 2}
+  - {fileID: 11400000, guid: 29986ac0b07afc046a96f578f6e7c68f, type: 2}
   _resultPanel: {fileID: 664465934}
 --- !u!4 &1880058007
 Transform:
@@ -1899,11 +1949,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.View::Assets.MyAssets.Scripts.Battle.View.HitEffectSpawner
   _hitEffect: {fileID: 5792538761455162114, guid: 95bdfe76d689cb04f88b77c50b481ed7, type: 3}
-  _criticalEffect: {fileID: 8546080027017905979, guid: 36a844a42a108fc42b62028857285e0e, type: 3}
-  _scale: 1
+  _criticalEffect: {fileID: 6927888912574776446, guid: bf9186c50d129c74ead17a9e4c64287e, type: 3}
+  _scale: 1.3
+  _cameraOffset: 1.1
   _positionOffset: {x: 0, y: 0, z: 0}
   _lifetime: 0
-  _criticalScaleMultiplier: 1.4
+  _criticalScaleMultiplier: 1.5
 --- !u!4 &2036083246
 Transform:
   m_ObjectHideFlags: 0

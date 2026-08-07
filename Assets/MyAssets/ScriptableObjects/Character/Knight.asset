@@ -15,17 +15,17 @@ MonoBehaviour:
   _displayName: Knight
   _prefab: {fileID: 2085239762575628085, guid: 181537248ce65a04e8869ca8e3d60879, type: 3}
   _icon: {fileID: 21300000, guid: 2d2905b28a7d2b540bc01ec66fc5d290, type: 3}
-  _maxHp: 100
-  _atk: 20
-  _spd: 10
-  _def: 15
+  _maxHp: 1000
+  _atk: 200
+  _spd: 100
+  _def: 150
   _critRate: 0.25
   _critDmg: 1.5
   _res: 0.2
   _synergyThreshold: 2
-  _synergyAtk: 0
-  _synergySpd: 0
-  _synergyDef: 8
+  _synergyAtkRate: 0
+  _synergySpdRate: 0
+  _synergyDefRate: 1
   _synergyCritRate: 0
   _synergyCritDmg: 0
-  _synergyRes: 0.1
+  _synergyRes: 0.15
