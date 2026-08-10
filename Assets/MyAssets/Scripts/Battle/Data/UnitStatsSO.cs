@@ -1,4 +1,5 @@
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Localization;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.Data
@@ -24,7 +25,13 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         [Tooltip("저항 배율")]
         [Range(0f, 1f)][SerializeField] private float _res = 0f;
 
-        public string DisplayName => _displayName;
+        /// <summary>
+        /// 화면 표시 이름. 에셋에 적힌 값이 곧 문자열 표의 키이므로,
+        /// 표에 행이 없으면 에셋의 원문이 그대로 나온다(<see cref="Loc.Get"/>).
+        /// 덕분에 번역을 얹어도 에셋을 고칠 필요가 없다.
+        /// </summary>
+        public string DisplayName => Loc.Get(_displayName);
+
         public GameObject Prefab => _prefab;
         public Sprite Icon => _icon;
 

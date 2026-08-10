@@ -175,6 +175,42 @@
     align-items: center;
 }
 
+/*
+  옵션 팝업만 2열이라 더 넓다. .popup-frame을 직접 키우지 않는 이유는
+  성향 포인트 팝업이 같은 클래스를 쓰기 때문이다.
+  ⚠️ 같은 특정도(클래스 1개)라 .popup-frame보다 "아래"에 있어야 너비가 이긴다 — 순서를 바꾸지 말 것.
+*/
+.option-frame {
+    width: 1120px;
+    padding: 40px;
+}
+
+.option-columns {
+    flex-direction: row;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.option-column {
+    flex-grow: 1;
+    flex-basis: 0;
+    align-items: center;
+}
+
+.option-column--left {
+    margin-right: 44px;
+}
+
+/*
+  키 설정 열만 살짝 오른쪽으로 민다. margin/padding이 아니라 translate를 쓰는 이유는
+  두 열이 flex-basis: 0으로 폭을 나눠 갖기 때문이다 — 여백을 주면 열 폭까지 함께 줄어
+  실제 이동량이 준 값의 절반이 된다. translate는 레이아웃을 건드리지 않아 값 그대로 움직인다.
+  프레임 오른쪽 padding(40px) 안에서만 늘릴 것 — 넘기면 키 버튼이 프레임에 붙는다.
+*/
+.option-column--right {
+    translate: 24px 0;
+}
+
 .popup-title {
     font-size: 36px;
     color: var(--color-cream);
@@ -191,48 +227,114 @@
 /* 옵션 볼륨 슬라이더 */
 .option-slider {
     width: 100%;
-    margin-top: 6px;
-    margin-bottom: 18px;
+    margin-top: 8px;
+    margin-bottom: 22px;
 }
 
 .option-slider .unity-base-field__label {
     color: var(--color-cream);
     font-size: 22px;
-    min-width: 120px;
+    min-width: 130px;
     -unity-font-style: bold;
 }
 
-/* 키 설정 섹션 */
+/* 화면 모드·언어처럼 "여럿 중 하나"를 고르는 버튼 줄 */
+/* flex-wrap: 언어를 바꿔 글자가 길어져도 버튼이 서로를 밀어내지 않고 아래로 접힌다 */
+.option-toggle-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/*
+  .btn의 기본 여백(padding 14px 40px, font 32px)은 한 열에 두 개를 넣기엔 너무 크다.
+  flex-basis: 0으로 두어 글자 길이가 달라도 두 버튼이 같은 폭이 되게 한다.
+
+  ⚠️ min-width가 반드시 필요하다 — Yoga는 CSS의 `min-width: auto`(내용보다 작아지지 않음)를
+  적용하지 않아서, 이게 없으면 flex가 버튼을 글자보다 좁게 줄여 텍스트가 버튼 밖으로 삐져나온다
+  (영어의 "Windowed 1280x720"이 한국어보다 길어 실제로 겪은 증상).
+*/
+.option-toggle {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 210px;
+    font-size: 20px;
+    padding: 12px 16px;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+/* 열 안에 들어가는 보조 버튼(키 초기화) — 닫기 버튼보다 작게 */
+.option-inline-button {
+    font-size: 22px;
+    padding: 12px 32px;
+    margin-top: 8px;
+}
+
+/* 선택된 항목. .btn의 기본 상태보다 뒤에 오므로 색이 이긴다 */
+.option-toggle--active {
+    background-color: var(--color-cyan-light);
+    color: var(--color-abyss);
+    -unity-font-style: bold;
+}
+
+/*
+  선택된 항목 위에 마우스를 올려도 선택 색을 유지한다.
+  .btn-secondary:hover와 특정도가 같아(클래스+의사클래스) 나중에 오는 이 규칙이 이긴다 — 순서를 바꾸지 말 것.
+*/
+.option-toggle--active:hover {
+    background-color: var(--color-cyan-light);
+    color: var(--color-abyss);
+}
+
+/* 옵션 팝업의 섹션 제목(사운드·화면·언어·키 설정 공통) */
 .option-section-label {
     color: var(--color-cream);
-    font-size: 22px;
+    font-size: 24px;
     -unity-font-style: bold;
-    margin-top: 6px;
-    margin-bottom: 8px;
-}
-
-.keybind-list {
+    margin-top: 18px;
     margin-bottom: 12px;
 }
 
+/* 행이 열 안에서 가운데로 모이려면 목록이 열 너비를 채워야 한다 */
+.keybind-list {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+/*
+  space-between을 쓰지 않는다 — 2열이 되면서 열이 넓어져 이름과 키 버튼이 양 끝으로 벌어졌다.
+  가운데로 모으고 간격은 아래 margin으로만 준다.
+*/
 .keybind-row {
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
+    justify-content: center;
+    margin-bottom: 14px;
 }
 
+/*
+  min-width는 행마다 키 버튼의 x 위치를 맞추기 위한 것이다(가장 긴 이름이 들어갈 만큼만).
+  줄이면 이름이 긴 행에서만 버튼이 오른쪽으로 밀려 세로줄이 어긋난다.
+*/
 .keybind-name {
     color: var(--color-cream);
-    font-size: 20px;
+    font-size: 22px;
     -unity-font-style: bold;
-    min-width: 120px;
+    min-width: 110px;
+    margin-right: 8px;
 }
 
 /* 현재 키 표시 겸 재설정 버튼 — 누르면 다음 입력을 대기한다 */
+/* .btn의 좌우 padding 40px은 열 안에서 과하므로 줄이고, 폭은 min-width로 잡는다 */
+/* (키 이름이 "Left Arrow"처럼 길어질 수 있어 .option-toggle과 같은 이유로 min-width가 필요하다) */
 .keybind-key {
-    min-width: 140px;
-    font-size: 18px;
+    min-width: 200px;
+    font-size: 20px;
+    color: var(--color-deep);
+    padding: 12px 16px;
 }
 
 /* 재설정 대기 중 강조 */

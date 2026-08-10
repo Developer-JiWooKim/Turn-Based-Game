@@ -134,6 +134,7 @@ namespace Assets.MyAssets.Scripts.Systems
         /// </summary>
         public int RebindControlCount => InputControls.Rebindable.Length; // 재설정 UI가 나열할 논리 컨트롤 개수
 
+        /// <summary>컨트롤 이름의 <b>문자열 키</b>. 번역은 표시하는 쪽(<c>KeybindListView</c>)이 한다.</summary>
         public string GetRebindLabel(int index) => InputControls.Rebindable[index].Label;
 
         /// <summary>논리 컨트롤에 현재 할당된 키의 표시 문자열(예: "Left Arrow")</summary>

@@ -40,10 +40,10 @@ namespace Assets.MyAssets.Scripts.Audio.Data
         public AudioClip BossBgm => _bossBgm;
         public AudioClip UiClick => _uiClick;
 
-        /// <summary>방향키 이동음. 전용 클립이 없으면 UI 클릭음으로 대체.</summary>
+        /// <summary>방향키 이동음. 전용 클립이 없으면 UI 클릭음으로 대체</summary>
         public AudioClip UiNavigate => _uiNavigate ?? _uiClick;
 
-        /// <summary>확정음. 전용 클립이 없으면 UI 클릭음으로 대체.</summary>
+        /// <summary>확정음. 전용 클립이 없으면 UI 클릭음으로 대체</summary>
         public AudioClip Confirm => _confirm ?? _uiClick;
 
         public AudioClip VictoryStinger => _victoryStinger;

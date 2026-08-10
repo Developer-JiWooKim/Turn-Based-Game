@@ -3,12 +3,12 @@
     <Style src="BattleResult.uss" />
     <ui:VisualElement name="result-panel" class="result-overlay" style="display: none;">
         <ui:VisualElement class="result-box panel-frame">
-            <ui:Label name="result-title" class="result-title" text="리타이어" />
-            <ui:Label class="result-caption" text="도달 스테이지" />
+            <ui:Label name="result-title" class="result-title" text="ui.result.title" />
+            <ui:Label class="result-caption" text="ui.result.caption" />
             <ui:Label name="result-stage" class="result-stage" text="1" />
             <!-- 최고 기록: 영구 저장 시스템이 붙으면 채워지고, 그전까지는 숨겨진다 -->
             <ui:Label name="result-best" class="result-best" text="" style="display: none;" />
-            <ui:Button name="result-confirm" class="btn btn-secondary result-confirm" text="타이틀로" />
+            <ui:Button name="result-confirm" class="btn btn-secondary result-confirm" text="ui.result.confirm" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

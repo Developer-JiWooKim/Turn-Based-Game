@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 1240206393724208576}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.2, z: 1}
+  m_LocalPosition: {x: -0, y: 0.18, z: 1.016}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -87,9 +87,9 @@ MonoBehaviour:
   _approachDuration: 0.25
   _approachJumpHeight: 0.8
   _turnDuration: 0.15
-  _projectile: {fileID: 8279534137011481278, guid: 6593b77f7aab353499675157480d8efa, type: 3}
-  _muzzleFlash: {fileID: 7917120168021017062, guid: 9b50124b9c21e814892aee9419ee1c29, type: 3}
-  _hitEffect: {fileID: 7917120168021017062, guid: 079de72b89b92fc45920409aa3f61598, type: 3}
+  _projectile: {fileID: 7300938123587259680, guid: 83f8c9cbe221fca4eaae68c50efd83d3, type: 3}
+  _muzzleFlash: {fileID: 7917120168021017062, guid: 4b3c47f667684e5418d849f7f3f4d9c4, type: 3}
+  _hitEffect: {fileID: 7917120168021017062, guid: 519bfaf22a8bc4341862dfa0f6f89c3c, type: 3}
   _muzzlePoint: {fileID: 498391863296127187}
   _skillProjectile: {fileID: 0}
   _skillMuzzleFlash: {fileID: 0}

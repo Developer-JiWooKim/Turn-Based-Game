@@ -4,9 +4,7 @@ using System.Threading.Tasks;
 
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
-    /// <summary>
-    /// 유닛의 행동 계획을 정의 
-    ///</summary>
+    /// <summary>유닛의 행동 계획을 정의</summary>
     public sealed class ActionPlan
     {
         public readonly Unit Actor;

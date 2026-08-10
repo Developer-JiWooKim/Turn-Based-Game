@@ -1,4 +1,5 @@
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Localization;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.Data
@@ -58,8 +59,16 @@ namespace Assets.MyAssets.Scripts.Battle.Data
                  "(꽉 차도 선택지 자체는 계속 등장하며, 고르면 교체 대상을 플레이어가 선택)")]
         [SerializeField] private float _weightPerEmptySlot = 0f;
 
-        public string Title => _title;
-        public string Description => _description;
+        /// <summary>
+        /// 카드 제목·본문. 키를 원문에서 뽑지 않고 <see cref="_category"/>에서 만든다 —
+        /// 본문이 여러 줄이라 원문을 키로 쓰면 공백·줄바꿈이 한 글자만 달라도 조용히 번역이 빠진다.
+        /// 카테고리는 선택지 1종을 가리키는 안정적인 식별자라 이런 위험이 없다.
+        /// (표에 행이 없으면 에셋에 적힌 원문이 그대로 나온다.)
+        /// </summary>
+        public string Title => Loc.Get($"choice.{_category}.title", _title);
+
+        public string Description => Loc.Get($"choice.{_category}.desc", _description);
+
         public RoguelikeCategory Category => _category;
         public Sprite Icon => _icon;
 

@@ -61,9 +61,9 @@ MonoBehaviour:
   _muzzleFlash: {fileID: 7917120168021017062, guid: 85859c19852f64d43b1f296d4a7fca03, type: 3}
   _hitEffect: {fileID: 3039980818029749698, guid: 083c17ed86759cc4487ffa6ca1c4eb1a, type: 3}
   _muzzlePoint: {fileID: 2349139422806537363}
-  _skillProjectile: {fileID: 7300938123587259680, guid: 8ee144fa352342747b2c2588f0d5df2d, type: 3}
-  _skillMuzzleFlash: {fileID: 7917120168021017062, guid: 6fbdf26e67b789145bf3bb29d1e42142, type: 3}
-  _skillHitEffect: {fileID: 7917120168021017062, guid: 4b780a14d074f2f4cb9b853b6644dce1, type: 3}
+  _skillProjectile: {fileID: 8279534137011481278, guid: 6593b77f7aab353499675157480d8efa, type: 3}
+  _skillMuzzleFlash: {fileID: 7917120168021017062, guid: 9b50124b9c21e814892aee9419ee1c29, type: 3}
+  _skillHitEffect: {fileID: 7917120168021017062, guid: 079de72b89b92fc45920409aa3f61598, type: 3}
   _skillFallsOnTarget: 0
   _skillFallHeight: 5
   _skillMovesToCenter: 0

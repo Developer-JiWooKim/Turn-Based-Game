@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Systems;
 using Assets.MyAssets.Scripts.UI;
@@ -63,7 +64,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public async Task<RoguelikeChoiceSO> PresentAsync(IReadOnlyList<RoguelikeChoiceSO> choices, CancellationToken ct)
         {
             var cards = choices.Select(c => new ChoiceCard(c.Title, c.Description, c.Icon)).ToList();
-            int index = await PresentAsync("성장 선택", cards, ct);
+            int index = await PresentAsync(Loc.Get("ui.roguelike.header"), cards, ct);
             return index < 0 ? null : choices[index];
         }
 

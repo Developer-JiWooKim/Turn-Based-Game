@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Battle.Data;
+using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Progression.Run;
 using Assets.MyAssets.Scripts.Progression.Save;
 using Assets.MyAssets.Scripts.Systems;
@@ -48,8 +49,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [Header("연결")]
         [SerializeField] private RoguelikeChoicePanel _panel;
 
-        private const string SkipRecruitTitle = "영입 안 함";
-        private const string SkipRecruitDescription = "현재 파티를 유지합니다.";
+        private const string SkipRecruitTitleKey = "ui.recruit.skipTitle";
+        private const string SkipRecruitDescriptionKey = "ui.recruit.skipDesc";
 
         /// <summary>교체 대상 카드를 화면 배치 순서로 세우기 위한 조회용(스폰·배치는 관여하지 않는다).</summary>
         private UnitViewRegistry _registry;
@@ -125,10 +126,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
             var cards = candidates.Select(c => new ChoiceCard(c.DisplayName, DescribeCandidate(c, run, scaling), c.Icon)).ToList();
             if (needsReplace)
             {
-                cards.Add(new ChoiceCard(SkipRecruitTitle, SkipRecruitDescription));
+                cards.Add(new ChoiceCard(Loc.Get(SkipRecruitTitleKey), Loc.Get(SkipRecruitDescriptionKey)));
             }
 
-            int index = await _panel.PresentAsync("동료 영입", cards, ct);
+            int index = await _panel.PresentAsync(Loc.Get("ui.recruit.header"), cards, ct);
             if (index < 0 || index >= candidates.Count)
             {
                 return default; // 취소 또는 "영입 안 함"
@@ -165,7 +166,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                                                         DescribeMember(s.Member),
                                                         s.Member.Source != null ? s.Member.Source.Icon : null)).ToList();
 
-            int index = await _panel.PresentAsync("교체할 파티원 선택", cards, ct);
+            int index = await _panel.PresentAsync(Loc.Get("ui.recruit.replaceHeader"), cards, ct);
             return index < 0 || index >= slots.Count ? null : slots[index].Member;
         }
 
@@ -217,8 +218,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// 같은 캐릭터를 두 화면이 다른 항목 수로 보여주면 비교가 되지 않기 때문.
         /// </summary>
         private static string DescribeStats(Stats s, int currentHp) =>
-            $"HP {currentHp}/{s.MaxHp}\nATK {s.Atk}\nSPD {s.Spd}\nDEF {s.Def}\n" +
-            $"치명타 {Percent(s.CritRate)}\n치명피해 {Percent(s.CritDmg)}\n저항 {Percent(s.Res)}";
+            $"{Loc.Get("ui.stat.hp")} {currentHp}/{s.MaxHp}\n{Loc.Get("ui.stat.atk")} {s.Atk}\n" +
+            $"{Loc.Get("ui.stat.spd")} {s.Spd}\n{Loc.Get("ui.stat.def")} {s.Def}\n" +
+            $"{Loc.Get("ui.stat.critRate")} {Percent(s.CritRate)}\n{Loc.Get("ui.stat.critDmg")} {Percent(s.CritDmg)}\n" +
+            $"{Loc.Get("ui.stat.res")} {Percent(s.Res)}";
 
         /// <summary>배율(0~1 또는 1.5 같은 배수)을 정수 %로. 치명피해 1.5 → "150%".</summary>
         private static string Percent(float value) => $"{Mathf.RoundToInt(value * 100f)}%";

@@ -7,11 +7,11 @@
     -->
     <ui:VisualElement name="allocation-popup" class="popup-overlay" style="display: none;">
         <ui:VisualElement class="popup-frame panel-frame">
-            <ui:Label text="성향 포인트" class="popup-title" />
-            <ui:Label text="보유 0 / 총 0" name="allocation-points" class="allocation-header" />
+            <ui:Label text="ui.allocation.title" class="popup-title" />
+            <ui:Label text="ui.allocation.points" name="allocation-points" class="allocation-header" />
             <ui:VisualElement name="allocation-rows" class="allocation-rows" />
-            <ui:Button text="초기화" name="allocation-reset-button" class="btn btn-secondary" />
-            <ui:Button text="닫기" name="allocation-close-button" class="btn btn-secondary" />
+            <ui:Button text="ui.allocation.reset" name="allocation-reset-button" class="btn btn-secondary" />
+            <ui:Button text="ui.common.close" name="allocation-close-button" class="btn btn-secondary" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

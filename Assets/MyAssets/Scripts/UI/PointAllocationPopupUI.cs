@@ -1,4 +1,5 @@
 using Assets.MyAssets.Scripts.Battle.Data;
+using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Progression.Save;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -27,6 +28,8 @@ namespace Assets.MyAssets.Scripts.UI
 
         protected override void Start()
         {
+            base.Start(); // UXML 문구 번역
+
             _headerLabel = Root.Q<Label>("allocation-points");
 
             Root.Q<Button>("allocation-reset-button").clicked += OnReset;
@@ -36,6 +39,14 @@ namespace Assets.MyAssets.Scripts.UI
                         categories: _categories,
                         onAdjust: Adjust);
 
+            Refresh();
+        }
+
+        /// <summary>카테고리 이름과 헤더는 코드가 채우는 문구라 트리 갱신만으로는 바뀌지 않는다.</summary>
+        protected override void OnLanguageChanged()
+        {
+            base.OnLanguageChanged();
+            _rows.RefreshLabels();
             Refresh();
         }
 
@@ -76,7 +87,7 @@ namespace Assets.MyAssets.Scripts.UI
 
             if (_headerLabel is not null)
             {
-                _headerLabel.text = $"보유 {available} / 총 {earned}";
+                _headerLabel.text = Loc.Format("ui.allocation.points", available, earned);
             }
 
             _rows.Refresh(save, available);

@@ -24,7 +24,7 @@
     position: absolute;
     top: 16px;
     left: 20px;
-    width: 260px;
+    width: 300px;
     padding: 10px 12px;
     background-color: rgba(42, 36, 64, 0.3)
 }
@@ -186,7 +186,7 @@
 .party-member {
     position: absolute;
     bottom: 0;
-    width: 250px; /* "10 (+5) (+2) (+8) (-16)"가 한 줄에 들어가는 폭 */
+    width: 270px; /* "10 (+5) (+2) (+8) (-16)"가 한 줄에 들어가는 폭 */
     padding: 8px 10px;
     /* left는 캐릭터의 화면 X. 폭의 절반만큼 당겨 가운데를 맞춘다(레이아웃 전에도 유효). */
     translate: -50% 0;
@@ -211,8 +211,9 @@
     margin: 1px 0;
 }
 
+/* 한국어 라벨(공격력·치명피해)이 영문 약어보다 길어 46px에서는 잘렸다 */
 .party-stat-label {
-    width: 46px;
+    width: 56px;
     font-size: 12px;
     color: var(--color-cream);
     opacity: 0.75;

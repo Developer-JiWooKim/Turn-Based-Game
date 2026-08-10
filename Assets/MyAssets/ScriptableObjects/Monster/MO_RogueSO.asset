@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed42345a3ddbcb94e87e3438fa37e06d, type: 3}
-  m_Name: RogueSO
+  m_Name: MO_RogueSO
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.MonsterStatsSO
   _displayName: Skeleton Rogue
   _prefab: {fileID: 433056104178104984, guid: 8ec7ba8b736920e488324b366825d77c, type: 3}

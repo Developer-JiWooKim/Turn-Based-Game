@@ -41,7 +41,10 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public event EventHandler<BattleEndedEventArgs> BattleEnded;
 
         /// <param name="pauseGate">퍼즈 게이트. null이면 퍼즈 없이 그대로 진행한다.</param>
-        public BattleSimulation(BattleState state, IActionSelector playerSelector, IActionSelector enemySelector, IRandom rng,
+        public BattleSimulation(BattleState state,
+                                IActionSelector playerSelector,
+                                IActionSelector enemySelector,
+                                IRandom rng,
                                 IPauseGate pauseGate = null)
         {
             _state = state;

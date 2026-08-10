@@ -16,12 +16,12 @@
                 <ui:VisualElement name="game-title" class="title-logo" picking-mode="Ignore" />                    
             </ui:VisualElement>
             <ui:VisualElement name="menu" class="menu" picking-mode="Ignore">
-                    <ui:Button text="◆  NEW EXPEDITION  ◆" name="start-button" class="btn btn-cta menu-btn menu-btn--cta" />
-                    <ui:Button text="CONTINUE" name="continue-button" class="btn btn-secondary menu-btn menu-btn--sub" />
+                    <ui:Button text="ui.title.start" name="start-button" class="btn btn-cta menu-btn menu-btn--cta" />
+                    <ui:Button text="ui.title.continue" name="continue-button" class="btn btn-secondary menu-btn menu-btn--sub" />
 
                 <ui:VisualElement name="menu-row" class="menu-row" picking-mode="Ignore">
-                    <ui:Button text="OPTION" name="option-button" class="btn btn-secondary menu-btn--half" />
-                    <ui:Button text="QUIT" name="quit-button" class="btn btn-secondary menu-btn--half menu-btn--half-right" />
+                    <ui:Button text="ui.title.option" name="option-button" class="btn btn-secondary menu-btn--half" />
+                    <ui:Button text="ui.title.quit" name="quit-button" class="btn btn-secondary menu-btn--half menu-btn--half-right" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
@@ -34,7 +34,7 @@
             </ui:VisualElement>
 
             <ui:VisualElement name="select-header" class="select-header panel-frame">
-                <ui:Label text="캐릭터 선택" class="select-header-text" />
+                <ui:Label text="ui.select.header" class="select-header-text" />
             </ui:VisualElement>
             <ui:VisualElement name="select-body" class="select-body" picking-mode="Ignore">
                 <ui:Button text="◀" name="prev-button" class="nav-arrow" />
@@ -48,42 +48,42 @@
                     <!-- 각 행의 fill 너비와 value 텍스트는 CharacterSelectPanelUI가 채운다 -->
                     <ui:VisualElement name="stat-panel" class="stat-panel panel-frame">
                         <ui:VisualElement name="stat-row" class="stat-row">
-                            <ui:Label text="HP" class="stat-label" />
+                            <ui:Label text="ui.stat.hp" class="stat-label" />
                             <ui:VisualElement class="stat-track">
                                 <ui:VisualElement name="stat-fill" class="stat-fill" />
                             </ui:VisualElement>
                             <ui:Label name="stat-value" class="stat-value" />
                         </ui:VisualElement>
                         <ui:VisualElement name="stat-row" class="stat-row">
-                            <ui:Label text="ATK" class="stat-label" />
+                            <ui:Label text="ui.stat.atk" class="stat-label" />
                             <ui:VisualElement class="stat-track">
                                 <ui:VisualElement name="stat-fill" class="stat-fill" />
                             </ui:VisualElement>
                             <ui:Label name="stat-value" class="stat-value" />
                         </ui:VisualElement>
                         <ui:VisualElement name="stat-row" class="stat-row">
-                            <ui:Label text="SPD" class="stat-label" />
+                            <ui:Label text="ui.stat.spd" class="stat-label" />
                             <ui:VisualElement class="stat-track">
                                 <ui:VisualElement name="stat-fill" class="stat-fill" />
                             </ui:VisualElement>
                             <ui:Label name="stat-value" class="stat-value" />
                         </ui:VisualElement>
                         <ui:VisualElement name="stat-row" class="stat-row">
-                            <ui:Label text="DEF" class="stat-label" />
+                            <ui:Label text="ui.stat.def" class="stat-label" />
                             <ui:VisualElement class="stat-track">
                                 <ui:VisualElement name="stat-fill" class="stat-fill" />
                             </ui:VisualElement>
                             <ui:Label name="stat-value" class="stat-value" />
                         </ui:VisualElement>
                         <ui:VisualElement name="stat-row" class="stat-row">
-                            <ui:Label text="치명타" class="stat-label" />
+                            <ui:Label text="ui.stat.critRate" class="stat-label" />
                             <ui:VisualElement class="stat-track">
                                 <ui:VisualElement name="stat-fill" class="stat-fill" />
                             </ui:VisualElement>
                             <ui:Label name="stat-value" class="stat-value" />
                         </ui:VisualElement>
                         <ui:VisualElement name="stat-row" class="stat-row">
-                            <ui:Label text="저항" class="stat-label" />
+                            <ui:Label text="ui.stat.res" class="stat-label" />
                             <ui:VisualElement class="stat-track">
                                 <ui:VisualElement name="stat-fill" class="stat-fill" />
                             </ui:VisualElement>
@@ -102,9 +102,9 @@
                 <ui:VisualElement class="dot" />
             </ui:VisualElement>
             <ui:VisualElement name="select-footer" class="select-footer" picking-mode="Ignore">
-                <ui:Button text="뒤로" name="select-back-button" class="btn btn-secondary" />
-                <ui:Button text="성향" name="allocation-button" class="btn btn-secondary" />
-                <ui:Button text="전투 시작" name="battle-button" class="btn btn-cta" />
+                <ui:Button text="ui.select.back" name="select-back-button" class="btn btn-secondary" />
+                <ui:Button text="ui.select.allocation" name="allocation-button" class="btn btn-secondary" />
+                <ui:Button text="ui.select.battle" name="battle-button" class="btn btn-cta" />
             </ui:VisualElement>
         </ui:VisualElement>
 

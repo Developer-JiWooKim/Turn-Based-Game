@@ -19,3 +19,8 @@ MonoBehaviour:
   _monsterAtkRate: 0.06
   _monsterDefRate: 0.03
   _monsterCompound: 1
+  _accelStartStage: 30
+  _accelMultiplier: 1.5
+  _monsterSpdRate: 0.03
+  _spdStartStage: 5
+  _bossSpdRate: 0.08

@@ -36,16 +36,17 @@ namespace Assets.MyAssets.Scripts.Systems
         /// </summary>
         public static readonly RebindControl[] Rebindable =
         {
-            new("이전", new[] { BattleCyclePrev, MenuNavPrev }),
-            new("다음", new[] { BattleCycleNext, MenuNavNext }),
-            new("확정", new[] { BattleConfirm, MenuSubmit }),
-            new("퍼즈", new[] { MenuPause }),
+            new("ui.keybind.prev", new[] { BattleCyclePrev, MenuNavPrev }),
+            new("ui.keybind.next", new[] { BattleCycleNext, MenuNavNext }),
+            new("ui.keybind.confirm", new[] { BattleConfirm, MenuSubmit }),
+            new("ui.keybind.pause", new[] { MenuPause }),
         };
     }
 
-    /// <summary>리바인딩 UI가 다루는 논리 컨트롤 1종(표시 이름 + 함께 재설정할 액션들).</summary>
+    /// <summary>리바인딩 UI가 다루는 논리 컨트롤 1종(표시 이름 키 + 함께 재설정할 액션들).</summary>
     public readonly struct RebindControl
     {
+        /// <summary>화면에 보일 이름의 문자열 키. 번역은 표시하는 쪽(<c>KeybindListView</c>)이 한다.</summary>
         public readonly string Label;
 
         /// <summary>이 컨트롤이 함께 재설정할 액션들(첫 번째가 대표).</summary>

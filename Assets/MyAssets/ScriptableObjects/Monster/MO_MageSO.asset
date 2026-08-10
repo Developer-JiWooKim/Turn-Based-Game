@@ -10,19 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed42345a3ddbcb94e87e3438fa37e06d, type: 3}
-  m_Name: MinionSO
+  m_Name: MO_MageSO
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.MonsterStatsSO
-  _displayName: Skeleton Minion
-  _prefab: {fileID: 1853872766813388552, guid: c6aa89b6eebcab34294ea414ef917f54, type: 3}
-  _maxHp: 500
-  _atk: 100
-  _spd: 70
-  _def: 80
-  _critRate: 0.1
-  _critDmg: 1.5
+  _displayName: Skeleton Mage
+  _prefab: {fileID: 4700444955393387195, guid: fd68a1a5045e99b4cb7f342e617c772c, type: 3}
+  _maxHp: 800
+  _atk: 200
+  _spd: 40
+  _def: 20
+  _critRate: 0.15
+  _critDmg: 3
   _res: 0
-  _tier: 0
-  _hasSkill: 0
-  _skillCooldown: 2
-  _skillScope: 0
-  _skillPowerMultiplier: 1.4
+  _tier: 1
+  _skill: {fileID: 11400000, guid: c4c1a5a391b3666408d46e0b0d22d87a, type: 2}

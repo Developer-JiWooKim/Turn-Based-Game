@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Systems;
 using UnityEngine.UIElements;
 
@@ -17,6 +18,9 @@ namespace Assets.MyAssets.Scripts.UI
         /// <summary>현재 키를 표시하는 버튼들</summary>
         private readonly List<Button> _keyButtons = new();
 
+        /// <summary>컨트롤 이름 라벨들. 언어가 바뀌면 다시 그려야 하므로 들고 있는다.</summary>
+        private readonly List<Label> _nameLabels = new();
+
         private InputManager _input;
 
         /// <summary>
@@ -25,6 +29,7 @@ namespace Assets.MyAssets.Scripts.UI
         public void Build(VisualElement container, Button resetButton)
         {
             _keyButtons.Clear();
+            _nameLabels.Clear();
             _input = InputManager.Instance;
 
             if (container == null || _input == null)
@@ -47,7 +52,8 @@ namespace Assets.MyAssets.Scripts.UI
                 var row = new VisualElement();
                 row.AddToClassList("keybind-row");
 
-                var nameLabel = new Label(_input.GetRebindLabel(i));
+                // InputManager가 주는 것은 문자열 키다 — 번역은 표시하는 쪽인 여기서 한다.
+                var nameLabel = new Label(Loc.Get(_input.GetRebindLabel(i)));
                 nameLabel.AddToClassList("keybind-name");
 
                 var keyButton = new Button { text = _input.GetRebindDisplay(i) };
@@ -61,11 +67,21 @@ namespace Assets.MyAssets.Scripts.UI
                 row.Add(keyButton);
                 container.Add(row);
                 _keyButtons.Add(keyButton);
+                _nameLabels.Add(nameLabel);
             }
 
             if (resetButton != null)
             {
                 resetButton.clicked += ResetBindings;
+            }
+        }
+
+        /// <summary>컨트롤 이름을 현재 언어로 다시 그린다(키 표시는 언어와 무관하므로 건드리지 않는다).</summary>
+        public void RefreshNames()
+        {
+            for (int i = 0; i < _nameLabels.Count; i++)
+            {
+                _nameLabels[i].text = Loc.Get(_input.GetRebindLabel(i));
             }
         }
 

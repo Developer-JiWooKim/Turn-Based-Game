@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Progression.Run;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -89,7 +90,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             if (_stageLabel != null)
             {
-                _stageLabel.text = $"STAGE {stage}";
+                _stageLabel.text = Loc.Format("ui.hud.stage", stage);
             }
         }
 
@@ -128,7 +129,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             if (actor.Team == TeamSide.Player)
             {
-                ShowPrompt("당신의 차례 — 공격할 몬스터를 클릭하세요");
+                ShowPrompt(Loc.Get("ui.hud.yourTurn"));
             }
             else
             {
