@@ -13,9 +13,24 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     /// 몬스터 성장률을 플레이어보다 높게 잡는 것이 전제다. 플레이어는 로그라이크 선택지로
     /// 원하는 스탯을 몰아서 올릴 수 있으므로, 자동 성장은 "완전히 뒤처지지 않을 정도"만 담당한다.
     ///
-    /// SPD·치명타·저항은 스케일링 대상이 아니다. SPD는 양측이 같이 오르면 턴 순서가 그대로라 의미가 없고
-    /// 몬스터만 올리면 선공을 계속 뺏겨 체감이 나쁘다. 비율 스탯은 곱하면 금방 상한에 붙는다.
-    /// 이 스탯들은 로그라이크 선택지로만 성장한다.
+    /// <para>
+    /// <b>난이도 가속</b>(2026-08-10): <see cref="_accelStartStage"/>까지는 기본 성장률을 그대로 쓰고,
+    /// 그 뒤부터 <see cref="_accelMultiplier"/>를 곱한 성장률로 전환한다. "일정 지점까지는 편하게 도달하고
+    /// 이후 난이도가 빠르게 오른다"는 곡선을 만들기 위한 것이며, 구간을 나누지 않고 성장률만 올리면
+    /// 초반까지 함께 어려워진다.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>SPD 스케일링</b>(2026-08-10에 방침 변경): 원래 SPD는 스케일링 대상이 아니었다 —
+    /// "양측이 같이 오르면 턴 순서가 그대로라 의미가 없고, 몬스터만 올리면 선공을 계속 뺏겨 체감이 나쁘다"는
+    /// 이유였다. 하지만 그 결과 <b>속도 강화 선택지가 사실상 빈 선택지</b>가 됐다(SPD를 올릴 이유가 없으므로).
+    /// 그래서 <see cref="_spdStartStage"/> 이후 몬스터 SPD를 조금씩 올려 "선공을 지키려면 투자해야 한다"는
+    /// 압박을 만들고, 대신 보스를 잡을 때마다 플레이어에게도 SPD를 돌려준다(<see cref="_bossSpdRate"/>).
+    /// ⚠️ 보스 보상은 <b>일부러 몬스터 증가분보다 작게</b> 잡는다 — 같은 속도로 주면 선공 압박 자체가 사라져
+    /// 원래의 "SPD를 올릴 이유가 없다" 상태로 되돌아간다.
+    /// </para>
+    ///
+    /// 치명타·저항은 여전히 스케일링 대상이 아니다(곱하면 금방 상한에 붙는다). 선택지로만 성장한다.
     /// </summary>
     public readonly struct StageScaling
     {
@@ -30,9 +45,30 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// <summary>true면 몬스터 배율이 복리((1+rate)^n), false면 선형(1+rate*n).</summary>
         private readonly bool _monsterCompound;
 
+        /// <summary>이 스테이지까지는 기본 성장률. 0 이하면 가속 없음.</summary>
+        private readonly int _accelStartStage;
+
+        /// <summary>가속 구간에서 성장률에 곱하는 배수. 1 이하면 가속 없음.</summary>
+        private readonly float _accelMultiplier;
+
+        /// <summary>몬스터 SPD 성장률(스테이지당). 0이면 SPD를 올리지 않는다.</summary>
+        private readonly float _monsterSpdRate;
+
+        /// <summary>이 스테이지 이후부터 몬스터 SPD가 오른다(그 전까지는 기준값 그대로).</summary>
+        private readonly int _spdStartStage;
+
+        /// <summary>보스 1회 처치당 플레이어가 얻는 SPD(기준 SPD 대비 비율). 0이면 보상 없음.</summary>
+        private readonly float _bossSpdRate;
+
+        /// <summary>보스가 등장하는 스테이지 간격. 출처는 <c>MonsterSpawner</c>이며 생성 시 주입된다.</summary>
+        private readonly int _bossStageInterval;
+
         public StageScaling(float playerHpRate, float playerAtkRate, float playerDefRate,
                             float monsterHpRate, float monsterAtkRate, float monsterDefRate,
-                            bool monsterCompound)
+                            bool monsterCompound,
+                            int accelStartStage, float accelMultiplier,
+                            float monsterSpdRate, int spdStartStage,
+                            float bossSpdRate, int bossStageInterval)
         {
             _playerHpRate = playerHpRate;
             _playerAtkRate = playerAtkRate;
@@ -41,6 +77,12 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             _monsterAtkRate = monsterAtkRate;
             _monsterDefRate = monsterDefRate;
             _monsterCompound = monsterCompound;
+            _accelStartStage = accelStartStage;
+            _accelMultiplier = accelMultiplier;
+            _monsterSpdRate = monsterSpdRate;
+            _spdStartStage = spdStartStage;
+            _bossSpdRate = bossSpdRate;
+            _bossStageInterval = bossStageInterval;
         }
 
         /// <summary>
@@ -49,13 +91,14 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// (= 늘어난 최대 HP만큼 현재 HP도 채워진다).
         /// </summary>
         /// <param name="baseStats">성장이 누적되기 전의 기준 스탯(SO 원본 수치).</param>
-        /// <param name="step">몇 번째 성장인지(1 = 첫 진급). 누적 총량을 정확히 맞추는 데 쓰인다.</param>
+        /// <param name="step">몇 번째 성장인지(1 = 첫 진급). 누적 총량을 정확히 맞추는 데 쓰인다.
+        /// 진급 직후에 호출되므로 <b>방금 클리어한 스테이지 번호와 같고</b>, 보스 보상 판정에 그대로 쓴다.</param>
         public RoguelikeEffect CreatePlayerGrowth(Stats baseStats, int step)
         {
             return new RoguelikeEffect(
                 StepGrowth(baseStats.MaxHp, _playerHpRate, step),
                 StepGrowth(baseStats.Atk, _playerAtkRate, step),
-                0, // SPD는 스케일링 대상 아님
+                BossSpdStep(baseStats.Spd, step), // SPD는 보스를 잡았을 때만 오른다
                 StepGrowth(baseStats.Def, _playerDefRate, step),
                 0, 0f, 0f, 0f,
                 1f, 1f, false, false);
@@ -65,14 +108,15 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public void ApplyToMonster(Stats stats, int stage)
         {
             int steps = Math.Max(0, stage - 1);
-            if (steps == 0)
+            if (steps > 0)
             {
-                return;
+                stats.MaxHp = Scale(stats.MaxHp, _monsterHpRate, steps);
+                stats.Atk = Scale(stats.Atk, _monsterAtkRate, steps);
+                stats.Def = Scale(stats.Def, _monsterDefRate, steps);
             }
 
-            stats.MaxHp = Scale(stats.MaxHp, _monsterHpRate, steps);
-            stats.Atk = Scale(stats.Atk, _monsterAtkRate, steps);
-            stats.Def = Scale(stats.Def, _monsterDefRate, steps);
+            // SPD는 시작 스테이지와 기준점이 달라 위 셋과 함께 묶지 않는다.
+            stats.Spd = ScaleSpd(stats.Spd, stage);
         }
 
         /// <summary>표시·디버깅용 몬스터 HP 배율.</summary>
@@ -85,9 +129,37 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 return value;
             }
 
-            return Math.Max(1, (int)Math.Round(value * Multiplier(rate, steps)));
+            return Math.Max(1, (int)Math.Round(value * Multiplier(rate, steps), MidpointRounding.AwayFromZero));
         }
 
+        /// <summary>
+        /// 몬스터 SPD 배율. 난이도 가속(<see cref="_accelMultiplier"/>)을 <b>일부러 적용하지 않는다</b> —
+        /// 가속 구간에서 속도까지 함께 튀면 선공이 한순간에 뒤집혀, 플레이어가 대응할 여지가 없어진다.
+        /// </summary>
+        private int ScaleSpd(int value, int stage)
+        {
+            if (_monsterSpdRate <= 0f)
+            {
+                return value;
+            }
+
+            int steps = Math.Max(0, stage - _spdStartStage);
+            if (steps == 0)
+            {
+                return value;
+            }
+
+            float multiplier = _monsterCompound
+                ? (float)Math.Pow(1f + _monsterSpdRate, steps)
+                : 1f + _monsterSpdRate * steps;
+
+            return Math.Max(1, (int)Math.Round(value * multiplier, MidpointRounding.AwayFromZero));
+        }
+
+        /// <summary>
+        /// 구간별 성장 배율. <see cref="_accelStartStage"/>까지는 기본 성장률, 그 뒤는 가속 성장률을 쓴다.
+        /// 두 구간을 이어 붙이므로 경계 이전 구간의 누적값이 그대로 보존된다.
+        /// </summary>
         private float Multiplier(float rate, int steps)
         {
             if (rate <= 0f || steps == 0)
@@ -95,7 +167,18 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 return 1f;
             }
 
-            return _monsterCompound ? (float)Math.Pow(1f + rate, steps) : 1f + rate * steps;
+            // 가속이 꺼져 있으면(배수 1 이하 또는 시작 스테이지 미지정) 전 구간 동일 성장률.
+            bool hasAccel = _accelMultiplier > 1f && _accelStartStage > 0;
+            int normalSteps = hasAccel ? Math.Min(steps, Math.Max(0, _accelStartStage - 1)) : steps;
+            int accelSteps = steps - normalSteps;
+            float accelRate = rate * _accelMultiplier;
+
+            if (!_monsterCompound)
+            {
+                return 1f + rate * normalSteps + accelRate * accelSteps;
+            }
+
+            return (float)(Math.Pow(1f + rate, normalSteps) * Math.Pow(1f + accelRate, accelSteps));
         }
 
         /// <summary>
@@ -114,6 +197,28 @@ namespace Assets.MyAssets.Scripts.Battle.Core
 
             return TotalGrowth(baseValue, rate, step) - TotalGrowth(baseValue, rate, step - 1);
         }
+
+        /// <summary>
+        /// 이번 진급에서 얻는 보스 처치 SPD 보상. 보스 스테이지가 아니면 0이다.
+        ///
+        /// <see cref="StepGrowth"/>와 같은 <b>누적 차분</b> 방식이라(횟수만 step 대신 처치한 보스 수),
+        /// 보스마다 따로 반올림해 오차가 쌓이지 않는다. 덕분에 영입자 소급 적용(<c>RunData.ApplyCatchUp</c>)이
+        /// 같은 step들을 되짚기만 해도 기존 파티원과 정확히 같은 값이 된다 —
+        /// ⚠️ 이벤트("보스를 잡았다")로 만들면 소급 경로가 그 사실을 알 수 없어 어긋난다.
+        /// </summary>
+        private int BossSpdStep(int baseSpd, int step)
+        {
+            if (_bossSpdRate <= 0f || _bossStageInterval <= 0 || step <= 0)
+            {
+                return 0;
+            }
+
+            return TotalGrowth(baseSpd, _bossSpdRate, BossesCleared(step))
+                 - TotalGrowth(baseSpd, _bossSpdRate, BossesCleared(step - 1));
+        }
+
+        /// <summary><paramref name="step"/>스테이지까지 클리어했을 때 지나온 보스 수.</summary>
+        private int BossesCleared(int step) => step <= 0 ? 0 : step / _bossStageInterval;
 
         private static int TotalGrowth(int baseValue, float rate, int step) =>
             (int)Math.Round(baseValue * (double)rate * step);

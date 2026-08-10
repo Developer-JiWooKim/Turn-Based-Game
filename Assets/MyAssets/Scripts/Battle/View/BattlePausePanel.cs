@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Progression.Save;
 using Assets.MyAssets.Scripts.Systems;
 using Assets.MyAssets.Scripts.UI;
@@ -86,16 +87,20 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>연출 재생 여부를 알려줄 프레젠터를 받아둔다(전투 시작 전 1회).</summary>
         public void Initialize(BattlePresenter presenter) => _presenter = presenter;
 
-        private void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable(); // 언어 변경 구독(BasePanelUI)
+
             if (_hud != null)
             {
                 _hud.PauseClicked += Pause;
             }
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
+
             if (_hud != null)
             {
                 _hud.PauseClicked -= Pause;
@@ -283,7 +288,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _bestLabel.style.display = hasRecord ? DisplayStyle.Flex : DisplayStyle.None;
             if (hasRecord)
             {
-                _bestLabel.text = $"이전 최고 기록 {best}";
+                _bestLabel.text = Loc.Format("ui.pause.previousBest", best);
             }
         }
 

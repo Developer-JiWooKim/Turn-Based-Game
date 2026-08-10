@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e038678a15e9bac4ab84456589b34c02, type: 3}
+  m_Name: CH_MageSO
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.CharacterStatsSO
+  _displayName: Mage
+  _prefab: {fileID: 1510330627128820198, guid: d55a75d52be3e45489d297eed6468992, type: 3}
+  _icon: {fileID: 21300000, guid: 90137e63274d636418f6fe2286bc95fe, type: 3}
+  _maxHp: 800
+  _atk: 350
+  _spd: 30
+  _def: 10
+  _critRate: 0.3
+  _critDmg: 3
+  _res: 0
+  _synergyThreshold: 2
+  _synergyAtkRate: 0
+  _synergySpdRate: 0
+  _synergyDefRate: 0
+  _synergyCritRate: 0
+  _synergyCritDmg: 0.9
+  _synergyRes: 0

@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.UI;
 using UnityEngine.UIElements;
 
@@ -58,7 +59,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _best.style.display = hasRecord ? DisplayStyle.Flex : DisplayStyle.None;
                 if (hasRecord)
                 {
-                    _best.text = isNewRecord ? "신기록!" : $"최고 기록 {bestStage}";
+                    _best.text = isNewRecord ? Loc.Get("ui.result.newRecord") : Loc.Format("ui.result.bestRecord", bestStage);
                 }
             }
 

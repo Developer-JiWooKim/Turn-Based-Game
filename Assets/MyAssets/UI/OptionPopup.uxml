@@ -3,20 +3,43 @@
     <!--
       옵션 팝업 (OptionPopupUI). Title/Battle 등 여러 씬의 UXML에서
       <ui:Template>/<ui:Instance>로 재사용한다. 표시/숨김은 OptionPopupUI가 담당.
+
+      항목이 늘어 2열로 나눴다 — 왼쪽은 "값을 고르는 것"(사운드·화면·언어),
+      오른쪽은 행이 계속 늘어나는 키 설정. 넓어진 너비는 .option-frame이 담당하며,
+      .popup-frame을 그대로 두는 이유는 성향 포인트 팝업이 같은 클래스를 쓰기 때문이다.
+
+      text/label의 "ui."로 시작하는 값은 문자열 키다 — BasePanelUI가 표에서 찾아 바꿔 넣는다.
     -->
     <ui:VisualElement name="option-popup" class="popup-overlay" style="display: none;">
-        <ui:VisualElement class="popup-frame panel-frame">
-            <ui:Label text="옵션" class="popup-title" />
-            <ui:Slider name="master-volume-slider" label="마스터" low-value="0" high-value="1" value="1" class="option-slider" />
-            <ui:Slider name="bgm-volume-slider" label="BGM" low-value="0" high-value="1" value="1" class="option-slider" />
-            <ui:Slider name="sfx-volume-slider" label="효과음" low-value="0" high-value="1" value="1" class="option-slider" />
+        <ui:VisualElement class="popup-frame option-frame panel-frame">
+            <ui:Label text="ui.option.title" class="popup-title" />
 
-            <!-- 키 설정: 행은 OptionPopupUI가 InputManager의 논리 컨트롤 기반으로 동적 생성 -->
-            <ui:Label text="키 설정" class="option-section-label outline-text" />
-            <ui:VisualElement name="option-keybinds" class="keybind-list" />
-            <ui:Button text="키 초기화" name="keybind-reset-button" class="btn btn-secondary" />
+            <ui:VisualElement class="option-columns">
+                <!-- 왼쪽: 사운드 · 화면 · 언어 -->
+                <ui:VisualElement class="option-column option-column--left">
+                    <ui:Label text="ui.option.volume.section" class="option-section-label outline-text" />
+                    <ui:Slider name="master-volume-slider" label="ui.option.volume.master" low-value="0" high-value="1" value="1" class="option-slider" />
+                    <ui:Slider name="bgm-volume-slider" label="ui.option.volume.bgm" low-value="0" high-value="1" value="1" class="option-slider" />
+                    <ui:Slider name="sfx-volume-slider" label="ui.option.volume.sfx" low-value="0" high-value="1" value="1" class="option-slider" />
 
-            <ui:Button text="닫기" name="option-close-button" class="btn btn-secondary" />
+                    <!-- 화면 모드: 버튼은 GameSettings.DisplayPresets를 근거로 OptionPopupUI가 만든다(목록의 주인이 하나여야 하므로) -->
+                    <ui:Label text="ui.option.display.section" class="option-section-label outline-text" />
+                    <ui:VisualElement name="option-display" class="option-toggle-row" />
+
+                    <!-- 언어: 각 언어 이름은 그 언어로 적히므로 번역 대상이 아니다(키를 쓰지 않는다) -->
+                    <ui:Label text="ui.option.language.section" class="option-section-label outline-text" />
+                    <ui:VisualElement name="option-language" class="option-toggle-row" />
+                </ui:VisualElement>
+
+                <!-- 오른쪽: 키 설정. 행은 OptionPopupUI가 InputManager의 논리 컨트롤 기반으로 동적 생성 -->
+                <ui:VisualElement class="option-column option-column--right">
+                    <ui:Label text="ui.option.keybind.section" class="option-section-label outline-text" />
+                    <ui:VisualElement name="option-keybinds" class="keybind-list" />
+                    <ui:Button text="ui.option.keybind.reset" name="keybind-reset-button" class="btn btn-secondary option-inline-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:Button text="ui.common.close" name="option-close-button" class="btn btn-secondary" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

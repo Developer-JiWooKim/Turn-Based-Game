@@ -54,6 +54,8 @@ namespace Assets.MyAssets.Scripts.UI
 
         protected override void Start()
         {
+            base.Start(); // UXML 문구 번역
+
             // 프리뷰 카메라가 그리는 텍스처를 프리뷰 영역 배경으로 배선한다(UXML의 주인이 패널이라 여기서 처리).
             if (_preview != null && _preview.Texture != null)
             {
@@ -148,6 +150,13 @@ namespace Assets.MyAssets.Scripts.UI
             {
                 _preview.Show(character);
             }
+        }
+
+        /// <summary>캐릭터 이름은 SO에서 온 값이라 UXML 트리 갱신만으로는 바뀌지 않는다.</summary>
+        protected override void OnLanguageChanged()
+        {
+            base.OnLanguageChanged();
+            ApplySelection();
         }
 
         public override void Show()

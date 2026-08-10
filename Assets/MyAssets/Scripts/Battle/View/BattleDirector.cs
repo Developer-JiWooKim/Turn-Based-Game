@@ -98,7 +98,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             // SO가 비어 있으면 성장률 0인 기본값 — 스케일링 없이 그대로 진행된다.
-            _scaling = _stageScaling != null ? _stageScaling.Create() : default;
+            // 보스 간격은 웨이브를 고르는 _spawner가 주인이라 여기서 읽어 넘긴다(값이 두 곳에 생기지 않도록).
+            _scaling = _stageScaling != null ? _stageScaling.Create(_spawner.BossStageInterval) : default;
 
             _presenter.Initialize(_cts.Token, _registry);
             _spawner.Initialize(_registry);

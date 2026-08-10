@@ -20,6 +20,11 @@ namespace Assets.MyAssets.Scripts.UI
         private sealed class CategoryRow
         {
             public RoguelikeCategory Category;
+
+            /// <summary>이름을 다시 뽑을 원본(언어가 바뀌면 SO의 Title이 달라진다).</summary>
+            public RoguelikeChoiceSO Source;
+
+            public Label NameLabel;
             public Label PointsLabel;
             public Button MinusButton;
             public Button PlusButton;
@@ -86,10 +91,24 @@ namespace Assets.MyAssets.Scripts.UI
                 _rows.Add(new CategoryRow
                 {
                     Category = cat,
+                    Source = category,
+                    NameLabel = nameLabel,
                     PointsLabel = pointsLabel,
                     MinusButton = minusButton,
                     PlusButton = plusButton,
                 });
+            }
+        }
+
+        /// <summary>카테고리 이름을 현재 언어로 다시 그린다(행을 새로 만들지 않는다).</summary>
+        public void RefreshLabels()
+        {
+            foreach (CategoryRow row in _rows)
+            {
+                if (row.Source != null)
+                {
+                    row.NameLabel.text = row.Source.Title;
+                }
             }
         }
 

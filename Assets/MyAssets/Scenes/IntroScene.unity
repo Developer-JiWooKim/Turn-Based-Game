@@ -761,6 +761,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Singleton.GameManager
   _fadeScreenEffect: {fileID: 728337733}
+  _stringTable: {fileID: 11400000, guid: e7786bd78544787b322a8ca0c5c65954, type: 2}
 --- !u!4 &1058722698
 Transform:
   m_ObjectHideFlags: 0

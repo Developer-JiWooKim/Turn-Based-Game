@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Progression.Run;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -39,13 +40,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// </summary>
     public sealed class PartyStatusBarView
     {
-        /// <summary>표시할 스탯 행. <see cref="RowLabels"/>와 순서·개수가 같아야 한다.</summary>
+        /// <summary>표시할 스탯 행. <see cref="RowLabelKeys"/>와 순서·개수가 같아야 한다.</summary>
         private enum StatRow { Hp, Atk, Spd, Def, CritRate, CritDmg, Res }
 
         private static readonly StatRow[] Rows =
             { StatRow.Hp, StatRow.Atk, StatRow.Spd, StatRow.Def, StatRow.CritRate, StatRow.CritDmg, StatRow.Res };
 
-        private static readonly string[] RowLabels = { "HP", "ATK", "SPD", "DEF", "치명타", "치명피해", "저항" };
+        private static readonly string[] RowLabelKeys =
+        {
+            "ui.stat.hp", "ui.stat.atk", "ui.stat.spd", "ui.stat.def",
+            "ui.stat.critRate", "ui.stat.critDmg", "ui.stat.res"
+        };
 
         // 리치 텍스트 색은 태그 문자열이라 USS 변수를 참조할 수 없어 여기에 둔다.
         private const string ChoiceColor = "#7FB8FF";  // 로그라이크 선택지로 얻은 성장
@@ -108,7 +113,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 var row = new VisualElement();
                 row.AddToClassList("party-stat-row");
 
-                var caption = new Label(RowLabels[i]);
+                var caption = new Label(Loc.Get(RowLabelKeys[i]));
                 caption.AddToClassList("party-stat-label");
 
                 values[i] = new Label();

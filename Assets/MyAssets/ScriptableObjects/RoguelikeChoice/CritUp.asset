@@ -27,7 +27,7 @@ MonoBehaviour:
   _healFlat: 0
   _resFlat: 0
   _critRateFlat: 0.08
-  _critDmgFlat: 0.4
+  _critDmgFlat: 0.25
   _enemyHpMul: 1
   _enemyAtkMul: 1
   _enemySkipFirstTurn: 0

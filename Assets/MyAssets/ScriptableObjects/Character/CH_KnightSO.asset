@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e038678a15e9bac4ab84456589b34c02, type: 3}
+  m_Name: CH_KnightSO
+  m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.CharacterStatsSO
+  _displayName: Knight
+  _prefab: {fileID: 2085239762575628085, guid: 181537248ce65a04e8869ca8e3d60879, type: 3}
+  _icon: {fileID: 21300000, guid: 2d2905b28a7d2b540bc01ec66fc5d290, type: 3}
+  _maxHp: 1000
+  _atk: 200
+  _spd: 100
+  _def: 150
+  _critRate: 0.25
+  _critDmg: 1.5
+  _res: 0.2
+  _synergyThreshold: 2
+  _synergyAtkRate: 0
+  _synergySpdRate: 0
+  _synergyDefRate: 1
+  _synergyCritRate: 0
+  _synergyCritDmg: 0
+  _synergyRes: 0.15

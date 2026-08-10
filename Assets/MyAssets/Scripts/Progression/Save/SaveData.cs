@@ -119,13 +119,14 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         /// <summary>효과음 볼륨(0~1)</summary>
         public float SfxVolume = 1f;
 
-        /// <summary>창모드 해상도 선택 인덱스, -1이면 아직 고른 적 없음(현재 해상도 유지).</summary>
+        /// <summary>
+        /// 화면 모드 프리셋 인덱스(<c>GameSettings.DisplayPresets</c>). -1이면 아직 고른 적 없음(현재 해상도 유지).
+        /// 해상도와 전체화면 여부를 프리셋 하나가 함께 정하므로 별도의 <c>Fullscreen</c> 값을 두지 않는다 —
+        /// 둘로 나누면 "창모드인데 1920x1080" 같은 어긋난 조합이 저장될 수 있다.
+        /// </summary>
         public int ResolutionIndex = -1;
 
-        public bool Fullscreen = true;
-
-        //TODO#:언어 설정 기능 뺄 것 같음
-        /// <summary>언어 코드, Default = ko</summary>
+        /// <summary>언어 코드(<c>"ko"</c> / <c>"en"</c>), Default = ko. 해석은 <c>Loc.Parse</c>가 한다.</summary>
         public string Language = "ko";
 
         public string InputBindingOverrides = string.Empty;

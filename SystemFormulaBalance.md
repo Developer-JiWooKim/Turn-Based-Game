@@ -4,6 +4,7 @@
 수치를 조정할 때 어디를 만져야 하는지, 무엇이 함께 움직여야 하는지를 판단하는 기준으로 씁니다.
 
 - 코드 규칙·구조는 `CLAUDE.md`, 남은 작업은 `TODO.md`, 기획은 `README.md`를 참고하세요.
+- **이 공식들로 실제 성장 곡선을 계산한 결과는 `BalanceCurve.md`에 있습니다** — 수치를 조정하기 전에 그쪽의 "결론" 절을 먼저 보세요.
 - **밸런싱 수치는 전부 SO/인스펙터에 있고, 이 문서의 값은 2026-08-06 기준 스냅샷입니다.**
 
 ## 현재 상수 스냅샷
@@ -15,6 +16,9 @@
 | 플레이어 성장률 HP/ATK/DEF | 0.05 / 0.04 / 0.03 | `StageScalingSO.asset` |
 | 몬스터 성장률 HP/ATK/DEF | 0.08 / 0.06 / 0.03 | `StageScalingSO.asset` |
 | 몬스터 복리 | ON | `StageScalingSO.asset` |
+| 난이도 가속 시작 / 배수 | 30스테이지 / ×1.5 | `StageScalingSO.asset` |
+| 몬스터 SPD 성장 / 시작 | 0.03 / 5스테이지 이후 | `StageScalingSO.asset` |
+| 보스 처치 SPD 보상 | 기준 SPD의 0.08 | `StageScalingSO.asset` |
 | 보스 스테이지 간격 | 5 | `MonsterSpawner._bossStageInterval` |
 | 선택지 제시 개수 | 3 | `RoguelikeRewardService._choiceCount` |
 | 영입 후보 수 | 3 | `RoguelikeRewardService._recruitCandidateCount` |
@@ -81,21 +85,32 @@
 - 값 3: 성장률과 복리 토글 (`StageScalingSO`)
 
 ### 3. 출력값
-- 스폰 시점의 몬스터 `Stats` (SPD·치명타·저항은 변경 없음)
+- 스폰 시점의 몬스터 `Stats` (치명타·저항은 변경 없음. **SPD는 2026-08-10부터 별도 규칙으로 증가**)
 
 ### 4. 공식
 ```
-steps  = max(0, 스테이지 − 1)
-배율   = 복리 ON  → (1 + rate)^steps
-         복리 OFF → 1 + rate × steps
-결과   = max(1, Round(기준값 × 배율))
+steps       = max(0, 스테이지 − 1)
+normalSteps = min(steps, accelStartStage − 1)      # 가속 전 구간
+accelSteps  = steps − normalSteps                  # 가속 구간
+accelRate   = rate × accelMultiplier
+
+배율 = 복리 ON  → (1 + rate)^normalSteps × (1 + accelRate)^accelSteps
+       복리 OFF → 1 + rate × normalSteps + accelRate × accelSteps
+결과 = max(1, Round(기준값 × 배율))
+
+# SPD만 별도(가속 미적용)
+spdSteps = max(0, 스테이지 − spdStartStage)
+SPD      = max(1, Round(기준SPD × (1 + monsterSpdRate)^spdSteps))
 ```
-- 위치: `Battle/Core/StageScaling.ApplyToMonster`
+- 위치: `Battle/Core/StageScaling.ApplyToMonster` / `Multiplier` / `ScaleSpd`
+- **가속 구간을 나누는 이유**: 성장률만 통째로 올리면 초반까지 함께 어려워진다. "30스테이지까지는 편하게, 이후 빠르게"를 만들려면 구간을 끊어야 한다
+- **SPD에 가속을 적용하지 않는 이유**: 가속 구간에서 속도까지 튀면 선공이 한순간에 뒤집혀 플레이어가 대응할 여지가 없다
 
 ### 5. 예시 계산
-- 입력: Minion HP 500, 10스테이지, HP 성장률 0.08, 복리 ON
-- 계산: `steps = 9` → `1.08^9 = 1.999` → `500 × 1.999 = 999.5`
-- 결과: **1000** (기준의 2배)
+- 입력: Minion HP 500, 36스테이지, HP 성장률 0.08, 가속 시작 30 / 배수 1.5, 복리 ON
+- 계산: `steps = 35`, `normalSteps = 29`, `accelSteps = 6`, `accelRate = 0.12`
+- `1.08^29 = 9.317`, `1.12^6 = 1.974` → 배율 `18.39` → `500 × 18.39`
+- 결과: **9195** (가속이 없었다면 `1.08^35 = 14.79` → 7395)
 
 ### 6. 상한/하한
 - 최소값: 1 (0으로 떨어지지 않게)
@@ -103,10 +118,12 @@ steps  = max(0, 스테이지 − 1)
 
 ### 7. 밸런스 의도
 - **몬스터 성장률이 플레이어보다 높은 것이 전제다.** 플레이어는 로그라이크 선택지로 원하는 스탯을 몰아 올릴 수 있으므로, 자동 성장은 "완전히 뒤처지지 않을 정도"만 담당한다.
-- SPD·치명타·저항은 스케일링 대상이 아니다. SPD는 양측이 같이 오르면 턴 순서가 그대로라 의미가 없고 몬스터만 올리면 선공을 계속 뺏겨 체감이 나쁘다. 비율 스탯은 곱하면 금방 상한에 붙는다.
+- 치명타·저항은 스케일링 대상이 아니다(곱하면 금방 상한에 붙는다).
+- **SPD는 2026-08-10에 방침이 뒤집혔다.** 원래는 "몬스터만 올리면 선공을 계속 뺏겨 체감이 나쁘다"는 이유로 제외했는데, 그 결과 **속도 강화 선택지가 사실상 빈 선택지**가 됐다(SPD를 올릴 이유가 없으므로). 지금은 5스테이지 이후 몬스터 SPD를 3%씩 올려 선공 압박을 만들고, 보스 처치마다 플레이어에게 기준 SPD의 8%를 돌려준다. ⚠️ **보스 보상은 일부러 몬스터 증가분보다 작다** — 같은 속도로 주면 압박이 사라져 원래 문제로 되돌아간다.
 
 ### 8. 조심할 점
 - ⚠️ **복리 토글이 난이도에 가장 크게 작용한다.** 난이도 조정은 이 값부터 만지는 게 효과가 크다.
+- ⚠️ **난이도를 재는 표본 스테이지가 보스 배수(현재 5)에 몰리지 않게 할 것.** 보스 웨이브는 HP·DEF가 크게 달라 일반 웨이브와 결과가 다르다 — 실제로 1차 밸런싱이 10/20/30/40/50만 보고 진행돼 보스전 기준으로 맞춰진 적이 있다(`BalanceCurve.md` 참고).
 - 플레이어와 증가 방식이 다르다(몬스터=지수, 플레이어=선형). 20스테이지 기준 몬스터 HP ×4.32 / 플레이어 HP ×1.95이며, 이 격차는 **선택지 성장이 메우도록 설계**돼 있다. 몬스터 성장률을 올리기 전에 선택지 수치를 먼저 볼 것.
 
 ---

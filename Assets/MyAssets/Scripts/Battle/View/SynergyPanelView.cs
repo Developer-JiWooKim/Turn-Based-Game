@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Battle.Data;
 using Assets.MyAssets.Scripts.Progression.Run;
 using UnityEngine;
@@ -42,7 +43,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             _container.Clear();
             _rows.Clear();
 
-            var title = new Label("시너지");
+            var title = new Label(Loc.Get("ui.synergy.title"));
             title.AddToClassList("synergy-title");
             _container.Add(title);
 
@@ -144,32 +145,32 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             if (e.AtkRate != 0f)
             {
-                parts.Add($"ATK +{e.AtkRate * 100f:0}%");
+                parts.Add($"{Loc.Get("ui.stat.atk")} +{e.AtkRate * 100f:0}%");
             }
 
             if (e.SpdRate != 0f)
             {
-                parts.Add($"SPD +{e.SpdRate * 100f:0}%");
+                parts.Add($"{Loc.Get("ui.stat.spd")} +{e.SpdRate * 100f:0}%");
             }
 
             if (e.DefRate != 0f)
             {
-                parts.Add($"DEF +{e.DefRate * 100f:0}%");
+                parts.Add($"{Loc.Get("ui.stat.def")} +{e.DefRate * 100f:0}%");
             }
 
             if (e.CritRate != 0f)
             {
-                parts.Add($"치명타 +{e.CritRate * 100f:0}%p");
+                parts.Add($"{Loc.Get("ui.stat.critRate")} +{e.CritRate * 100f:0}%p");
             }
 
             if (e.CritDmg != 0f)
             {
-                parts.Add($"치명피해 +{e.CritDmg * 100f:0}%p");
+                parts.Add($"{Loc.Get("ui.stat.critDmg")} +{e.CritDmg * 100f:0}%p");
             }
 
             if (e.Res != 0f)
             {
-                parts.Add($"저항 +{e.Res * 100f:0}%p");
+                parts.Add($"{Loc.Get("ui.stat.res")} +{e.Res * 100f:0}%p");
             }
 
             return string.Join(" · ", parts);

@@ -2,7 +2,7 @@
     <Style src="../Common.uss" />
     <Style src="RoguelikeChoice.uss" />
     <ui:VisualElement name="roguelike-panel" class="roguelike-overlay" style="display: none;">
-        <ui:Label name="panel-header" text="성장 선택" class="roguelike-header outline-text" />
+        <ui:Label name="panel-header" text="ui.roguelike.header" class="roguelike-header outline-text" />
         <ui:VisualElement class="roguelike-cards">
             <ui:Button name="choice-card" class="choice-card panel-frame">
                 <ui:VisualElement name="card-icon" class="card-icon" />

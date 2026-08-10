@@ -1,0 +1,285 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5f6de3d95d1e3926152ff677cc15ff6, type: 3}
+  m_Name: UiStringTable
+  m_EditorClassIdentifier: 
+  _entries:
+  - Key: ui.title.start
+    Ko: "\u25C6  \uC0C8\uB85C\uC6B4 \uC6D0\uC815  \u25C6"
+    En: "\u25C6  NEW EXPEDITION  \u25C6"
+  - Key: ui.title.continue
+    Ko: "\uC774\uC5B4\uD558\uAE30"
+    En: CONTINUE
+  - Key: ui.title.option
+    Ko: "\uC635\uC158"
+    En: OPTION
+  - Key: ui.title.quit
+    Ko: "\uC885\uB8CC"
+    En: QUIT
+  - Key: ui.select.header
+    Ko: "\uCE90\uB9AD\uD130 \uC120\uD0DD"
+    En: Select Character
+  - Key: ui.select.back
+    Ko: "\uB4A4\uB85C"
+    En: Back
+  - Key: ui.select.allocation
+    Ko: "\uC131\uD5A5"
+    En: Traits
+  - Key: ui.select.battle
+    Ko: "\uC804\uD22C \uC2DC\uC791"
+    En: Start Battle
+  - Key: ui.common.close
+    Ko: "\uB2EB\uAE30"
+    En: Close
+  - Key: ui.option.title
+    Ko: "\uC635\uC158"
+    En: Options
+  - Key: ui.option.volume.section
+    Ko: "\uC0AC\uC6B4\uB4DC"
+    En: Sound
+  - Key: ui.option.volume.master
+    Ko: "\uB9C8\uC2A4\uD130"
+    En: Master
+  - Key: ui.option.volume.bgm
+    Ko: BGM
+    En: BGM
+  - Key: ui.option.volume.sfx
+    Ko: "\uD6A8\uACFC\uC74C"
+    En: SFX
+  - Key: ui.option.display.section
+    Ko: "\uD654\uBA74"
+    En: Display
+  - Key: ui.option.display.windowed720
+    Ko: "\uCC3D\uBAA8\uB4DC 1280x720"
+    En: Windowed 1280x720
+  - Key: ui.option.display.fullscreen1080
+    Ko: "\uC804\uCCB4\uD654\uBA74 1920x1080"
+    En: Fullscreen 1920x1080
+  - Key: ui.option.language.section
+    Ko: "\uC5B8\uC5B4"
+    En: Language
+  - Key: ui.option.keybind.section
+    Ko: "\uD0A4 \uC124\uC815"
+    En: Key Bindings
+  - Key: ui.option.keybind.reset
+    Ko: "\uD0A4 \uCD08\uAE30\uD654"
+    En: Reset Keys
+  - Key: ui.keybind.prev
+    Ko: "\uC774\uC804"
+    En: Previous
+  - Key: ui.keybind.next
+    Ko: "\uB2E4\uC74C"
+    En: Next
+  - Key: ui.keybind.confirm
+    Ko: "\uD655\uC815"
+    En: Confirm
+  - Key: ui.keybind.pause
+    Ko: "\uC77C\uC2DC\uC815\uC9C0"
+    En: Pause
+  - Key: ui.allocation.title
+    Ko: "\uC131\uD5A5 \uD3EC\uC778\uD2B8"
+    En: Trait Points
+  - Key: ui.allocation.points
+    Ko: "\uBCF4\uC720 {0} / \uCD1D {1}"
+    En: Available {0} / Total {1}
+  - Key: ui.allocation.reset
+    Ko: "\uCD08\uAE30\uD654"
+    En: Reset
+  - Key: ui.hud.stage
+    Ko: STAGE {0}
+    En: STAGE {0}
+  - Key: ui.hud.yourTurn
+    Ko: "\uB2F9\uC2E0\uC758 \uCC28\uB840 \u2014 \uACF5\uACA9\uD560 \uBAAC\uC2A4\uD130\uB97C
+      \uD074\uB9AD\uD558\uC138\uC694"
+    En: "Your turn \u2014 click a monster to attack"
+  - Key: ui.synergy.title
+    Ko: "\uC2DC\uB108\uC9C0"
+    En: Synergy
+  - Key: ui.roguelike.header
+    Ko: "\uC131\uC7A5 \uC120\uD0DD"
+    En: Choose a Boon
+  - Key: ui.recruit.header
+    Ko: "\uB3D9\uB8CC \uC601\uC785"
+    En: Recruit an Ally
+  - Key: ui.recruit.replaceHeader
+    Ko: "\uAD50\uCCB4\uD560 \uD30C\uD2F0\uC6D0 \uC120\uD0DD"
+    En: Choose Who Leaves
+  - Key: ui.recruit.skipTitle
+    Ko: "\uC601\uC785 \uC548 \uD568"
+    En: Don't Recruit
+  - Key: ui.recruit.skipDesc
+    Ko: "\uD604\uC7AC \uD30C\uD2F0\uB97C \uC720\uC9C0\uD569\uB2C8\uB2E4."
+    En: Keep your current party.
+  - Key: ui.pause.title
+    Ko: "\uC77C\uC2DC\uC815\uC9C0"
+    En: PAUSE
+  - Key: ui.pause.currentStage
+    Ko: "\uD604\uC7AC \uC2A4\uD14C\uC774\uC9C0"
+    En: Current Stage
+  - Key: ui.pause.previousBest
+    Ko: "\uC774\uC804 \uCD5C\uACE0 \uAE30\uB85D {0}"
+    En: Previous Best {0}
+  - Key: ui.pause.resume
+    Ko: "\uACC4\uC18D\uD558\uAE30"
+    En: Resume
+  - Key: ui.pause.abort
+    Ko: "\uBC30\uD2C0 \uC911\uB2E8"
+    En: Abort Battle
+  - Key: ui.pause.hint
+    Ko: "ESC \uD0A4\uB85C\uB3C4 \uACC4\uC18D\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4"
+    En: Press ESC to resume
+  - Key: ui.result.title
+    Ko: "\uB9AC\uD0C0\uC774\uC5B4"
+    En: Retire
+  - Key: ui.result.caption
+    Ko: "\uB3C4\uB2EC \uC2A4\uD14C\uC774\uC9C0"
+    En: Stage Reached
+  - Key: ui.result.newRecord
+    Ko: "\uC2E0\uAE30\uB85D!"
+    En: New Record!
+  - Key: ui.result.bestRecord
+    Ko: "\uCD5C\uACE0 \uAE30\uB85D {0}"
+    En: Best {0}
+  - Key: ui.result.confirm
+    Ko: "\uD0C0\uC774\uD2C0\uB85C"
+    En: To Title
+  - Key: ui.stat.hp
+    Ko: "\uCCB4\uB825"
+    En: HP
+  - Key: ui.stat.atk
+    Ko: "\uACF5\uACA9\uB825"
+    En: ATK
+  - Key: ui.stat.spd
+    Ko: "\uC18D\uB3C4"
+    En: SPD
+  - Key: ui.stat.def
+    Ko: "\uBC29\uC5B4\uB825"
+    En: DEF
+  - Key: ui.stat.critRate
+    Ko: "\uCE58\uBA85\uD0C0"
+    En: Crit Rate
+  - Key: ui.stat.critDmg
+    Ko: "\uCE58\uBA85\uD53C\uD574"
+    En: Crit DMG
+  - Key: ui.stat.res
+    Ko: "\uC800\uD56D"
+    En: RES
+  - Key: choice.AttackUp.title
+    Ko: "\uACF5\uACA9\uB825 \uAC15\uD654"
+    En: Attack Up
+  - Key: choice.AttackUp.desc
+    Ko: "\uCCB4\uB825 +50\n\uACF5\uACA9\uB825 +120"
+    En: 'HP +50
+
+      ATK +120'
+  - Key: choice.SpeedUp.title
+    Ko: "\uC18D\uB3C4 \uAC15\uD654"
+    En: Speed Up
+  - Key: choice.SpeedUp.desc
+    Ko: "\uCCB4\uB825 +100\n\uC18D\uB3C4 +50\n\uACF5\uACA9\uB825 +50"
+    En: 'HP +100
+
+      SPD +50
+
+      ATK +50'
+  - Key: choice.DefensiveUp.title
+    Ko: "\uBC29\uC5B4 \uAC15\uD654"
+    En: Defensive Up
+  - Key: choice.DefensiveUp.desc
+    Ko: "\uCCB4\uB825 +60\n\uBC29\uC5B4\uB825 +80\n\uACF5\uACA9\uB825 +35\n\uC800\uD56D
+      +10%p"
+    En: 'HP +60
+
+      DEF +80
+
+      ATK +35
+
+      RES +10%p'
+  - Key: choice.CritUp.title
+    Ko: "\uCE58\uBA85\uD0C0 \uAC15\uD654"
+    En: Crit Up
+  - Key: choice.CritUp.desc
+    Ko: "\uCCB4\uB825 +50\n\uCE58\uBA85\uD0C0 +8%p\n\uCE58\uBA85\uD53C\uD574 +25%p"
+    En: 'HP +50
+
+      Crit Rate +8%p
+
+      Crit DMG +25%p'
+  - Key: choice.Heal.title
+    Ko: "\uD68C\uBCF5"
+    En: Heal
+  - Key: choice.Heal.desc
+    Ko: "\uCCB4\uB825 1000 \uD68C\uBCF5"
+    En: Restore 1000 HP
+  - Key: choice.EnemyStun.title
+    Ko: "\uC18D\uBC15"
+    En: Stun
+  - Key: choice.EnemyStun.desc
+    Ko: "\uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0\n\uC801 \uC804\uCCB4 \uCCAB \uD134
+      \uD589\uB3D9 \uBD88\uAC00"
+    En: 'Next stage
+
+      Enemies skip first turn'
+  - Key: choice.EnemyHpDown.title
+    Ko: "\uC57D\uD654"
+    En: Weaken
+  - Key: choice.EnemyHpDown.desc
+    Ko: "\uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0\n\uC801 \uCCB4\uB825 -30%"
+    En: 'Next stage
+
+      Enemy HP -30%'
+  - Key: choice.EnemyAtkDown.title
+    Ko: "\uBB34\uC7A5 \uD574\uC81C"
+    En: Disarm
+  - Key: choice.EnemyAtkDown.desc
+    Ko: "\uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0\n\uC801 \uACF5\uACA9\uB825 -30%"
+    En: 'Next stage
+
+      Enemy ATK -30%'
+  - Key: choice.Recruit.title
+    Ko: "\uC601\uC785"
+    En: Recruit
+  - Key: choice.Recruit.desc
+    Ko: "\uC0C8\uB85C\uC6B4 \uB3D9\uB8CC\uAC00\n\uD30C\uD2F0\uC5D0 \uD569\uB958\uD569\uB2C8\uB2E4"
+    En: 'A new ally
+
+      joins your party'
+  - Key: Knight
+    Ko: "\uAE30\uC0AC"
+    En: Knight
+  - Key: Barbarian
+    Ko: "\uBC14\uBC14\uB9AC\uC548"
+    En: Barbarian
+  - Key: Mage
+    Ko: "\uB9C8\uBC95\uC0AC"
+    En: Mage
+  - Key: Rogue(Crossbow)
+    Ko: "\uB3C4\uC801(\uC11D\uAD81)"
+    En: Rogue (Crossbow)
+  - Key: Rogue(Dagger)
+    Ko: "\uB3C4\uC801(\uB2E8\uAC80)"
+    En: Rogue (Dagger)
+  - Key: Ranger
+    Ko: "\uB808\uC778\uC800"
+    En: Ranger
+  - Key: Skeleton Minion
+    Ko: "\uD574\uACE8 \uC878\uAC1C"
+    En: Skeleton Minion
+  - Key: Skeleton Mage
+    Ko: "\uD574\uACE8 \uB9C8\uBC95\uC0AC"
+    En: Skeleton Mage
+  - Key: Skeleton Rogue
+    Ko: "\uD574\uACE8 \uB3C4\uC801"
+    En: Skeleton Rogue
+  - Key: Skeleton Warrior
+    Ko: "\uD574\uACE8 \uC804\uC0AC"
+    En: Skeleton Warrior

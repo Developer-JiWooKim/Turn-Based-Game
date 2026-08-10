@@ -28,6 +28,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private UnitViewRegistry _registry;
 
+        /// <summary>
+        /// 보스 스테이지 간격. 이 값의 주인은 웨이브를 고르는 이 클래스 하나뿐이며,
+        /// 보스 처치 보상을 판정해야 하는 <c>StageScaling</c>에는 <see cref="BattleDirector"/>가 여기서 읽어 넘긴다
+        /// (같은 값을 SO에도 두면 두 곳이 어긋났을 때 알아챌 방법이 없다).
+        /// </summary>
+        public int BossStageInterval => _bossStageInterval;
+
         /// <summary>스폰할 레지스트리를 주입받는다(<see cref="BattleDirector"/>가 전투 시작 시 1회 호출).</summary>
         public void Initialize(UnitViewRegistry registry)
         {

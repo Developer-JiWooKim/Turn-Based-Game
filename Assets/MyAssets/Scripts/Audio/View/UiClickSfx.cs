@@ -42,7 +42,7 @@ namespace Assets.MyAssets.Scripts.Audio.View
             _registeredRoot = null;
         }
 
-        // 빈 공간 클릭까지 소리 내지 않도록 실제 버튼을 눌렀을 때만 재생한다.
+        /// <summary>빈 공간 클릭까지 소리 내지 않도록 실제 버튼을 눌렀을 때만 재생한다.</summary>
         private void OnClick(ClickEvent evt)
         {
             // 클릭한 요소가 VisualElement 요소면 element에 할당
