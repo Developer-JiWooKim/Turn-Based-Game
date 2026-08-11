@@ -5,8 +5,7 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Systems
 {
     /// <summary>
-    /// 화면 모드 1종(해상도 + 전체화면 여부). 둘을 한 값으로 묶어야
-    /// "창모드인데 1920x1080" 같은 어긋난 조합이 나오지 않는다.
+    /// 화면 모드 1종(해상도 + 전체화면 여부). 
     /// </summary>
     public readonly struct DisplayPreset
     {
@@ -27,15 +26,15 @@ namespace Assets.MyAssets.Scripts.Systems
     }
 
     /// <summary>
-    /// 옵션 값의 단일 진입점. "저장값 갱신 + 실제 적용"을 한곳에 모아,
-    /// 옵션 UI는 값만 대입하고 적용 규칙을 알지 않아도 되게 한다.
+    /// 옵션 값의 단일 진입점. 
+    /// 
+    /// "저장값 갱신 + 실제 적용"을 한곳에 모아, 옵션 UI는 값만 대입하고 적용 규칙을 알지 않아도 되게 한다.
     ///
     /// <see cref="SaveService"/>와 같은 static으로 둔 이유: 관리자(<see cref="AudioManager"/>)가
     /// 아직/전혀 없는 상황(부팅 직후, BattleScene 단독 실행)에서도 호출이 안전해야 하기 때문.
     /// 적용 대상이 없으면 저장값만 갱신하고 조용히 넘어간다.
     ///
     /// 파일 저장은 값을 만질 때마다 하지 않고 <see cref="Flush"/>로 한 번에 한다
-    /// (슬라이더 드래그 중 매 프레임 디스크에 쓰지 않기 위해).
     /// </summary>
     public static class GameSettings
     {

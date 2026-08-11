@@ -45,12 +45,27 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         }
 
         /// <summary>
+        /// 세이브에서 복원한다(체크포인트 재개). SO는 기준 수치일 뿐이므로 성장이 누적된 결과와
+        /// 현재 HP를 그대로 받아야 재개 전후의 파티가 같아진다.
+        /// </summary>
+        public RunMember(int unitId, CharacterStatsSO source, Stats stats, Stats baseStats, Stats choiceGrowth, int currentHp)
+        {
+            UnitId = unitId;
+            Source = source;
+            Stats = stats;
+            BaseStats = baseStats;
+            ChoiceGrowth = choiceGrowth;
+            CurrentHp = currentHp;
+        }
+
+        /// <summary>
         /// 현재 상태로 이번 스테이지의 전투용 Unit을 만든다(HP를 그대로 물려줌).
         /// 스탯은 복사본을 넘겨, 전투 중 버프/디버프가 런 데이터에 영구히 남지 않게 한다.
         /// 파티 시너지는 여기서 얹지 않는다 — <see cref="PartySynergyTracker"/>가 적용 전 스냅샷을
         /// 남겨야 사망으로 조건이 깨졌을 때 클램프 오차 없이 되돌릴 수 있기 때문.
         /// </summary>
-        public Unit CreateUnit() => new Unit(UnitId, DisplayName, TeamSide.Player, Stats.Clone(), skill: null, CurrentHp);
+        public Unit CreateUnit() => new Unit(UnitId, DisplayName, TeamSide.Player, Stats.Clone(), skill: null,
+                                            CurrentHp, Source != null ? Source.AggroWeight : 1f);
 
         /// <summary>전투가 끝난 뒤 Unit의 HP를 런 데이터에 반영한다.</summary>
         public void SyncFrom(Unit unit) => CurrentHp = unit.CurrentHp;

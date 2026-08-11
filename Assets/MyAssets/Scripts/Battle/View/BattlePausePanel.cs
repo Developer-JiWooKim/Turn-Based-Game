@@ -65,17 +65,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Awake()
         {
-            VisualElement root = _document.rootVisualElement;
-            _stageLabel = root.Q<Label>("pause-stage");
-            _bestLabel = root.Q<Label>("pause-best");
+            _stageLabel = Require<Label>("pause-stage", "현재 스테이지가 표시되지 않습니다");
+            _bestLabel = Require<Label>("pause-best", "이전 최고 기록이 표시되지 않습니다");
 
-            Button resume = root.Q<Button>("pause-resume");
-            if (resume != null)
-            {
-                resume.clicked += Resume;
-            }
+            BindButton("pause-resume", Resume);
 
-            _abortButton = root.Q<Button>("pause-abort");
+            _abortButton = Require<Button>("pause-abort", "배틀을 중단할 수 없습니다");
             if (_abortButton != null)
             {
                 _abortButton.clicked += Abort;

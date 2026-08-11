@@ -224,6 +224,31 @@
     margin-bottom: 24px;
 }
 
+/* 여러 줄 경고문 — .popup-body는 한 줄 기준이라 줄바꿈·가운데 정렬을 여기서 준다 */
+.newrun-body {
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+/* 확인/취소처럼 팝업 아래에 버튼을 나란히 놓는 줄 */
+.popup-button-row {
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+/* .btn의 좌우 padding 40px은 두 개를 나란히 놓기엔 넓다. .option-toggle과 같은 이유로 min-width가 필요하다
+   (Yoga는 min-width: auto를 적용하지 않아 flex가 버튼을 글자보다 좁게 줄인다) */
+.popup-row-button {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 160px;
+    font-size: 22px;
+    padding: 12px 16px;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
 /* 옵션 볼륨 슬라이더 */
 .option-slider {
     width: 100%;

@@ -1,8 +1,8 @@
 # CLAUDE.md
 
 이 파일은 Claude Code가 이 저장소에서 작업할 때 따라야 할 작업 규칙입니다.
-프로젝트 기획/디자인 내용은 `README.md`, 남은 작업은 `TODO.md`,
-**적용된 계산식과 밸런싱 기준은 `SystemFormulaBalance.md`**, UI 비주얼 규칙은 `UI_DesignReference.md`를 참고하세요.
+프로젝트 기획/디자인 내용은 `README.md`, 남은 작업은 `TODO.md`, **끝난 작업의 기록(겪은 함정·설계 판단 근거)은 `Completed.md`**,
+**적용된 계산식과 밸런싱 기준은 `SystemFormulaBalance.md`**, 성장 곡선 분석은 `BalanceCurve.md`, UI 비주얼 규칙은 `UI_DesignReference.md`를 참고하세요.
 코드 구조, 폴더 배치 등은 `/init`으로 스캔한 내용을 우선하고, 이 파일과 충돌하면 이 파일의 규칙을 따릅니다.
 
 ## 프로젝트 기본 정보
@@ -58,8 +58,9 @@
 
 전체 세로 슬라이스(Intro→캐릭터 선택→전투→승리 시 성장 선택지→다음 스테이지→전멸 시 리타이어)가 실제 Unity에서 작동 검증됨.
 로그라이크 루프(선택지 9종·파티 영입/교체·파티 시너지·스테이지 스케일링·6스테이지 이후 랜덤 스폰·사망 시 영구 추방)와 전멸 결과 화면, BGM/SFX, 성향 포인트 배분, 배틀 퍼즈(ESC/HUD 버튼·중단)까지 돌아간다.
-**전투 연출도 2026-08-06에 일단락됐다** — 애니메이션 이벤트 기반 타격 시퀀스(파티클·피격·데미지 숫자·히트 스톱), 근접 이동/회전, 원거리 투사체, 몬스터 스킬별 연출 분기(메이지=머리 위 낙하 / 워리어=중앙 이동)가 유닛 10종 전부에 배정 완료.
+**전투 연출도 2026-08-06에 일단락됐다** — 애니메이션 이벤트 기반 타격 시퀀스(파티클·피격·데미지 숫자), 근접 이동/회전, 원거리 투사체, 몬스터 스킬별 연출 분기(메이지=머리 위 낙하 / 워리어=중앙 이동)가 유닛 10종 전부에 배정 완료(히트 스톱은 체감이 없어 2026-08-11에 제거).
 **옵션 메뉴도 2026-08-10에 완료됐다** — 한국어/영어 전환(문구 79종 + 한글 로고 교체)과 화면 모드 2종(창모드 1280×720 / 전체화면 1920×1080).
+**이어하기(체크포인트)도 2026-08-11에 붙었다** — 보스 클리어마다 런을 저장하고 타이틀에서 재개한다.
 남은 것은 체력바 감소 애니메이션, 타겟팅 피드백, 밸런싱.
 
 ### 구현된 것
@@ -71,9 +72,16 @@
   - ⚠️ **`UnityEngine.Object`를 `LogIfNull`에 넘기면 컴파일 에러**다(`[Obsolete(error: true)]` 오버로드). 일반 `object`로 받으면 Unity의 `==` 오버로드가 사라져 **파괴된 객체가 null이 아닌 것으로 통과**하기 때문 — `Game.Core`의 `noEngineReferences`처럼 실수를 컴파일러가 막게 해뒀다
   - 반환값을 `hasError |= …`로 누적해 **빠진 것을 한 번에 모두** 보고한다(하나 고치면 또 걸리는 식이 되지 않도록). 접두어는 `owner.GetType().Name`에서 뽑으므로 클래스명을 문자열로 적지 않는다 — 과거에 복붙으로 다른 클래스 이름이 남아 엉뚱한 파일을 뒤진 적이 있다. `owner as Object`로 컨텍스트를 넘겨 MonoBehaviour면 콘솔 클릭 시 해당 오브젝트가 선택된다
   - 호출 시점은 `Awake`(또는 생성자) 1회 + `#if UNITY_EDITOR`의 `OnValidate`(플레이 전에 인스펙터에서 발견). **예외: `UnitView`는 `OnValidate`를 두지 않는다** — 인스펙터 공란이 정상이고(`GetComponentInChildren`으로 자동 탐색) 탐색 전에는 항상 비어 보여 거짓 경고가 난다
-  - 적용: `BattleDirector`·`UnitViewRegistry`·`UnitView`·`RoguelikeRewardService`·`GameManager`·`InputManager`·`InputBindingSaver`·`InputRebinder`·`CharacterPreview`·`CharacterSelectPanelUI`·`GameUIController`·`BasePanelUI`·`OptionPopupUI`·`AllocationRowsView`
+  - 적용: `BattleDirector`·`UnitViewRegistry`·`UnitView`·`RoguelikeRewardService`·`GameManager`·`InputManager`·`InputBindingSaver`·`InputRebinder`·`CharacterPreview`·`GameUIController`·`AllocationRowsView` + UXML 조회를 하는 패널 전부(`BasePanelUI`의 헬퍼 경유 — 아래 항목 참고)
   - **제외 대상**: 도메인 상태 오류(`BattleDirector`의 "파티가 비어 있어"), 파일 I/O 예외(`SaveService`), 조회 실패(`InputRebinder`의 액션 경로 — 참조가 null인 게 아니라 이름이 어긋난 것이라 자체 메시지가 더 정확하다)
   - ⚠️ **검증 대상은 "없으면 동작 불가능한 참조"뿐이다.** 값 타입(float/int/string)은 null이 될 수 없고, 선택 참조(Tooltip에 "비워두면 ~"이라 적힌 것들 — `_pausePanel`, `_sfx`, `_camera` 등)는 없어도 동작하는 게 설계라 사용처 null 체크가 맞다
+  - **UXML 조회는 예외적으로 "필수/선택"을 가리지 않고 전부 보고한다**(2026-08-11 규칙 추가). 요소 이름 오타는 인스펙터 검증으로도 `OnValidate`로도 잡히지 않고(트리가 런타임에만 존재한다) 화면이 조용히 비는 것으로만 드러나므로, **1회 대입 지점**에서 즉시 알리는 것이 유일한 조기 발견 수단이다
+    - 창구는 `BasePanelUI`의 헬퍼 3종이다: `Require<T>(이름, 결과)`(요소 1개) / `RequireAll<T>(클래스명, 결과)`(선택지 카드처럼 개수가 UXML에 달린 목록) / `BindButton(이름, 콜백)`(찾기 + 클릭 연결). `Root.Q<…>`를 패널에서 직접 부르지 않는다
+    - ⚠️ **`BindButton`이 별도로 있는 이유**: `Root.Q<Button>("x").clicked += …`는 요소가 없으면 그 줄에서 NRE가 나 **`InitPanel`의 나머지 배선이 통째로 끊긴다**(버튼 하나 오타에 패널 전체가 죽는다). `BindButton`은 로그만 남기고 넘어간다
+    - **반대로 런타임에 반복 호출되는 지점에서는 보고하지 않는다** — `Refresh()`·`SetVisible()`처럼 매번 불리는 곳에 로그를 두면 클릭할 때마다 콘솔이 쌓인다. 그쪽은 조용한 `!= null` 가드만 두고, 보고는 대입 지점(`Require`)과 `BasePanelUI.ValidateRoot`가 시작 시 1회씩 맡는다
+    - **보고 주체는 UXML의 주인인 패널 하나뿐이다.** 컨테이너를 넘겨받는 순수 C# View(`AllocationRowsView`·`KeybindListView`·`PartyStatusBarView`·`SynergyPanelView`)는 조용히 early-return한다 — 패널의 `Require`가 이미 UXML 이름까지 찍어 더 정확하다. 두 곳에서 찍으면 한 원인에 로그가 둘이 된다
+    - `BattleHUD`는 `BasePanelUI`가 아니라 자체 `UIDocument`를 쓰므로 같은 역할의 private `Find<T>`를 자기 안에 둔다
+    - ⚠️ **`NullCheck`를 제네릭으로 바꾸지 말 것**(2026-08-11 검토 후 기각). "박싱을 없앤다"는 명분이 성립하지 않는다 — 값 타입은 애초에 null이 될 수 없어 `LogIfNull`에 넘길 일이 없고, 참조 타입을 `object` 파라미터로 넘기는 건 박싱이 아니다. 오히려 `LogIfNull<T>(T)`를 두면 인자가 `UnityEngine.Object`일 때 **비제네릭 `LogIfNull(Object)` 오버로드보다 제네릭이 이겨**(더 구체적인 변환) `[Obsolete(error:true)]` 가드가 조용히 우회되고, 제약 없는 `T`의 `!= null`은 값 타입에 박싱 비교를 만든다. `BasePanelUI.Require<T>`의 제네릭은 `where T : VisualElement`(순수 C# 클래스)라 이 문제와 무관하다
   - **누락 시 처리는 두 갈래**: *필수*는 `_isValid` 플래그로 캐싱해 공개 메서드를 막고(`CharacterPreview`, `GameUIController`는 `enabled = false`까지), *연출/선택*은 보고만 하고 사용처가 매번 `!= null`로 건너뛴다(`GameManager._fadeScreenEffect`). **런타임에 파괴될 수 있는 참조는 캐싱하면 안 된다** — Fade Canvas를 GameManager 자식으로 두지 않으면 씬 전환 때 파괴되는데, Awake 시점 스냅샷인 플래그는 그걸 잡지 못한다
     - 플래그 이름은 `_isValid`로 통일한다(`GameUIController`·`CharacterPreview`·`InputRebinder`·`InputBindingSaver`). "준비 완료"가 아니라 **검증 결과**를 담는 값이라 `_isReady`는 쓰지 않는다. `= true` 초기화는 생성자 early-return이 있는 순수 C# 클래스(`InputRebinder`)에만 두고, `Awake`에서 대입하는 MonoBehaviour에는 붙이지 않는다 — 항상 덮어써서 죽은 코드인 데다 "검증 전 기본값은 유효"로 반대로 읽힌다
     - ⚠️ **`enabled = false`로 끄는 경우, 구독 해제 가드는 `OnEnable`·`OnDisable` 양쪽에 대칭으로 둔다.** `Awake`에서 끈 컴포넌트는 한 번도 활성화된 적이 없어 `OnEnable`·`Start`뿐 아니라 **`OnDisable`도 호출되지 않는다** — 가드가 실제로 필요한 건 런타임에 누가 `enabled = true`로 되살리는 경로다. `OnDisable`에만 달면 그때 `OnEnable`이 null 참조로 NRE를 내며 구독 도중에 끊기고, 이어지는 `OnDisable`은 플래그 때문에 return해 **구독이 반쯤 걸린 채 남는다**
@@ -83,6 +91,13 @@
   - ⚠️ **액션 경로 문자열의 유일한 출처는 `Systems/InputControls.cs`**(맵 이름 2개 + 액션 경로 9개 상수 + 논리 컨트롤 표 `Rebindable` + `RebindControl` struct). `InputManager`의 액션 캐싱과 리바인딩 표가 같은 상수를 쓰므로 어긋날 수 없다 — 과거엔 같은 경로가 양쪽에 따로 적혀 있어서 한쪽만 갱신하면 **키 설정 UI만 조용히 망가졌다**(버튼에 `-`가 뜨고 눌러도 무반응). 에셋에서 액션 이름을 바꾸면 이 파일만 고치면 된다. 컴파일러가 에셋과 대조해주지는 않으므로, 캐싱은 `throwIfNotFound: true`로 시작 즉시 터뜨리고 리바인딩 경로(`GetRebindDisplay`·`InputRebinder`)는 `LogError`를 남긴다
   - **키 리바인딩**: `StartRebind(controlIndex, onFinished)`가 `PerformInteractiveRebinding`으로 다음 키 입력을 캡처한다. 방향키·확정은 Battle/Menu 두 맵에 같은 키로 존재하므로 **논리 컨트롤 4종**(이전/다음/확정/일시정지)으로 묶어(`InputControls.Rebindable`) 한 번 재설정하면 양쪽 맵에 함께 적용한다. ⚠️ `RebindControl.Label`은 표시 문자열이 아니라 **문자열 키**(`ui.keybind.*`)이며 번역은 `KeybindListView`가 한다. sibling 액션을 못 찾으면 새 키가 **한쪽 맵에만** 적용되므로 이 경우도 로그를 남긴다. 오버라이드는 `SaveData.Options.InputBindingOverrides`(JSON)에 저장하고 `Awake`에서 `LoadBindingOverridesFromJson`으로 복원. UI는 `OptionPopupUI`가 이 API로 키설정 행을 동적 생성. ⚠️ 두 씬(Intro/Battle)의 InputManager 오브젝트에 `.inputactions` 에셋을 `_actions` 슬롯에 **직접 할당**해야 한다
 - **영구 저장 (`Scripts/Progression/Save/`)**: `SaveData`(런을 넘어 유지되는 값 = 최고 스테이지 + 카테고리별 영구 포인트 투자 내역 + 옵션 설정, `JsonUtility` 직렬화를 위해 public 필드만 사용) + `SaveService`(static, `save.json` 읽기/쓰기). **저장 위치가 에디터/빌드에서 다름** — 에디터는 확인·삭제가 쉽도록 프로젝트 루트의 `SaveData/`(`.gitignore` 등록됨, Assets 바깥이라 `.meta` 안 생김), 빌드는 `Application.persistentDataPath`. 빌드된 게임은 프로젝트 폴더와 무관하고 설치 경로가 읽기 전용일 수 있어 루트 방식을 쓸 수 없다. 최초 접근 시 1회 로드 후 캐싱하고, 파일이 없거나 깨져 있으면 기본값으로 복구한다. `GameManager`가 없는 상태(BattleScene 직접 실행)에서도 동작하도록 static으로 둠. 영구 포인트 **획득량은 저장하지 않고** `BestStage`에서 파생(`GetEarnedPoints`)해 값이 어긋날 여지를 없앰. 필드 추가는 기존 세이브와 호환되며(없는 필드는 초기값 유지), 필드 의미가 바뀔 때만 `Version`을 올려 `SaveService.Normalize`에서 마이그레이션
+- **이어하기 체크포인트 (`Progression/Save/RunSnapshot`)**: 진행 중인 런 1개를 `SaveData.Run`에 얹어 타이틀의 '이어하기'로 재개한다. 저장 시점은 **보스를 막 처치한 직후**(성장 선택지를 받기 *전*)이고, 다음 보스를 잡으면 덮어쓴다. **전멸하면 지우고, '배틀 중단'은 남긴다** — 중단은 "잠시 그만둔 것"이라 이어할 수 있어야 하기 때문(`BattleRunFlow.EndRunAsync(run, aborted, ct)`가 이 갈림길을 판정한다)
+  - ⚠️ **재개는 전투가 아니라 승리 후 처리부터 시작한다.** 스냅샷의 의미가 "`CurrentStage` 전투를 이미 이겼다"라서, `BattleDirector`가 스테이지 루프에 들어가기 전에 `AdvanceAfterVictoryAsync`(진급 → 자동 성장 → 성장 선택지)를 한 번 먼저 돌린다. 재개 여부는 `GameManager.IsResumedRun` → `BattleRunFlow.ResolveRun()`이 돌려주는 `RunStart`로 전달된다. 덕분에 스냅샷에 "선택지 미수령" 같은 플래그를 둘 필요가 없다. 대신 **중단→재개로 보스 선택지를 다시 뽑을 수 있는 것은 의도된 동작**이다(2026-08-11 결정)
+  - ⚠️ **"보스 스테이지" 판정은 `SpawnWaveSO.IsBossWave`**(보스 BGM과 같은 기준)이고 스테이지 번호 배수가 아니다 — 랜덤 풀에 보스 웨이브가 없어 일반 웨이브로 대체된 스테이지까지 "보스 클리어"로 세면 안 되기 때문. 반면 `StageScaling`의 SPD 보스 보상은 여전히 **스테이지 번호**에서 파생된다(영입 소급이 되짚을 수 있어야 하므로) — 두 기준이 일부러 다르다
+  - ⚠️ **캐릭터 식별자는 SO의 에셋 이름(`source.name`)이다.** `DisplayName`은 `Loc.Get`을 거친 **번역문**이라 언어를 바꾸면 값이 달라져 식별자로 쓸 수 없고, 로스터 인덱스는 순서를 바꾸면 조용히 다른 캐릭터가 된다. 복원은 `RunSnapshot.ToRunData(roster)`가 하고 로스터에서 캐릭터를 못 찾으면 **null을 돌려준다**(세이브는 지우지 않고 '이어하기' 버튼만 잠근다)
+  - `Stats`에 `[Serializable]`을 붙이지 않고 `StatsSnapshot` DTO를 둔다 — 세이브 포맷이 `Game.Core` 순수 로직 클래스의 필드 배치에 묶이지 않도록. `RunData.UnitIdSeed`도 함께 저장한다(재개 후 발급한 Id가 기존 파티원과 겹치면 `UnitViewRegistry` 조회가 엉킨다)
+  - 인스펙터 테스트 파티(BattleScene 단독 실행)로 돌 때는 체크포인트를 저장하지 않는다(`BattleRunFlow._isFallbackParty`) — 실제 세이브가 덮여 타이틀에 엉뚱한 이어하기가 뜨지 않도록
+  - 새 런을 시작할 때 체크포인트가 있으면 `NewRunWarningPopupUI`(경고 팝업)로 먼저 묻는다. 판정(`SaveService.HasRun`)과 삭제(`ClearRun`)는 팝업이 아니라 `GameUIController`가 하고, 타이틀 버튼의 잠금은 `TitleState.Enter`가 `SetContinueEnabled`로 지시한다(패널은 도메인 판정을 갖지 않는다)
 - **런 데이터 (`Scripts/Progression/Run/`)**: `RunData`가 런 전체 상태를 소유하고 씬을 넘어 `GameManager`가 보관(캐릭터 선택 시 `BeginRun`으로 생성). `RunMember`(파티원 1명 = 원본 SO + 성장 누적 `Stats` + `BaseStats` 스냅샷 + **선택지 몫만 따로 센 `ChoiceGrowth`** + 현재 HP + 런 내내 고정인 `UnitId`) 리스트, `PendingModifiers`(다음 스테이지 몬스터 디버프 예약), `CurrentStage`, `NextUnitId()` 발급기를 가짐. 선택지 효과 적용(`ApplyChoice`)·스테이지 자동 성장(`ApplyStageGrowth`)·전투 결과 반영(`SyncFromBattle`)·사망자 영구 추방(`RemoveFallen`)·영입(`Recruit`)·파티가 꽉 찼을 때 교체(`ReplaceMember`)가 전부 여기 있고 View는 결과만 화면에 반영. `PreviewRecruitStats`는 `Recruit`과 같은 소급 성장 계산(`ApplyCatchUp`)을 공유해, 영입 후보 카드에 뜨는 값과 실제 합류 결과가 항상 일치하도록 함
   - ⚠️ **영입자가 기존 파티원보다 약한 건 버그가 아니다**(확정된 규칙, 2026-08 재확인). `ApplyCatchUp`은 **스테이지 자동 성장만** 소급하고 로그라이크 선택지 성장은 소급하지 않는다 — "그건 그 시점 파티가 벌어들인 몫"이라 파티를 살려두는 데 가치를 두는 설계다. 하단 파티 스탯 표기에서 새 영입자만 파란 `(+선택지)` 괄호가 비어 보이는 것이 정상 결과이며, 과거에 이걸 "영입 스탯 불일치"로 두 번 의심한 적이 있다. 바꾸려면 밸런싱 결정이 먼저다
   - **성장 경로가 둘로 나뉜다**: 선택지는 `RunMember.ApplyChoiceGrowth`(→ `ChoiceGrowth`에도 누적), 스테이지 자동 성장·영입 소급은 `ApplyStageGrowth`(집계 안 함). 공용 구현은 private이라 새 성장 경로를 추가할 때 둘 중 하나를 반드시 고르게 된다. 집계는 효과 값을 그대로 더하지 않고 **적용 전후 `Stats`의 차분**을 쓴다 — `RoguelikeEffect.ApplyTo`가 치명타·저항을 1.0으로 클램프하면 넣은 값과 실제 증가분이 달라지기 때문. 하단 파티 스탯 표기가 이 분리에 의존한다
@@ -113,7 +128,13 @@
       - ⚠️ **SPD에는 난이도 가속을 적용하지 않는다** — 가속 구간에서 속도까지 튀면 선공이 한순간에 뒤집혀 대응할 여지가 없다
       - ⚠️ **보스 보상은 이벤트가 아니라 스테이지 번호에서 파생시킨다.** `CreatePlayerGrowth`가 `step % 보스간격 == 0`일 때만 SPD를 채우므로 영입자 소급(`ApplyCatchUp`)이 같은 step들을 되짚기만 해도 값이 정확히 일치한다 — "보스를 잡았다"는 이벤트로 만들면 소급 경로가 그 사실을 알 수 없어 어긋난다
       - 보스 간격의 **단일 출처는 `MonsterSpawner._bossStageInterval`**이고, `BattleDirector`가 `StageScalingSO.Create(bossStageInterval)`로 넘긴다. SO에 같은 값을 또 두면 두 곳이 어긋나도 알아챌 방법이 없다
-  - `WeightedPicker`: 가중치 비례 + 중복 없는 추첨. 추후 영구 포인트(카테고리별 가중치 투자) 시스템도 이 위에 얹음
+  - `WeightedPicker`: 가중치 비례 추첨. `PickDistinct`(중복 없이 N개 — 선택지·웨이브 추첨)와 `PickOne`(1개, **무할당** — 대상 추첨) 둘로 나뉜다. 후자가 따로 있는 이유는 **모든 몬스터의 모든 행동마다** 불려서 리스트 두 개를 새로 만들면 무한 타워 내내 할당이 쌓이기 때문(`BattleState` 버퍼 재사용과 같은 이유)
+  - **전열/후열 = 어그로 가중 추첨**(2026-08-11): 몬스터의 단일 대상 선택이 균등이 아니라 `Unit.AggroWeight`에 비례한다(`MonsterAiSelector.PickTarget` 한 곳). 화면 배치는 그대로이고 **확률만** 다르다
+    - **Core는 가중치만 안다.** 전열/후열(`BattleRow`)은 저작·표기 개념이라 `Game.Data`(`CharacterStatsSO.cs`)에 있다 — `MonsterTier`가 `MonsterStatsSO.cs`에 있는 것과 같은 선례. 열을 보는 스킬("후열 전체" 등)이 생기면 그때 Core로 올린다
+    - 몬스터에게는 의미가 없어 기본값 1을 그대로 쓴다(플레이어는 수동 타겟팅이라 AI 추첨을 타지 않는다) — 그래서 `MonsterSpawner`는 손대지 않았다
+    - **후보 목록이 곧 생존자라 전열이 쓰러지면 남은 유닛끼리 자동 재정규화**된다. 별도 처리가 없다
+    - ⚠️ **광역기(`TargetScope.Line`)는 `PickTarget`을 타지 않는다** — 후보 전원이 대상이다. 덕분에 "도발에 걸려도 광역기는 아군 전체가 맞는다"는 예정 규칙이 분기 없이 이미 성립한다
+    - **도발(Taunt)이 들어올 자리는 `PickTarget` 하나뿐**이다(시전자를 그대로 반환하면 된다). 그때 `ActiveStatus`에 **시전자 Id 필드**가 필요해진다 — 지금은 Kind/Magnitude/RemainingTurns뿐
   - `PendingSignal<T>`: "결과가 들어올 때까지 기다리는 한 번짜리 신호". 플레이어 타겟 입력·선택지 카드·결과 확인이 전부 같은 TCS 패턴이라 여기로 모았다(`RunContinuationsAsynchronously`와 `ct.Register` 해제를 빠뜨릴 여지를 없앤다). **`BattlePausePanel`은 일부러 쓰지 않는다** — 그쪽은 신호를 여는 주체(퍼즈)와 기다리는 주체(시뮬레이션)가 달라 소유 모델이 반대다
   - `BattleState`/`TurnOrder`는 조회 결과를 **재사용 버퍼**로 돌려준다(모든 유닛의 모든 행동마다 불리므로). 호출자는 즉시 소비해야 하며, await 너머로 들고 있으면 안 된다 — `PlayerActionSelector`와 `MonsterAiSelector`(라인 스킬)는 그래서 자체 리스트로 복사한다
   - `IPauseGate`: 전투를 멈추는 순수 계약. `BattleSimulation`이 **각 유닛 행동 직전**에만 await하므로 진행 중인 연출이 잘리지 않는다(턴제에 자연스러운 경계). 생성자 인자가 선택적이라 null이면 기존과 동일하게 동작. 구현은 View의 `BattlePausePanel`. **배틀 중단(취소)도 매 유닛 행동 직전에 `ThrowIfCancellationRequested`로 확인한다** — 턴 시작 지점에서만 보면 플레이어 차례 중 중단해도 이번 턴의 남은 몬스터 행동이 다 끝난 뒤에야 결과 화면으로 넘어간다(실제로 겪은 버그)
@@ -157,25 +178,34 @@
   - `BattleResultPanel`: 전멸 시 도달 스테이지 + 최고 기록을 보여주는 결과 팝업(UI Toolkit, 확인 버튼 대기 후 IntroScene 전환). 신기록 여부는 패널이 직접 비교하지 않고 `SaveService.RecordStage`의 반환값을 받아 표시만 한다(동점을 신기록으로 처리하지 않기 위함). `BattleRunFlow.EndRunAsync`가 저장 **전** 기록을 읽어 "이전 최고 기록"으로 넘긴다
   - 배틀 패널 3종(`RoguelikeChoicePanel`/`BattleResultPanel`/`BattlePausePanel`)은 화면 UI 패널과 같은 `BasePanelUI`를 상속한다. 루트 엘리먼트 이름은 인스펙터가 아니라 `RootElementName` 오버라이드로 **코드에 고정**한다(UXML과 1:1이라 인스펙터에 빈칸을 남길 이유가 없다)
   - `MainCameraCache`: `Camera.main` 조회 결과를 담아두는 static 캐시. `Camera.main`은 "MainCamera" 태그 검색이라 매 프레임 쓰면 비용이 쌓이는데(체력바 빌보드는 유닛마다 `LateUpdate`에서 부른다), 캐시된 카메라가 파괴되거나 비활성화되면 게터가 알아서 다시 조회하므로 **수동 무효화가 필요 없다**. 씬 전환으로 카메라가 바뀌어도 안전하다. 사용처는 `UnitHealthBar`(빌보드)·`PartyStatusBarView`(`WorldToScreenPoint`)·`TargetingController`(레이캐스트·좌→우 정렬)·`DamagePopup`. 도메인 리로드를 끈 경우를 대비해 `[RuntimeInitializeOnLoadMethod(SubsystemRegistration)]`으로 static 필드를 비운다
-  - 그 외: `UnitView`(`UnitAnimator`/`UnitHealthBar`를 물고 제어), `UnitAnimator`(트리거 재생 + 연출 길이 반환), `UnitHealthBar`(uGUI 월드스페이스 게이지 + TMP 숫자 표기 + 상태이상/스폰 디버프 표기. 사망 시 `PlayDieAsync`가 `SetVisible(false)`로 숨기고 스폰 시 `Initialize`가 되살린다 — 풀에서 재사용되므로 복구를 빼먹으면 그 인스턴스는 영영 체력바가 안 보인다), `TargetingController`, `BattleHUD`(스테이지/턴 순서/현재 행동 유닛/플레이어 차례 프롬프트), `RoguelikeChoicePanel`, `CameraShake`, `DamagePopup`/`DamagePopupSpawner`, `HitEffectSpawner`, `HitStop`, `PartyStatusBarView`, `SynergyPanelView`
+  - 그 외: `UnitView`(`UnitAnimator`/`UnitHealthBar`를 물고 제어), `UnitAnimator`(트리거 재생 + 연출 길이 반환), `UnitHealthBar`(uGUI 월드스페이스 게이지 + TMP 숫자 표기 + 상태이상/스폰 디버프 표기. 사망 시 `PlayDieAsync`가 `SetVisible(false)`로 숨기고 스폰 시 `Initialize`가 되살린다 — 풀에서 재사용되므로 복구를 빼먹으면 그 인스턴스는 영영 체력바가 안 보인다), `TargetingController`, `BattleHUD`(스테이지/턴 순서/현재 행동 유닛/플레이어 차례 프롬프트), `RoguelikeChoicePanel`, `CameraShake`, `DamagePopup`/`DamagePopupSpawner`, `HitEffectSpawner`, `PartyStatusBarView`, `SynergyPanelView`
     - `PartyStatusBarView`: 화면 하단 파티 스탯 표기(순수 C# View — `BattleHUD`가 필드로 들고 `BattleHUD.uxml`의 `party-status` 컨테이너에 `Build`). 패널을 파티 최대 인원만큼 코드로 만든다. **막대가 아니라 텍스트**이며 한 행이 `현재값 (+선택지) (+자동성장) (+시너지) (-디버프)` 형태다 — 앞 숫자가 실제 적용 중인 값이고 괄호는 그 값이 어디서 왔는지의 내역이라, 디버프가 걸리면 앞 숫자는 이미 깎여 있다. 0인 항목은 괄호를 생략한다
       - 네 갈래 분해: 선택지 = `RunMember.ChoiceGrowth` / 스테이지 자동 성장 = `(Stats − BaseStats) − ChoiceGrowth` / 시너지 = `Unit.Stats − RunMember.Stats`(트래커가 전투 중에만 얹는다) / 디버프 = `Unit.Stats − 유효 스탯`. 그래서 `PartyMemberSlot`이 `Unit`과 `RunMember`를 **둘 다** 들고 다닌다
       - 괄호 색은 리치 텍스트 태그라 USS 변수를 못 쓴다 — `PartyStatusBarView`의 색 상수가 유일한 출처다
       - **정렬**: 각 패널을 담당 캐릭터의 화면 X에 맞춘다(`WorldToScreenPoint` → Y 뒤집기 → `RuntimePanelUtils.ScreenToPanel` → `style.left`, 가운데 맞춤은 USS `translate: -50% 0`이라 레이아웃 전 폭에 의존하지 않는다). **매 프레임 추적하지 않는다** — `CameraShake`가 카메라를 흔들어 하단 바까지 떨리기 때문이며, 슬롯·카메라가 고정이라 스테이지 시작과 `GeometryChangedEvent`(첫 레이아웃·해상도 변경)만으로 충분하다
       - **좌표는 `RunData.Members` 순서가 아니라 View에서 얻는다** — 추방·영입으로 슬롯이 재사용돼 멤버 순서와 슬롯 순서가 어긋나므로, `UnitId`로 `UnitViewRegistry.TryGet` 한 View의 실제 위치를 쓴다
       - **앞 숫자는 실시간 유효 스탯**(`Unit.EffectiveAtk/EffectiveDef/EffectiveSpd`)이라 상태이상 감소가 즉시 보인다. 갱신은 `BattlePresenter`의 `OnStatusChanged`·`SetSynergies`·`MarkDead` 세 곳뿐이다 — **피격 때는 갱신하지 않는다**(현재 HP를 표시하지 않으므로 피해로 바뀌는 값이 없다)
-      - **행은 7종**(HP/ATK/SPD/DEF/치명타/치명피해/저항). HP 행은 **최대 HP**다 — 현재 HP는 캐릭터 위 체력바가 담당하고, 여기서는 성장 대상인 최대치만 다룬다(시너지는 `HpFlat`을 항상 0으로 두므로 HP엔 시너지 괄호가 뜨지 않는다). 치명타·치명피해·저항은 배율이라 100을 곱해 정수 %로 표기한다(치명피해 1.5 → `150%`)
+      - **이름 앞에 전열/후열 아이콘**이 붙는다(`Textures/Icons/Position/`). 이미지 경로는 USS(`.party-row-icon--front/--back`)가 들고 코드는 클래스만 토글한다 — `TitlePanelUI`의 한글 로고 교체와 같은 방식이고, 이 View는 순수 C#이라 `[SerializeField]`로 스프라이트를 들 수도 없다
+      - **행은 8종**(HP/ATK/SPD/DEF/치명타/치명피해/저항 + **어그로 %**). 어그로만 `Stats`에서 오지 않고 파티 전체와 비교해야 해서 `Describe`가 맨 위에서 갈라진다
+        - 분모는 **생존자**의 어그로 합이라 실제 추첨(`MonsterAiSelector.PickTarget`)과 같은 기준이고, 누가 쓰러지면 남은 인원의 지분이 올라간다 — 그래서 `MarkDead`가 `Refresh`를 부른다
+        - ⚠️ **맨 뒤에 두는 이유**: 앞 7종의 항목·순서가 영입 카드와 맞아야 같은 캐릭터를 두 화면에서 비교할 수 있다. 어그로는 파티 구성에 의존해 카드에서는 계산할 수 없으므로 **여기에만 있는 행**이다
+      - HP 행은 **최대 HP**다 — 현재 HP는 캐릭터 위 체력바가 담당하고, 여기서는 성장 대상인 최대치만 다룬다(시너지는 `HpFlat`을 항상 0으로 두므로 HP엔 시너지 괄호가 뜨지 않는다). 치명타·치명피해·저항은 배율이라 100을 곱해 정수 %로 표기한다(치명피해 1.5 → `150%`)
       - 선택 화면의 `CharacterStatBarsView`(막대)와는 표현 방식이 달라 **공유하지 않는다** — 한때 재사용했지만 막대를 걷어내면서 되돌렸다
     - `DamagePopup`/`DamagePopupSpawner`: 피격 위치에 뜨는 피해량 숫자(일반=흰색 / 크리티컬=빨강+확대 / 도트=별도 색, `DamageKind` 3종). 스포너가 `ObjectPool`을 소유하고 `BattlePresenter`가 히트 루프와 `OnStatusTicked` 두 곳에서 스폰한다. 위치는 `UnitView.PopupOrigin`(`_popupHeight` 값 하나 — 앵커 오브젝트를 두지 않아 유닛 프리팹 10종을 건드리지 않는다). 연출은 `CameraShake`와 같은 `async Awaitable` 프레임 루프이며 취소는 `destroyCancellationToken`
       - ⚠️ **팝업은 스포너의 자식으로 만든다** — 유닛 View는 풀 반납 시 비활성화되므로 유닛 밑에 두면 재생 중인 팝업이 함께 꺼진다
       - **`RegisterPlayback`에 넣지 않는다**(의도) — 장식이라 시뮬레이션을 기다리게 할 이유가 없다. 숫자가 뜨는 타이밍은 피격 연출과 같은 `_impactDelay` 뒤다
       - **표시값은 클램프 전 피해량이다**(확정된 규칙) — `HitResult.Damage`·`StatusTickedEventArgs.Damage`가 `Unit.ApplyDamage`의 반환값(실제 감소량)이 아니라 `DamageCalculator`가 계산한 원본을 담는다. HP 20 남은 적을 크리 300으로 잡으면 **20이 아니라 300**이 떠야 캐릭터의 실제 화력이 읽히기 때문. 체력 게이지는 `Unit.CurrentHp`를 따로 보므로 표기와 어긋나지 않는다
-    - **타격 순간 연출 시퀀스**(2026-08): 공격 시작 → **타격 시점 대기** → 피격 애니메이션 + 파티클 + 숫자 팝업 + 히트 스톱을 한 지점에서 터뜨린다(`BattlePresenter.PlayActionAsync`)
+    - **타격 순간 연출 시퀀스**(2026-08): 공격 시작 → **타격 시점 대기** → 피격 애니메이션 + 파티클 + 숫자 팝업을 한 지점에서 터뜨린다(`BattlePresenter.PlayActionAsync`)
       - 타격 시점은 `UnitAnimator.WaitForImpactAsync(fallback, ct)`가 정한다. 유닛별 토글 `_useImpactEvent`가 켜져 있으면 클립의 `OnImpactFrame` **애니메이션 이벤트**를, 꺼져 있으면 `BattlePresenter._impactDelay` 고정 지연을 쓴다 — 클립 작업을 유닛 하나씩 옮길 수 있게 한 장치다
         - **2026-08 현재 유닛 10종 전부 `_useImpactEvent` ON**이고 실제 재생되는 Attack/Skill 클립에 이벤트가 심겨 있다. `_impactDelay`(0.35)는 사실상 폴백으로만 남아 있다. 예외는 `Skill_SkeletonMinion.anim`(이벤트 없음)뿐인데 Minion은 `Tier=Normal`이라 스킬이 없어 재생되지 않는다
       - ⚠️ **애니메이션 이벤트는 Animator와 같은 GameObject의 컴포넌트만 호출한다.** `UnitAnimator`가 `[RequireComponent(typeof(Animator))]`로 그 자리에 묶여 있어 성립한다. 클립이 메서드를 **이름 문자열로** 참조하므로 `OnImpactFrame`을 rename하면 이벤트가 조용히 끊긴다
       - ⚠️ 이벤트를 켜 뒀는데 클립에 없으면 전투가 멈추므로 연출 길이만큼의 **안전 타임아웃 + 경고 로그**를 둔다(조용히 넘어가지 않게)
-      - `HitStop`: **`Time.timeScale`을 쓰지 않는다** — 연출 대기·씬 전환 페이드가 모두 `Awaitable` 기반이라 함께 묶일 수 있다(`BattlePausePanel`과 같은 이유). 대신 관여한 유닛(때린 쪽 + 맞은 쪽)의 `Animator.speed`만 낮춘다. 늦춘 만큼 애니메이션이 뒤로 밀리므로 길게 잡으면 `UnitAnimator`의 연출 시간도 늘려야 한다. `finally`와 `ResetToSpawn` 양쪽에서 속도를 1로 되돌린다 — 취소·풀 반납 중에 느려진 채로 굳지 않도록
+      - **체력바 감속**(2026-08-11): `UnitHealthBar`가 `_drainDuration`(0.5초)에 걸쳐 게이지를 미끄러뜨리며, **게이지와 숫자를 함께 보간**한다(같은 값을 보여주는 두 표기가 따로 놀면 어긋난 것처럼 보인다). `RegisterPlayback`에는 넣지 않는다(장식)
+        - ⚠️ **곡선은 ease-in-out(`Mathf.SmoothStep`)이지 데미지 팝업의 ease-out이 아니다.** ease-out은 변화량의 3/4이 앞 절반에 몰려 "확 줄고 멈춘" 것처럼 보인다 — 팝업은 위치 연출이라 튀어나왔다 잦아드는 게 맞지만 게이지는 **줄어드는 과정 자체를 읽혀야** 한다. 0.25초 + ease-out 조합에서 즉시 대입과 구분되지 않았던 실제 사례가 있다
+        - ⚠️ 값은 코드 기본값이 아니라 **`HealthBar.prefab`에 직렬화된 것이 이긴다** — 조정은 프리팹에서 할 것
+        - ⚠️ **진입점이 둘이다** — `Set`(연출)과 `SetImmediate`(즉시). 스폰(`UnitView.Initialize`)은 반드시 후자다. 연출을 쓰면 풀에서 물려받은 **이전 전투의 잔량에서 스르륵 차오른다**
+        - ⚠️ 진행 중인 트윈은 **세대 번호(`_drainVersion`)로 무효화**한다 — 새 값이 들어올 때마다 올리고 루프가 매 프레임 확인하므로 뒤늦게 깨어난 연출이 최신 값을 덮어쓰지 않는다. 체력바가 숨겨져 있으면(공격 중 이동·사망) 연출 없이 값만 맞춘다
+      - ⚠️ **히트 스톱은 2026-08-11에 제거했다**(`HitStop.cs`·`UnitView.SetAnimationSpeed`·`UnitAnimator.SetSpeedScale` 삭제). 플레이 테스트에서 효과가 보이지 않아 내린 결정이며, 원인은 `Time.timeScale`을 피하느라 **관여한 유닛 둘의 `Animator.speed`만** 낮춘 구조라 화면 전체가 멎는 통상적인 히트 스톱과 체감이 달랐던 것이다. 다시 넣는다면 같은 구조로는 값만 키워도 티가 나지 않으므로 **카메라·이펙트까지 함께 늦추는 방식**부터 검토할 것(구현은 git 이력에 남아 있다)
       - **공격 이펙트 3종은 유닛별로 `UnitView`에 꽂는다**(`_projectile`/`_muzzleFlash`/`_hitEffect`). 전부 선택 사항이라 비워두면 그 연출만 빠진다. `MasterStylizedProjectiles`처럼 한 폴더에 `Bullet`/`Muzzle`/`Hit`가 세트로 오는 에셋을 그대로 배정하기 위한 구조다(시전 이펙트는 검토 후 뺐다)
         - 재생 순서: 발사 섬광 → (`_muzzleLeadSeconds` 뒤) 투사체 발사 → 도착 시 명중 이펙트
         - **일반 공격과 스킬은 이펙트가 갈린다** — `_skill*` 3종을 채우면 스킬에만 쓰이고, 비워두면 일반 공격 것을 그대로 쓴다(`UnitView.ResolveEffects(isSkill)`가 한 번에 골라 `AttackEffects`로 돌려준다)
@@ -187,8 +217,8 @@
       - `HitEffectSpawner`: `DamagePopupSpawner`와 같은 풀 구조지만 프리팹이 여러 종일 수 있어 `UnitViewRegistry`처럼 **프리팹별** 풀. 프리팹은 스크립트 없는 순수 `ParticleSystem`이면 되고 크기·오프셋·수명·크리티컬 배율이 인스펙터 값이다(수명 0 = 파티클 설정에서 자동 계산). 기준 위치는 `UnitView.HitEffectOrigin`(`_hitEffectHeight` 하나 — 팝업과 같이 앵커 오브젝트를 두지 않는다)
         - ⚠️ **파티클 스케일링 모드를 `Hierarchy`로 덮어쓴다.** 기본값 `Shape`는 transform 스케일을 **방출 모양에만** 적용해 입자 크기·속도는 그대로라, 인스펙터 크기 배율을 아무리 올려도 이펙트가 커지지 않는다(실제로 겪은 증상). **자식 파티클 시스템까지 전부** 바꾼다 — 스파클류는 여러 시스템이 겹쳐 하나의 이펙트를 이루는 경우가 많아 루트만 바꾸면 자식들만 원래 크기로 남는다. 같은 이유로 자동 수명 계산도 자식 중 **가장 오래 사는 것**에 맞춘다(루트만 보면 긴 자식이 재생 도중 반납된다)
         - ⚠️ **위치 보정은 고정 방향이 아니라 카메라 쪽으로 당긴다**(`_cameraOffset`). 타격 지점이 몸 한가운데라 그대로 두면 메시에 가려지는데, 아군은 화면 아래·적군은 위에 서 있어서 고정 방향으로 밀면 한쪽 진영에서는 오히려 몸 안으로 들어간다. `MainCameraCache`를 써서 양쪽 모두 항상 캐릭터 앞으로 나오게 한다
-      - **이펙트·팝업은 `RegisterPlayback`에 넣지 않고**(장식) **히트 스톱은 기다린다** — 늦추는 동안 다음 연출이 겹쳐 들어오면 효과가 사라지기 때문
-      - `_hitEffects`·`_hitStop`·`_projectiles`는 **선택 참조**라 비워두면 해당 연출만 빠지고 나머지는 그대로 동작한다
+      - **이펙트·팝업은 `RegisterPlayback`에 넣지 않는다**(장식이라 시뮬레이션을 기다리게 할 이유가 없다)
+      - `_hitEffects`·`_projectiles`는 **선택 참조**라 비워두면 해당 연출만 빠지고 나머지는 그대로 동작한다
       - `ProjectileSpawner`: 원거리 유닛의 투사체. **타격 시점의 의미가 원거리에서는 "명중"이 아니라 "발사"**이며, 발사 → 비행 → 도착 순으로 진행하고 **도착을 기다린 뒤에** 피격 연출·숫자·이펙트가 나간다(화살이 닿기 전에 피해 숫자가 뜨면 순서가 거꾸로 보인다). 비행 시간은 거리÷속도이고 상한이 있다
         - 프리팹은 **유닛별**(`UnitView._projectile`/`_muzzleFlash`)이라 캐릭터마다 다른 투사체를 쓴다. 비워두면 투사체 없이 즉시 명중하므로 근접 유닛은 그대로 둔다. 에셋은 `MasterStylizedProjectiles`의 `*Bullet`/`*Muzzle`이 그대로 맞는다(루트에 `ParticleSystem`이 있고 이동 스크립트가 없다 — 비행은 스포너가 직접 옮긴다)
         - 발사 지점은 **프리팹 안의 앵커**(`UnitView._muzzlePoint`, 프리팹의 `MuzzlePoint`)다. 팝업·타격 이펙트가 높이 값(float)만 쓰는 것과 달리 여기만 앵커를 두는 이유 — 무기·손 본 아래에 두면 **공격 모션을 따라 움직여** 실제 무기 위치에서 발사된다(고정 오프셋으로는 불가능). 발사 시점에 좌표를 읽으므로 그 순간의 자세가 반영된다
@@ -214,6 +244,7 @@
     - `TargetingController`: 몬스터를 겨냥→확정해 `SubmitTarget`. **마우스**는 2단계 클릭(1차 겨냥=빨강 아웃라인, 같은 대상 재클릭=확정), **키보드**는 좌/우 방향키로 유효 대상을 순환 겨냥하고 Enter/Space로 확정. 입력은 `InputManager`(마우스 `PointerPosition`/`PrimaryPressedThisFrame`, 방향키 `BattleCycle*`, 확정 `BattleConfirm`)를 통해서만 받고 원시 디바이스는 만지지 않는다. 방향키 순환 순서는 리스트 순서가 아니라 **화면 좌→우**(각 대상 View를 `Camera.WorldToScreenPoint`로 정렬, `BattleDirector`가 `Initialize`에 `UnitViewRegistry` 주입해 `Id→View` 조회). 확정 시 `AudioManager.Confirm()`(마우스·키보드 공통)
     - `RoguelikeChoicePanel`: 카드 4장, 선택 대기 await. 마우스 클릭 외에 **방향키로 카드 겨냥**(마우스 `:hover`와 같은 강조를 `.choice-card--active` 클래스로 재현, 이동 시 `AudioManager.UiNavigate()`)하고 Enter/Space로 선택(선택 시 `AudioManager.UiClick()` — 마우스 클릭은 `UiClickSfx`가 `ClickEvent`로 내므로 키보드 분기에서만 재생해 중복 방지). 키보드 입력은 `InputManager.UiNavigate*`/`UiSubmit` 사용
 - **전투 Data (`Scripts/Battle/Data/`)**: `UnitStatsSO`(베이스) + `CharacterStatsSO`/`MonsterStatsSO`(임시 스탯, 밸런싱 TBD), `SkillSO`(스킬 1종 = 쿨타임·범위·배율·상태이상. **유닛 종류에 묶이지 않은 별도 에셋**이라 `MonsterStatsSO`가 참조만 하고, 캐릭터 스킬이 추가되면 `CharacterStatsSO`가 코드 변경 없이 같은 타입을 재사용한다. 여러 유닛이 같은 스킬 에셋을 공유해도 됨), `CharacterRosterSO`(선택 6종), `SpawnWaveSO`(스테이지별 몬스터 구성 + `Weight`/`IsBossWave`— 후자는 `MonsterStatsSO.Tier`로 계산해 별도 플래그와 어긋날 여지 없음), `RoguelikeChoiceSO`(9종 카테고리 + 효과 수치 + 등장 가중치), `StageScalingSO`(양측 성장률 6종 + 복리 토글)
+  - `CharacterStatsSO`의 **`_row`(전열/후열) + `_aggroWeight`**: 현재값은 기사 4 / 바바리안·도적(대거) 3 / 후열 3종 1이다. 두 값은 **서로를 강제하지 않으므로**(후열인데 가중치를 높게 줘도 컴파일러가 잡지 않는다) 함께 고칠 것. 프리팹의 `UnitView._approachTarget`(근접 이동 연출)과도 짝이 맞아야 화면과 규칙이 어긋나지 않는다
 - **로그라이크 선택지 9종**: 에셋은 `ScriptableObjects/RoguelikeChoice/`에 전부 존재. 승리 시 가중치 추첨으로 3개 제시 → 1개 선택 → 즉시 적용. 영입 선택지는 파티가 꽉 차도 후보에서 빠지지 않고(`_weightPerEmptySlot`는 빈자리가 많을수록 자주 뜨게만 함), 고르면 교체 대상을 플레이어가 선택(위 `RoguelikeRewardService` 참고). 후반 영입/교체 캐릭터에는 스테이지 자동 성장분만 소급 적용(선택지로 얻은 성장은 소급하지 않음). `Heal`은 `_healFlat`(즉시 회복)을 쓰고 `_hpFlat`(최대 HP 영구 증가)은 0 — 과거에 이 둘이 뒤바뀌어 있던 데이터 실수를 수정함
 - **스테이지 스폰 확장**: 수동 설계 웨이브(`WaveStage1~5`)는 `ScriptableObjects/SpawnWave/TutorialWaveStage/`에, 랜덤 풀용 웨이브 7종(`WavePoolNormal_*` 4개, `WavePoolBoss_*` 3개)은 `ScriptableObjects/SpawnWave/` 바로 아래에 있다. 인스펙터 등록 대상은 `BattleDirector`가 아니라 **`MonsterSpawner`**의 `_monsterWaves`/`_randomWavePool`/`_bossStageInterval`(비어 있으면 수동 웨이브 순환으로 폴백)
 - **몬스터 데이터 세팅** (`ScriptableObjects/Monster/`): `MinionSO`=Normal·스킬 없음, `MageSO`/`RogueSO`=Elite·**단일 대상 스킬**, `WarriorSO`=Boss·**전체(라인) 스킬**. 스킬 내용은 각 `SkillSO` 에셋에 있고 몬스터 SO는 참조만 한다. 등급 차이는 `Tier`가 아니라 연결된 스킬의 유무·범위로 표현(`MonsterAiSelector`/`CreateSkill`은 `Tier`를 보지 않음) — 다만 `SpawnWaveSO.IsBossWave`(보스 BGM·보스 웨이브 강제 판정)는 `Tier==Boss`만 보므로, Elite만으로 구성된 웨이브는 스킬을 써도 "보스 웨이브" 취급되지 않는다(의도된 동작)
@@ -227,7 +258,8 @@
     2. `choice.<카테고리>.title/desc` — 로그라이크 선택지. 본문이 여러 줄이라 원문을 키로 쓰면 공백 하나에 깨지므로 `RoguelikeCategory` enum에서 키를 만든다
     3. 유닛 표시 이름(`UnitStatsSO.DisplayName`) — **에셋에 적힌 원문 자체가 키**다. 한 줄짜리 짧은 이름이라 안전하고, 에셋을 고치지 않고 번역을 얹을 수 있다
   - **`BasePanelUI`가 UXML 치환을 담당한다**: `Start()`에서 트리를 1회 걷어 `(엘리먼트, 키)` 쌍을 캐싱하고, `Loc.LanguageChanged`마다 다시 그린다. 번역을 덮어쓰면 키가 사라지므로 **캐싱이 필수**다
-    - ⚠️ **`Start()`를 오버라이드하면 `base.Start()`를 반드시 부를 것** — 빠뜨리면 그 패널만 키가 그대로 보인다
+    - ⚠️ **파생 패널은 `Start`를 선언하지 말고 `InitPanel()`을 오버라이드한다**(2026-08-11에 `protected virtual Start` + `base.Start()` 방식에서 바꿨다 — 빠뜨리면 그 패널만 키가 그대로 보이는 함정이 있었다). `BasePanelUI.Start`가 `ValidateRoot` → `LocalizeTree` → `InitPanel` 순으로 돌린다. 베이스의 `Start`가 private이라 파생이 같은 이름을 선언해도 **컴파일러가 hides 경고를 내지 않고** 번역과 `InitPanel`이 통째로 조용히 실행되지 않는다
+    - ⚠️ **`LocalizeTree()`가 `InitPanel()`보다 먼저인 것은 load-bearing이다.** 순서를 뒤집으면 `InitPanel`이 채운 런타임 값(캐릭터 이름·스탯 숫자) 때문에 그 엘리먼트가 `ui.…` 키를 잃어 수집 대상에서 빠지고, 언어를 바꿔도 영영 갱신되지 않는다
     - ⚠️ `OnEnable`/`OnDisable`이 **`protected virtual`**인 이유: Unity는 같은 이름의 메시지가 파생 클래스에도 있으면 파생 쪽만 호출해 베이스의 private 구독이 조용히 실행되지 않는다. virtual이면 파생이 같은 이름을 선언할 때 컴파일러가 hides 경고를 낸다(`BattlePausePanel`이 실제로 그 경우라 `base.OnEnable()`을 부른다)
     - 코드가 채우는 문구가 있는 패널은 `OnLanguageChanged`를 오버라이드해 함께 갱신한다(`CharacterSelectPanelUI`=캐릭터 이름, `PointAllocationPopupUI`=카테고리 이름·헤더, `TitlePanelUI`=로고, `OptionPopupUI`=화면 모드·키설정 이름)
   - **한글 폰트 작업은 필요 없다** — 화면 UI가 전부 UI Toolkit이고, ASCII만 되는 월드스페이스 체력바(TMP)에는 슬롯 라벨·숫자·아이콘만 찍힌다
@@ -240,9 +272,12 @@
 - **성향 포인트 배분**: `PointAllocationPopupUI`(`OptionPopupUI`와 같은 오버레이 팝업 패턴). 캐릭터 선택 화면 `select-footer`의 '성향' 버튼(`CharacterSelectPanelUI.OnAllocationClicked` → `GameUIController`가 `Show`)으로 열림. 카테고리 행(9종)은 `AllocationRowsView`가 인스펙터에 할당된 `RoguelikeChoiceSO[]`를 기반으로 동적 생성(이름은 `.Title`, 매핑 키는 `.Category` 재사용, 하드코딩 없음). `[+]`/`[-]`는 `SaveData.TryAdjustPoints`를 호출하고 — **잔여 포인트가 없으면 못 늘리고 0이면 못 줄이는 규칙은 세이브 쪽이 판정한다** — 팝업은 반환값이 true일 때 헤더(`보유/총`)와 행을 다시 그리기만 한다. 초기화 버튼은 `ResetPoints()`. 몇 스테이지마다 1점인지는 `_stagesPerPoint`(인스펙터, 밸런싱 값)로 `GetEarnedPoints`에 넘김. 닫을 때(`Hide` 오버라이드) 1회만 `SaveService.Save()`(옵션 팝업과 동일 패턴). `RoguelikeRewardService.PickChoices`가 가중치 계산에 `SaveService.Current.GetPoints(category) * _weightPerPoint`(인스펙터, 기본 1)를 더해 추첨에 실제로 반영
 
 ### 아직 안 된 것
-- **옵션 메뉴 에디터 세팅**: 해상도·언어는 2026-08-10에 코드 완료. 남은 것은 두 씬(Intro/Battle)의 `GameManager` 오브젝트 `_stringTable` 슬롯에 `UiStringTable.asset`을 할당하는 것뿐이다(비어 있으면 UI에 `ui.…` 키가 그대로 보인다)
+- **캐릭터 스킬 시스템(다음 작업 묶음)**: 캐릭터마다 고유 스킬 1개(액티브/패시브) + 우하단 스킬 버튼(Z키 토글·쿨타임 표기) + 도발 상태이상 + Tab 몬스터 정보 팝업. 착수 전에 `TODO.md` 1순위를 볼 것 — 걸림돌 넷이 정리돼 있다:
+  - `SkillSO`에 **액티브/패시브 구분이 없다**(전부 쿨타임 액티브 전제). 패시브를 스탯 보정으로 만들면 `PartySynergyTracker`가 `Unit.Stats`를 스냅샷/복원하는 자리와 겹친다
+  - `PlayerActionSelector`가 **타겟만 받는다** — 스킬 사용 여부를 함께 받아야 `ActionKind.Skill`을 만들 수 있다
+  - 남은 쿨타임(`Unit._skillCooldownRemaining`)이 **private**이라 버튼에 표기하려면 노출이 필요하다
+  - Z·Tab 키는 **`Systems/InputControls.cs`와 `.inputactions` 에셋 양쪽**에 넣어야 한다(한쪽만 고치면 키 설정 UI만 조용히 망가진다)
 - **타겟팅 피드백**: 겨냥된 단일 대상 아웃라인(빨강)은 있으나, 플레이어 차례에 **유효 대상 전체 하이라이트/커서 피드백**은 미구현(`TargetingController` TODO). 방향키 순환·확정과 마우스 2단계 클릭은 구현 완료
-- **체력바 감소 애니메이션**: `UnitHealthBar`가 `_fill.fillAmount`를 즉시 대입해 게이지가 뚝 끊긴다. 히트 스톱으로 느려진 순간에 게이지가 줄어드는 그림이 타격감의 핵심이라 남은 연출 중 우선순위가 높다(TODO 4-1-b)
 - **밸런싱 전반 TBD**: 캐릭터/몬스터 스탯, 선택지 수치·가중치, `StageScaling` 성장률 모두 임시값. **적용된 계산식 14종과 조정 시 함께 움직여야 하는 값은 `SystemFormulaBalance.md`에 정리돼 있다** — 밸런싱 전에 그 문서의 "밸런싱 시 함께 움직여야 하는 값들" 표를 먼저 볼 것
 
 ## 아키텍처 방향 (README.md 기획 기반)

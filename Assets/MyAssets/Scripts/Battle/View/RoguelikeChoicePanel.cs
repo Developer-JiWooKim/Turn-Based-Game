@@ -12,6 +12,23 @@ using UnityEngine.UIElements;
 
 namespace Assets.MyAssets.Scripts.Battle.View
 {
+    /// <summary>
+    /// 카드에 표로 세우는 스탯 한 줄. 라벨과 값을 한 문자열로 합치지 않는 이유는
+    /// 그래야 카드마다 값이 같은 자리에서 시작해 세로로 줄이 맞기 때문이다
+    /// (전투 하단 파티 표기 <see cref="PartyStatusBarView"/>와 같은 구조).
+    /// </summary>
+    public readonly struct CardStatLine
+    {
+        public readonly string Label;
+        public readonly string Value;
+
+        public CardStatLine(string label, string value)
+        {
+            Label = label;
+            Value = value;
+        }
+    }
+
     /// <summary>카드 한 장에 표시할 내용(선택지든 영입 후보든 동일한 형태로 제시된다).</summary>
     public readonly struct ChoiceCard
     {
@@ -19,11 +36,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
         public readonly string Description;
         public readonly Sprite Icon;
 
-        public ChoiceCard(string title, string description, Sprite icon = null)
+        /// <summary>스탯 표(영입/교체 카드). 없으면 <see cref="Description"/>만 보여준다.</summary>
+        public readonly IReadOnlyList<CardStatLine> Stats;
+
+        public ChoiceCard(string title, string description, Sprite icon = null, IReadOnlyList<CardStatLine> stats = null)
         {
             Title = title;
             Description = description;
             Icon = icon;
+            Stats = stats;
         }
     }
 
@@ -48,8 +69,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Awake()
         {
-            _header = _document.rootVisualElement.Q<Label>("panel-header");
-            _cards = _document.rootVisualElement.Query<Button>(className: "choice-card").ToList();
+            _header = Require<Label>("panel-header", "선택지 안내 문구가 표시되지 않습니다");
+            _cards = RequireAll<Button>("choice-card", "제시할 선택지 카드가 없습니다");
 
             for (int i = 0; i < _cards.Count; i++)
             {
@@ -90,7 +111,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 {
                     _cards[i].style.display = DisplayStyle.Flex;
                     _cards[i].Q<Label>("card-title").text = cards[i].Title;
-                    _cards[i].Q<Label>("card-desc").text = cards[i].Description;
+
+                    Label desc = _cards[i].Q<Label>("card-desc");
+                    desc.text = cards[i].Description;
+                    desc.style.display = string.IsNullOrEmpty(cards[i].Description) ? DisplayStyle.None : DisplayStyle.Flex;
+
+                    FillStats(_cards[i].Q<VisualElement>("card-stats"), cards[i].Stats);
 
                     VisualElement icon = _cards[i].Q<VisualElement>("card-icon");
                     if (icon != null)
@@ -114,6 +140,43 @@ namespace Assets.MyAssets.Scripts.Battle.View
             finally
             {
                 Hide(); // 취소(씬 종료 등)로 빠져나가도 패널이 열린 채 남지 않도록
+            }
+        }
+
+        /// <summary>
+        /// 스탯 표 행을 다시 세운다(스탯이 없는 성장 선택지 카드에서는 컨테이너째 숨긴다).
+        /// 카드마다 항목 수가 달라질 수 있어 요소를 재사용하지 않고 새로 만든다 —
+        /// 스테이지당 한 번뿐이라 비용이 문제되지 않는다.
+        /// </summary>
+        private static void FillStats(VisualElement container, IReadOnlyList<CardStatLine> stats)
+        {
+            if (container == null)
+            {
+                return;
+            }
+
+            container.Clear();
+            bool hasStats = stats != null && stats.Count > 0;
+            container.style.display = hasStats ? DisplayStyle.Flex : DisplayStyle.None;
+            if (!hasStats)
+            {
+                return;
+            }
+
+            for (int i = 0; i < stats.Count; i++)
+            {
+                var row = new VisualElement();
+                row.AddToClassList("card-stat-row");
+
+                var label = new Label(stats[i].Label);
+                label.AddToClassList("card-stat-label");
+
+                var value = new Label(stats[i].Value);
+                value.AddToClassList("card-stat-value");
+
+                row.Add(label);
+                row.Add(value);
+                container.Add(row);
             }
         }
 

@@ -14,22 +14,35 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         // 스킬 정의
         public readonly SkillProfile Skill;
 
+        /// <summary>
+        /// 적이 대상을 고를 때 이 유닛이 추첨에서 차지하는 몫(전열이 높다).
+        /// 절대값이 아니라 <b>같이 후보에 오른 유닛들과의 비율</b>이 확률을 정하므로,
+        /// 누가 쓰러져 후보가 줄면 남은 유닛들끼리 자동으로 다시 정규화된다.
+        ///
+        /// 몬스터에게는 의미가 없어 기본값 1을 그대로 쓴다 — 몬스터를 고르는 건 플레이어의 수동 타겟팅이라
+        /// AI 추첨(<see cref="MonsterAiSelector"/>)을 타지 않기 때문.
+        /// </summary>
+        public readonly float AggroWeight;
+
         public int CurrentHp { get; private set; }
         public bool IsAlive => CurrentHp > 0;
 
-        private int _skillCooldownRemaining; // 남은 스킬 쿨타임(턴) - 0 이하이고 Skill이 있으면 사용 가능        
+        private int _skillCooldownRemaining; // 남은 스킬 쿨타임(턴) - 0 이하이고 Skill이 있으면 사용 가능
 
         /// <param name="currentHp">
-        /// 시작 HP. 0 이하를 주면 MaxHp로 시작한다(신규 스폰). 
+        /// 시작 HP. 0 이하를 주면 MaxHp로 시작한다(신규 스폰).
         /// 스테이지를 이어가는 파티는 직전 스테이지에서 깎인 HP를 그대로 물려받아야 하므로 런 데이터가 이 값을 넘겨준다.
         /// </param>
-        public Unit(int id, string displayName, TeamSide team, Stats stats, SkillProfile skill = null, int currentHp = 0)
+        /// <param name="aggroWeight">적의 대상 추첨에서 차지하는 몫. <see cref="AggroWeight"/> 참고.</param>
+        public Unit(int id, string displayName, TeamSide team, Stats stats, SkillProfile skill = null,
+                    int currentHp = 0, float aggroWeight = 1f)
         {
             Id = id;
             DisplayName = displayName;
             Team = team;
             Stats = stats;
             Skill = skill;
+            AggroWeight = aggroWeight;
             CurrentHp = currentHp > 0 ? Math.Min(currentHp, stats.MaxHp) : stats.MaxHp;
             _skillCooldownRemaining = 0;
         }

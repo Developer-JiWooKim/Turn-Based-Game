@@ -4,28 +4,46 @@ using UnityEngine.UIElements;
 
 namespace Assets.MyAssets.Scripts.UI
 {
+    /// <summary>
+    /// 타이틀 화면 패널
+    /// </summary>
     public sealed class TitlePanelUI : BasePanelUI
     {
-        // Button Click Events
-        public event Action OnPlayClicked;
-        public event Action OnOptionClicked;
-        public event Action OnQuitClicked;
-
-        /// <summary>로고와 그 그림자. 같은 이미지를 쓰므로 언어에 따라 <b>둘 다</b> 바꾼다.</summary>
         private VisualElement _logo;
         private VisualElement _logoShadow;
 
-        protected override void Start()
-        {
-            base.Start(); // UXML 문구 번역
+        private Button _continueButton;
 
-            _logo = Root.Q<VisualElement>("game-title");
-            _logoShadow = Root.Q<VisualElement>("game-title-shadow");
+        private bool _continueEnabled;
+
+        // Button Click Events
+        public event Action OnPlayClicked;
+        public event Action OnContinueClicked;
+        public event Action OnOptionClicked;
+        public event Action OnQuitClicked;
+
+        protected override void InitPanel()
+        {
+            _logo = Require<VisualElement>("game-title", "로고가 언어에 따라 바뀌지 않습니다");
+            _logoShadow = Require<VisualElement>("game-title-shadow", "로고 그림자가 언어에 따라 바뀌지 않습니다");
             ApplyLogoLanguage();
 
-            Root.Q<Button>("start-button").clicked += () => OnPlayClicked?.Invoke();
-            Root.Q<Button>("option-button").clicked += () => OnOptionClicked?.Invoke();
-            Root.Q<Button>("quit-button").clicked += () => OnQuitClicked?.Invoke();
+            BindButton("start-button", () => OnPlayClicked?.Invoke());
+            BindButton("option-button", () => OnOptionClicked?.Invoke());
+            BindButton("quit-button", () => OnQuitClicked?.Invoke());
+
+            _continueButton = Require<Button>("continue-button", "이어하기를 누를 수 없습니다");
+            if (_continueButton != null)
+            {
+                _continueButton.clicked += () => OnContinueClicked?.Invoke();
+                _continueButton.SetEnabled(_continueEnabled);
+            }
+        }
+
+        public void SetContinueEnabled(bool enabled)
+        {
+            _continueEnabled = enabled;
+            _continueButton?.SetEnabled(enabled);
         }
 
         protected override void OnLanguageChanged()
@@ -34,10 +52,7 @@ namespace Assets.MyAssets.Scripts.UI
             ApplyLogoLanguage();
         }
 
-        /// <summary>
-        /// 한국어면 한글 로고로 바꾼다. 이미지 경로는 USS가 들고 있고 여기서는 클래스만 토글한다 —
-        /// 코드가 텍스처를 직접 참조하면 인스펙터 슬롯이 늘고 USS의 로고 규칙이 둘로 갈라진다.
-        /// </summary>
+        /// <summary>설정된 언어에 맞게 로고를 이미지를 변경(Ko ver, En ver).</summary>
         private void ApplyLogoLanguage()
         {
             bool korean = Loc.Language == LanguageCode.Ko;

@@ -37,6 +37,12 @@ namespace Assets.MyAssets.Scripts.UI
         private VisualElement _icon;
         private List<VisualElement> _dots;
 
+        /// <summary>
+        /// 이 화면이 쓰는 로스터. 세이브에 남은 캐릭터 이름을 SO로 되돌릴 때(이어하기 복원) 필요해서 노출한다 —
+        /// <see cref="GameUIController"/>에 같은 에셋을 가리키는 슬롯을 하나 더 두면 둘이 어긋나도 알아챌 방법이 없다.
+        /// </summary>
+        public CharacterRosterSO Roster => _roster;
+
         /// <summary>현재 선택된 캐릭터. 로스터가 비어 있으면 null.</summary>
         public CharacterStatsSO SelectedCharacter =>
             (_roster != null && _roster.Count > 0) ? _roster[_selectedIndex] : null;
@@ -52,30 +58,33 @@ namespace Assets.MyAssets.Scripts.UI
             NullCheck.LogIfMissing(_roster, nameof(_roster), this, "선택할 캐릭터가 없습니다");
         }
 
-        protected override void Start()
+        protected override void InitPanel()
         {
-            base.Start(); // UXML 문구 번역
-
             // 프리뷰 카메라가 그리는 텍스처를 프리뷰 영역 배경으로 배선한다(UXML의 주인이 패널이라 여기서 처리).
             if (_preview != null && _preview.Texture != null)
             {
-                Root.Q<VisualElement>("character-preview").style.backgroundImage =
-                    Background.FromRenderTexture(_preview.Texture);
+                VisualElement previewArea = Require<VisualElement>("character-preview", "3D 프리뷰가 보이지 않습니다");
+                if (previewArea != null)
+                {
+                    previewArea.style.backgroundImage = Background.FromRenderTexture(_preview.Texture);
+                }
             }
 
-            _nameLabel = Root.Q<Label>("character-name");
-            _icon = Root.Q<VisualElement>("character-icon");
-            _dots = Root.Q<VisualElement>("indicator").Query<VisualElement>(className: "dot").ToList();
+            _nameLabel = Require<Label>("character-name", "캐릭터 이름이 표시되지 않습니다");
+            _icon = Require<VisualElement>("character-icon", "캐릭터 아이콘이 표시되지 않습니다");
+
+            VisualElement indicator = Require<VisualElement>("indicator", "선택 위치 점이 갱신되지 않습니다");
+            _dots = indicator?.Query<VisualElement>(className: "dot").ToList();
 
             // 바 길이의 기준은 로스터가 계산한다(밸런싱 값을 UI에 박지 않기 위함).
-            _statBars.Build(statPanel: Root.Q<VisualElement>("stat-panel"),
+            _statBars.Build(statPanel: Require<VisualElement>("stat-panel", "스탯 바가 표시되지 않습니다"),
                             ceiling: _roster != null ? _roster.CreateStatCeiling() : null);
 
-            Root.Q<Button>("prev-button").clicked += () => Cycle(-1);
-            Root.Q<Button>("next-button").clicked += () => Cycle(1);
-            Root.Q<Button>("select-back-button").clicked += () => OnBackClicked?.Invoke();
-            Root.Q<Button>("allocation-button").clicked += () => OnAllocationClicked?.Invoke();
-            Root.Q<Button>("battle-button").clicked += () => OnBattleClicked?.Invoke();
+            BindButton("prev-button", () => Cycle(-1));
+            BindButton("next-button", () => Cycle(1));
+            BindButton("select-back-button", () => OnBackClicked?.Invoke());
+            BindButton("allocation-button", () => OnAllocationClicked?.Invoke());
+            BindButton("battle-button", () => OnBattleClicked?.Invoke());
 
             ApplySelection(); // 초기 선택(0) 반영 + 프리뷰 통지
         }

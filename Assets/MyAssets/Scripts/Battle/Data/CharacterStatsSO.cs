@@ -4,6 +4,23 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Battle.Data
 {
     /// <summary>
+    /// 파티 내 전열/후열. 근접 캐릭터가 앞에 서서 몬스터의 공격을 더 받아내는 구성을 표현한다.
+    ///
+    /// 화면 배치는 바꾸지 않고(슬롯은 가로 일렬 그대로) <b>표적이 될 확률만</b> 달라지며,
+    /// 그 확률은 열이 아니라 <see cref="CharacterStatsSO.AggroWeight"/>가 정한다 —
+    /// 열은 "이 캐릭터가 어떤 자리를 맡는가"라는 저작 개념이자 화면 표기용이다.
+    ///
+    /// <c>Game.Core</c>가 아니라 여기 있는 이유는 전투 로직이 이 값을 보지 않기 때문이다
+    /// (<see cref="MonsterTier"/>가 <c>MonsterStatsSO.cs</c>에 있는 것과 같은 선례).
+    /// 나중에 열을 보는 스킬("후열 전체" 등)이 생기면 그때 Core로 올린다.
+    /// </summary>
+    public enum BattleRow
+    {
+        Front,
+        Back
+    }
+
+    /// <summary>
     /// 플레이어 캐릭터 6종의 스탯 데이터
     ///
     /// 파티 시너지는 "같은 캐릭터가 임계 인원 이상 모이면 그 캐릭터들에게만" 적용되며,
@@ -13,6 +30,18 @@ namespace Assets.MyAssets.Scripts.Battle.Data
     [CreateAssetMenu(menuName = "Battle/Character Stats", fileName = "CharacterStats")]
     public sealed class CharacterStatsSO : UnitStatsSO
     {
+        [Header("전열/후열")]
+        [Tooltip("근접이면 전열, 원거리면 후열.\n" +
+                 "⚠️ 프리팹(UnitView)의 '근접 이동' 토글과 짝이 맞아야 한다 — 별개 데이터라 컴파일러가 잡아주지 않는다.\n" +
+                 "화면 배치는 이 값과 무관하며, 표적이 될 확률은 아래 어그로 가중치가 정한다.")]
+        [SerializeField] private BattleRow _row = BattleRow.Front;
+
+        [Tooltip("몬스터가 대상을 고를 때 이 캐릭터가 추첨에서 차지하는 몫(권장: 전열 3~4 / 후열 1).\n" +
+                 "확률은 파티 전체 합 대비 비율이라 절대값이 아니라 서로의 배수가 의미를 갖는다.\n" +
+                 "0을 주면 그 캐릭터는 사실상 표적이 되지 않으므로 후열도 1 이상을 유지할 것.")]
+        [Min(0f)]
+        [SerializeField] private float _aggroWeight = 1f;
+
         [Header("파티 시너지 (같은 캐릭터가 임계 인원 이상 모이면 그 캐릭터들에게만 적용)")]
         [Tooltip("시너지가 발동하는 최소 인원.")]
         [SerializeField] private int _synergyThreshold = 2;
@@ -34,6 +63,12 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         [SerializeField] private float _synergyCritDmg;
         [Tooltip("디버프 저항 가산치(0.1 = +10%p).")]
         [Range(0f, 1f)][SerializeField] private float _synergyRes;
+
+        /// <summary>맡는 자리(전열/후열). 화면 표기에 쓰이며 전투 로직은 <see cref="AggroWeight"/>만 본다.</summary>
+        public BattleRow Row => _row;
+
+        /// <summary>몬스터의 대상 추첨에서 차지하는 몫. <see cref="Core.Unit.AggroWeight"/>로 전달된다.</summary>
+        public float AggroWeight => _aggroWeight;
 
         public int SynergyThreshold => _synergyThreshold;
 

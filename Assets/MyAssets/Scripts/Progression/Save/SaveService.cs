@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Assets.MyAssets.Scripts.Progression.Run;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Progression.Save
@@ -94,6 +95,23 @@ namespace Assets.MyAssets.Scripts.Progression.Save
             return true;
         }
 
+        /// <summary>이어할 런(보스 클리어 체크포인트)이 저장돼 있는지</summary>
+        public static bool HasRun => Current.Run != null && Current.Run.HasParty;
+
+        /// <summary>현재 런을 체크포인트로 저장(보스 클리어마다 덮어쓴다)</summary>
+        public static void SaveRun(RunData run)
+        {
+            Current.Run = RunSnapshot.Capture(run);
+            Save();
+        }
+
+        /// <summary>체크포인트를 비운다(전멸 또는 새 런 시작). 최고 기록·영구 포인트는 그대로 둔다.</summary>
+        public static void ClearRun()
+        {
+            Current.Run = new RunSnapshot();
+            Save();
+        }
+
         /// <summary>세이브를 삭제하고 기본값으로 되돌림(개발·테스트용)</summary>
         public static void Delete()
         {
@@ -122,8 +140,11 @@ namespace Assets.MyAssets.Scripts.Progression.Save
             data ??= new SaveData();
             data.CategoryPoints ??= new System.Collections.Generic.List<CategoryPoint>();
             data.Options ??= new OptionsData();
+            data.Run ??= new RunSnapshot();
 
             // 포맷이 바뀌면 여기서 data.Version을 보고 이전 버전 데이터를 변환한다.
+            // ⚠️ 밸런싱 때문에 Version을 올리는 경우(스탯 리스케일 등)에는 data.Run을 비우는 편이 안전하다 —
+            //    체크포인트에는 옛 수치가 그대로 들어 있어 마이그레이션 없이 되살리면 파티만 옛 규모로 남는다.
             data.Version = SaveData.CurrentVersion;
             return data;
         }

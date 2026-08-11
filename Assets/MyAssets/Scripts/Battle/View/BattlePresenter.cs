@@ -26,9 +26,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [Tooltip("타격 파티클 이펙트. 비워두면 이펙트 없이 진행한다.")]
         [SerializeField] private HitEffectSpawner _hitEffects;
 
-        [Tooltip("타격 순간 히트 스톱. 비워두면 쓰지 않는다.")]
-        [SerializeField] private HitStop _hitStop;
-
         [Tooltip("원거리 유닛의 투사체. 비워두면 투사체 없이 즉시 명중한다.")]
         [SerializeField] private ProjectileSpawner _projectiles;
 
@@ -459,9 +456,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
             //      순서가 거꾸로 보인다. 투사체가 없는 유닛은 즉시 통과한다.
             await FlyProjectilesAsync(result, actorView, effects);
 
-            // 3) 타격 순간에 피격 연출·이펙트·숫자·히트 스톱을 한꺼번에 터뜨린다.
+            // 3) 타격 순간에 피격 연출·이펙트·숫자를 한꺼번에 터뜨린다.
             var playback = new List<Task> { actorAnim };
-            var struck = new List<UnitView> { actorView }; // 히트 스톱 대상(때린 쪽도 함께 멈춘다)
             bool anyCritical = false;
             foreach (HitResult hit in result.Hits)
             {
@@ -472,7 +468,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 if (_registry.TryGet(hit.Target.Id, out UnitView targetView))
                 {
                     playback.Add(targetView.PlayHitAsync(hit.Target.CurrentHp, hit.Target.Stats.MaxHp, _ct));
-                    struck.Add(targetView);
 
                     // 이펙트와 팝업은 연출 대기에 넣지 않는다 — 장식이라 전투 페이싱을 늦출 이유가 없다.
                     // 명중 이펙트는 맞은 쪽이 아니라 <b>때린 쪽</b>의 것을 쓴다 — 공격의 성질(화살/마법)을 나타내기 때문.
@@ -497,12 +492,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 }
 
                 AudioManager.Sfx(AudioManager.Library?.Critical);
-            }
-
-            // 히트 스톱은 기다린다 — 늦추는 동안 다음 연출이 겹쳐 들어오면 효과가 사라진다.
-            if (_hitStop != null)
-            {
-                await _hitStop.PlayAsync(struck, anyCritical, _ct);
             }
 
             await Task.WhenAll(playback);

@@ -40,6 +40,17 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             }
         }
 
+        /// <summary>
+        /// 저장된 값으로 예약을 되돌린다(체크포인트 복원).
+        /// <see cref="Add"/>는 곱연산 누적이라 복원에 쓸 수 없어 따로 둔다.
+        /// </summary>
+        public void Restore(float enemyHpMultiplier, float enemyAtkMultiplier, bool enemySkipFirstTurn)
+        {
+            EnemyHpMultiplier = enemyHpMultiplier;
+            EnemyAtkMultiplier = enemyAtkMultiplier;
+            EnemySkipFirstTurn = enemySkipFirstTurn;
+        }
+
         /// <summary>스테이지에 적용을 마친 뒤 호출하여 예약을 비운다.</summary>
         public void Consume()
         {

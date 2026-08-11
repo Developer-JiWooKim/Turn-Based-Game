@@ -10,6 +10,25 @@ using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.View
 {
+    /// <summary>한 스테이지를 끝낸 결과 — 살아남았는지와, 그 웨이브가 보스전이었는지(체크포인트 판정).</summary>
+    public readonly struct StageResult
+    {
+        public readonly bool Survived;
+
+        /// <summary>
+        /// 보스가 실제로 등장한 웨이브였는지(<see cref="SpawnWaveSO.IsBossWave"/> — 보스 BGM과 같은 기준).
+        /// 스테이지 번호 배수로 판정하지 않는 이유는, 랜덤 풀에 보스 웨이브가 없어 일반 웨이브로
+        /// 대체된 스테이지까지 "보스 클리어"로 세면 안 되기 때문이다.
+        /// </summary>
+        public readonly bool WasBossWave;
+
+        public StageResult(bool survived, bool wasBossWave)
+        {
+            Survived = survived;
+            WasBossWave = wasBossWave;
+        }
+    }
+
     /// <summary>
     /// BattleScene의 진입점이자 스테이지 루프의 오케스트레이터
     /// 웨이브를 구성해 Core(BattleSimulation)를 돌리고, 결과를 <see cref="RunData"/>에 반영한 뒤
@@ -89,7 +108,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             SystemRandom rng = new();
 
-            _run = _runFlow.ResolveRun();
+            RunStart start = _runFlow.ResolveRun();
+            _run = start.Run;
 
             if (_run is null || _run.Members.Count == 0)
             {
@@ -125,29 +145,51 @@ namespace Assets.MyAssets.Scripts.Battle.View
             // 파티 등장 모션이 끝난 뒤에야 첫 웨이브가 스폰되도록 대기.
             await _registry.WhenAllSpawnPlayed(_cts.Token);
 
+            // 체크포인트는 "보스를 막 처치한 시점"이라 CurrentStage 전투를 이미 이긴 상태다.
+            // 그래서 재개는 전투가 아니라 승리 후 처리(진급 → 자동 성장 → 성장 선택지)부터 이어붙인다.
+            if (start.ResumedFromCheckpoint)
+            {
+                await AdvanceAfterVictoryAsync(rng);
+            }
+
             // 파티가 전멸할 때까지(패배) 스테이지를 계속 이어간다.
             // 각 승리 후에는 자동 성장 + 성장 선택지를 거쳐 다음 웨이브로 넘어간다.
             while (true)
             {
-                bool survived = await RunStageAsync(rng);
-                if (!survived)
+                StageResult result = await RunStageAsync(rng);
+                if (!result.Survived)
                 {
-                    await _runFlow.EndRunAsync(_run, _cts.Token);
+                    await _runFlow.EndRunAsync(_run, _aborted, _cts.Token);
                     return;
                 }
 
-                // 승리 → 다음 스테이지로 진급 후 자동 성장, 그다음 선택지 제시
                 AudioManager.Sfx(AudioManager.Library?.VictoryStinger);
-                _run.CurrentStage++;
-                _run.ApplyStageGrowth(_scaling);
-                _registry.RefreshHealth(_run.Members); // 선택지 패널의 카드와 체력바가 같은 값을 보이도록 먼저 갱신
-                await PresentRewardAsync(rng);
-                _registry.RefreshHealth(_run.Members); // 선택지로 늘어난 체력 반영
+
+                // 보스를 잡은 "직후"(성장 선택지를 받기 전) 상태를 이어하기용으로 남긴다.
+                if (result.WasBossWave)
+                {
+                    _runFlow.SaveCheckpoint(_run);
+                }
+
+                await AdvanceAfterVictoryAsync(rng);
             }
         }
 
+        /// <summary>
+        /// 승리 후 처리 — 다음 스테이지로 진급하고 자동 성장을 적용한 뒤 성장 선택지를 제시한다.
+        /// 체크포인트 재개도 이 지점부터 이어가므로 한 곳에 모아둔다.
+        /// </summary>
+        private async Task AdvanceAfterVictoryAsync(IRandom rng)
+        {
+            _run.CurrentStage++;
+            _run.ApplyStageGrowth(_scaling);
+            _registry.RefreshHealth(_run.Members); // 선택지 패널의 카드와 체력바가 같은 값을 보이도록 먼저 갱신
+            await PresentRewardAsync(rng);
+            _registry.RefreshHealth(_run.Members); // 선택지로 늘어난 체력 반영
+        }
+
         /// <summary>한 스테이지(웨이브 1회)를 끝까지 진행한다. 파티가 살아남았으면 true.</summary>
-        private async Task<bool> RunStageAsync(IRandom rng)
+        private async Task<StageResult> RunStageAsync(IRandom rng)
         {
             int stage = _run.CurrentStage;
             _presenter.SetStage(stage);
@@ -160,7 +202,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (wave == null)
             {
                 Debug.LogError("[BattleDirector] 스폰할 몬스터 웨이브가 설정되지 않았습니다.");
-                return false;
+                return default;
             }
 
             // 보스/일반 BGM으로 전환. 같은 클립이면 AudioManager가 무시하므로 매 스테이지 호출해도 안전하다.
@@ -225,7 +267,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _registry.RemoveMember(fallen);
             }
 
-            return outcome != BattleOutcome.Defeat;
+            return new StageResult(outcome != BattleOutcome.Defeat, wave.IsBossWave);
         }
 
         /// <summary>

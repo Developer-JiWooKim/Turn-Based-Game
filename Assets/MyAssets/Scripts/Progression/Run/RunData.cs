@@ -54,11 +54,30 @@ namespace Assets.MyAssets.Scripts.Progression.Run
         /// <summary>런 전체에서 유일한 Unit 식별자 발급기(파티/몬스터 공용)</summary>
         private int _nextUnitId;
 
+        /// <summary>
+        /// 마지막으로 발급한 Unit 식별자(세이브 복원용).
+        /// 재개 시 이 값을 이어붙이지 않으면 새로 발급한 Id가 기존 파티원과 겹쳐
+        /// <c>UnitViewRegistry</c>의 Id→View 조회가 엉킨다.
+        /// </summary>
+        public int UnitIdSeed => _nextUnitId;
+
         public RunData(CharacterStatsSO starter)
         {
             if (starter != null)
             {
                 Members.Add(new RunMember(NextUnitId(), starter));
+            }
+        }
+
+        /// <summary>세이브에서 복원한 런(체크포인트 재개). 파티는 이미 만들어진 멤버를 그대로 받는다.</summary>
+        public RunData(int currentStage, int unitIdSeed, IReadOnlyList<RunMember> members)
+        {
+            CurrentStage = currentStage;
+            _nextUnitId = unitIdSeed;
+
+            for (int i = 0; i < members.Count; i++)
+            {
+                Members.Add(members[i]);
             }
         }
 

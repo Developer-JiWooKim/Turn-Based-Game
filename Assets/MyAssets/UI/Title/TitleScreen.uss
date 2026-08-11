@@ -101,6 +101,13 @@
     flex-shrink: 0;
 }
 
+/* 이어할 런이 없을 때의 '이어하기'. Common.uss의 .btn:disabled는 opacity를 1로 되돌리므로
+   (성향 배분 +/- 버튼용) 여기서 다시 낮춘다 — 두 규칙의 특정도가 같아 나중에 로드되는
+   이 파일이 이긴다(UXML의 <Style> 순서: Common.uss → TitleScreen.uss). */
+.menu-btn:disabled {
+    opacity: 0.9;
+}
+
 .menu-btn--cta {
     height: 100px;
     font-size: 38px;
