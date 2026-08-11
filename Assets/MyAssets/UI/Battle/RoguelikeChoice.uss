@@ -71,3 +71,35 @@
     white-space: normal;
     -unity-text-align: middle-center;
 }
+
+/* 영입/교체 카드의 스탯 표. 카드 폭을 다 쓰게 해야 라벨이 항상 같은 자리에서 시작한다
+   (.choice-card가 align-items: center라 그냥 두면 내용 폭으로 줄어든다). */
+.card-stats {
+    width: 100%;
+    margin-top: 2px;
+}
+
+.card-stat-row {
+    flex-direction: row;
+    align-items: center;
+    margin: 1px 0;
+}
+
+/* 라벨 폭을 고정해 값들이 세로로 줄을 맞춘다(전투 하단 .party-stat-label과 같은 방식).
+   영어 "Crit Rate"가 한국어 "치명피해"보다 길어 70px 아래로 줄이면 잘린다. */
+.card-stat-label {
+    width: 70px;
+    flex-shrink: 0;
+    font-size: 14px;
+    color: var(--color-violet-text);
+    opacity: 0.8;
+    white-space: nowrap;
+}
+
+.card-stat-value {
+    flex-grow: 1;
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: var(--color-cream);
+    white-space: nowrap;
+}

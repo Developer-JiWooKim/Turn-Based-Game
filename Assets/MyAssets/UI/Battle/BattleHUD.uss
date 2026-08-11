@@ -192,12 +192,40 @@
     translate: -50% 0;
 }
 
+/* 전열/후열 아이콘 + 이름을 한 줄에 놓는다 */
+.party-name-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
 .party-member-name {
     font-size: 15px;
     -unity-font-style: bold;
     color: var(--color-cream);
     -unity-text-align: middle-center;
-    margin-bottom: 4px;
+}
+
+/*
+  전열/후열 아이콘. 이미지 경로는 USS가 들고 코드는 클래스만 토글한다
+  (TitlePanelUI의 한글 로고 교체와 같은 방식 — 코드가 텍스처를 직접 참조하면 슬롯이 늘고 규칙이 둘로 갈라진다).
+  PartyStatusBarView는 순수 C# View라 [SerializeField]로 스프라이트를 들 수도 없다.
+*/
+.party-row-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 5px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.party-row-icon--front {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Position/Front.png');
+}
+
+.party-row-icon--back {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Position/Back.png');
 }
 
 /* 사망한 파티원 (턴 순서 칩의 turn-chip-dead와 같은 처리) */

@@ -19,6 +19,13 @@ namespace Assets.MyAssets.Scripts.Systems
         // 현재 진행 중인 런 데이터(파티/스테이지)
         public RunData CurrentRun { get; private set; } // 캐릭터 선택 후 생성되어 씬을 넘어 유지
 
+        /// <summary>
+        /// 현재 런이 세이브 체크포인트에서 복원된 것인지.
+        /// 체크포인트는 "보스를 막 처치한 시점"이라, BattleScene은 이 값이 true면
+        /// 전투가 아니라 <b>승리 후 처리(진급·성장·선택지)</b>부터 이어간다.
+        /// </summary>
+        public bool IsResumedRun { get; private set; }
+
         protected override void Awake()
         {
             base.Awake();
@@ -62,6 +69,17 @@ namespace Assets.MyAssets.Scripts.Systems
         public void BeginRun(CharacterStatsSO starter)
         {
             CurrentRun = new RunData(starter);
+            IsResumedRun = false;
+        }
+
+        /// <summary>
+        /// 저장된 체크포인트에서 복원한 런으로 이어한다('이어하기').
+        /// 스냅샷 → <see cref="RunData"/> 변환은 로스터를 아는 호출자(<c>GameUIController</c>)가 끝낸 뒤 넘긴다.
+        /// </summary>
+        public void ResumeRun(RunData run)
+        {
+            CurrentRun = run;
+            IsResumedRun = true;
         }
 
         /// <summary>

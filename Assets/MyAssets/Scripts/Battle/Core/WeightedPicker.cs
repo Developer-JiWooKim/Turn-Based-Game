@@ -7,6 +7,45 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     public static class WeightedPicker
     {
         /// <summary>
+        /// 가중치에 비례해 인덱스 하나를 뽑는다(뽑을 게 없으면 -1).
+        ///
+        /// <see cref="PickDistinct"/>와 달리 <b>아무것도 할당하지 않는다</b> — 이쪽은 모든 몬스터의
+        /// 모든 행동마다 불리는 대상 추첨(<see cref="MonsterAiSelector"/>)이라, 호출마다 리스트 두 개를
+        /// 새로 만들면 무한 타워 내내 할당이 쌓인다(<see cref="BattleState"/>가 버퍼를 재사용하는 것과 같은 이유).
+        /// 가중치가 전부 0 이하면 균등 추첨으로 떨어지는 동작은 <see cref="PickDistinct"/>와 같다.
+        /// </summary>
+        public static int PickOne(IReadOnlyList<float> weights, IRandom rng)
+        {
+            if (weights == null || weights.Count == 0)
+            {
+                return -1;
+            }
+
+            float total = 0f;
+            for (int i = 0; i < weights.Count; i++)
+            {
+                total += Math.Max(0f, weights[i]);
+            }
+
+            if (total <= 0f)
+            {
+                return rng.Range(0, weights.Count); // 가중치가 없으면 균등하게
+            }
+
+            float roll = rng.Value01() * total;
+            for (int i = 0; i < weights.Count; i++)
+            {
+                roll -= Math.Max(0f, weights[i]);
+                if (roll <= 0f)
+                {
+                    return i;
+                }
+            }
+
+            return weights.Count - 1; // 부동소수 오차로 끝까지 못 고른 경우
+        }
+
+        /// <summary>
         /// 가중치 목록에서 중복 없이 최대 count개의 인덱스를 뽑는다.
         /// 한 번 뽑힌 항목은 후보에서 빠지므로 남은 항목들끼리 다시 정규화된다.
         /// 가중치가 전부 0 이하면 균등 추첨으로 대체한다.

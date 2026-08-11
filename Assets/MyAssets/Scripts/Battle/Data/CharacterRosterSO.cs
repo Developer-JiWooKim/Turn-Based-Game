@@ -17,6 +17,24 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         public CharacterStatsSO this[int index] => _characters[index];
 
         /// <summary>
+        /// 에셋 이름으로 캐릭터를 찾는다(세이브 복원용, 없으면 null).
+        /// 표시 이름은 번역을 거친 값이라 언어에 따라 달라지고, 인덱스는 로스터 순서를 바꾸면
+        /// 조용히 다른 캐릭터가 되므로 둘 다 식별자로 쓰지 않는다.
+        /// </summary>
+        public CharacterStatsSO Find(string assetName)
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                if (_characters[i] != null && _characters[i].name == assetName)
+                {
+                    return _characters[i];
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// 로스터 전체에서 스탯별 최댓값. 선택 화면의 스탯 바가 "이 로스터 안에서 얼마나 높은가"를
         /// 그릴 때 기준으로 쓴다(밸런싱 값을 UI 코드에 박지 않기 위해 데이터에서 구한다).
         ///

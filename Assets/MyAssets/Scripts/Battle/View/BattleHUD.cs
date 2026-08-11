@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Assets.MyAssets.Scripts.Battle.Core;
 using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Progression.Run;
+using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -54,21 +55,38 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Awake()
         {
-            VisualElement root = _document.rootVisualElement;
-            _stageLabel = root.Q<Label>("stage-label");
-            _turnOrder = root.Q<VisualElement>("turn-order");
-            _playerPrompt = root.Q<Label>("player-prompt");
+            // BasePanelUI가 아니라 자체 UIDocument를 쓰는 수동 View라 Require 헬퍼를 못 쓴다.
+            // 대신 같은 규칙을 따른다 — UXML 조회는 1회 대입 지점인 여기서 전부 보고한다
+            // (이름 오타는 인스펙터 검증으로도 OnValidate로도 잡히지 않는다).
+            if (NullCheck.LogIfMissing(_document, nameof(_document), this, "HUD를 표시할 수 없습니다"))
+            {
+                return;
+            }
 
-            _pauseButton = root.Q<Button>("pause-button");
+            VisualElement root = _document.rootVisualElement;
+            _stageLabel = Find<Label>(root, "stage-label", "스테이지 번호가 표시되지 않습니다");
+            _turnOrder = Find<VisualElement>(root, "turn-order", "턴 순서 칩이 표시되지 않습니다");
+            _playerPrompt = Find<Label>(root, "player-prompt", "플레이어 차례 안내가 표시되지 않습니다");
+
+            _pauseButton = Find<Button>(root, "pause-button", "퍼즈 버튼을 누를 수 없습니다");
             if (_pauseButton != null)
             {
                 _pauseButton.clicked += () => PauseClicked?.Invoke();
             }
 
-            _partyStatus.Build(root.Q<VisualElement>("party-status"));
-            _synergyPanel.Build(root.Q<VisualElement>("synergy-panel"));
+            _partyStatus.Build(Find<VisualElement>(root, "party-status", "하단 파티 스탯이 표시되지 않습니다"));
+            _synergyPanel.Build(Find<VisualElement>(root, "synergy-panel", "시너지 패널이 표시되지 않습니다"));
 
             HidePrompt();
+        }
+
+        /// <summary>BasePanelUI의 Require와 같은 역할. 없으면 그 자리에서 알린다.</summary>
+        private T Find<T>(VisualElement root, string elementName, string consequence) where T : VisualElement
+        {
+            T element = root?.Q<T>(elementName);
+            NullCheck.LogIfNull(element, $"'{elementName}' 엘리먼트", this, consequence);
+
+            return element;
         }
 
         /// <summary>이번 스테이지의 파티를 하단 스탯 바에 배정한다(각 캐릭터 위치 아래로 정렬).</summary>

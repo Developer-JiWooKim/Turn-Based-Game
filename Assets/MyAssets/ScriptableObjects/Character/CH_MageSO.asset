@@ -22,6 +22,8 @@ MonoBehaviour:
   _critRate: 0.3
   _critDmg: 3
   _res: 0
+  _row: 1
+  _aggroWeight: 1
   _synergyThreshold: 2
   _synergyAtkRate: 0
   _synergySpdRate: 0

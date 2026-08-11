@@ -123,7 +123,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             bool needsReplace = !run.CanRecruit;
-            var cards = candidates.Select(c => new ChoiceCard(c.DisplayName, DescribeCandidate(c, run, scaling), c.Icon)).ToList();
+            var cards = candidates
+                .Select(c => new ChoiceCard(c.DisplayName, null, c.Icon, DescribeCandidate(c, run, scaling)))
+                .ToList();
             if (needsReplace)
             {
                 cards.Add(new ChoiceCard(Loc.Get(SkipRecruitTitleKey), Loc.Get(SkipRecruitDescriptionKey)));
@@ -163,8 +165,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         {
             List<UnitViewRegistry.PartySlot> slots = _registry.GetPartySlots();
             var cards = slots.Select(s => new ChoiceCard($"{s.Label} {s.Member.DisplayName}",
-                                                        DescribeMember(s.Member),
-                                                        s.Member.Source != null ? s.Member.Source.Icon : null)).ToList();
+                                                        null,
+                                                        s.Member.Source != null ? s.Member.Source.Icon : null,
+                                                        DescribeMember(s.Member))).ToList();
 
             int index = await _panel.PresentAsync(Loc.Get("ui.recruit.replaceHeader"), cards, ct);
             return index < 0 || index >= slots.Count ? null : slots[index].Member;
@@ -201,27 +204,34 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// <summary>
         /// 후보 카드에 표시할 스탯 요약. SO 기준값이 아니라 "지금 영입하면 실제로 갖게 될" 스탯을 보여줘야
         /// 카드와 합류 결과가 어긋나지 않고, 교체 대상(성장 누적된 파티원)과도 같은 기준으로 비교된다.
-        /// 새 파티원은 최대치로 합류하므로 현재 HP = 최대 HP.
+        /// 새 파티원은 최대치로 합류하므로 HP 행에 최대 HP를 넘긴다.
         /// </summary>
-        private static string DescribeCandidate(CharacterStatsSO character, RunData run, in StageScaling scaling)
+        private static List<CardStatLine> DescribeCandidate(CharacterStatsSO character, RunData run, in StageScaling scaling)
         {
             Stats s = run.PreviewRecruitStats(character, scaling);
             return DescribeStats(s, s.MaxHp);
         }
 
-        /// <summary>교체 대상 카드에 표시할 현재 파티원 상태 요약.</summary>
-        private static string DescribeMember(RunMember m) => DescribeStats(m.Stats, m.CurrentHp);
+        /// <summary>교체 대상 카드에 표시할 현재 파티원 상태 요약(다친 상태가 보여야 누굴 내보낼지 정할 수 있다).</summary>
+        private static List<CardStatLine> DescribeMember(RunMember m) => DescribeStats(m.Stats, m.CurrentHp);
 
         /// <summary>
         /// 영입 후보와 교체 대상이 같은 형식으로 비교되도록 스탯 표기를 한 곳에서 만든다.
         /// 항목·순서·% 표기는 전투 하단 파티 표기(<see cref="PartyStatusBarView"/>)와 일부러 맞춰 뒀다 —
         /// 같은 캐릭터를 두 화면이 다른 항목 수로 보여주면 비교가 되지 않기 때문.
+        /// HP 행은 <b>현재 HP 한 숫자</b>다 — 영입 후보는 최대치로 합류하므로 "800/800"처럼 같은 값이
+        /// 두 번 찍혔고, 교체 대상은 다친 만큼 낮은 값이 그대로 보인다.
         /// </summary>
-        private static string DescribeStats(Stats s, int currentHp) =>
-            $"{Loc.Get("ui.stat.hp")} {currentHp}/{s.MaxHp}\n{Loc.Get("ui.stat.atk")} {s.Atk}\n" +
-            $"{Loc.Get("ui.stat.spd")} {s.Spd}\n{Loc.Get("ui.stat.def")} {s.Def}\n" +
-            $"{Loc.Get("ui.stat.critRate")} {Percent(s.CritRate)}\n{Loc.Get("ui.stat.critDmg")} {Percent(s.CritDmg)}\n" +
-            $"{Loc.Get("ui.stat.res")} {Percent(s.Res)}";
+        private static List<CardStatLine> DescribeStats(Stats s, int currentHp) => new()
+        {
+            new CardStatLine(Loc.Get("ui.stat.hp"), currentHp.ToString()),
+            new CardStatLine(Loc.Get("ui.stat.atk"), s.Atk.ToString()),
+            new CardStatLine(Loc.Get("ui.stat.spd"), s.Spd.ToString()),
+            new CardStatLine(Loc.Get("ui.stat.def"), s.Def.ToString()),
+            new CardStatLine(Loc.Get("ui.stat.critRate"), Percent(s.CritRate)),
+            new CardStatLine(Loc.Get("ui.stat.critDmg"), Percent(s.CritDmg)),
+            new CardStatLine(Loc.Get("ui.stat.res"), Percent(s.Res))
+        };
 
         /// <summary>배율(0~1 또는 1.5 같은 배수)을 정수 %로. 치명피해 1.5 → "150%".</summary>
         private static string Percent(float value) => $"{Mathf.RoundToInt(value * 100f)}%";

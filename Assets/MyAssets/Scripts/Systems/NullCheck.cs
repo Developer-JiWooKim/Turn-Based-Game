@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -38,16 +39,21 @@ namespace Assets.MyAssets.Scripts.Systems
             return true;
         }
 
-        /// <summary>인스펙터 배열이 null이거나 비어 있으면 로그를 남긴다(슬롯 목록, 선택지 풀 등).</summary>
+        /// <summary>목록이 null이거나 비어 있으면 로그를 남긴다(인스펙터 슬롯 목록, 선택지 풀 등).</summary>
+        /// <param name="inspector">
+        /// 인스펙터에서 채우는 값인지. UXML 조회 결과처럼 인스펙터와 무관한 목록은 false로 넘긴다
+        /// — "(인스펙터 확인)"이 붙으면 엉뚱한 곳을 뒤지게 된다.
+        /// </param>
         /// <returns>비어 있으면 true(= 문제 있음).</returns>
-        public static bool LogIfEmpty<T>(T[] array, string name, object owner, string consequence = null)
+        public static bool LogIfEmpty<T>(IReadOnlyList<T> items, string name, object owner,
+                                         string consequence = null, bool inspector = true)
         {
-            if (array != null && array.Length > 0)
+            if (items != null && items.Count > 0)
             {
                 return false;
             }
 
-            Log($"{name}가 비어 있습니다", owner, consequence, inspector: true);
+            Log($"{name}가 비어 있습니다", owner, consequence, inspector);
 
             return true;
         }

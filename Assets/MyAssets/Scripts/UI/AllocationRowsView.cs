@@ -41,8 +41,8 @@ namespace Assets.MyAssets.Scripts.UI
         {
             _rows.Clear();
 
-            // 누락은 화면이 비는 것으로만 드러나 원인 파악이 늦어지므로 로그를 남긴다.
-            if (NullCheck.LogIfNull(container, nameof(container), this, "UXML에서 행 컨테이너를 찾지 못했습니다"))
+            // 컨테이너 누락은 UXML의 주인인 PointAllocationPopupUI가 Require로 보고하므로 여기서는 조용히 넘어간다.
+            if (container == null)
             {
                 return;
             }

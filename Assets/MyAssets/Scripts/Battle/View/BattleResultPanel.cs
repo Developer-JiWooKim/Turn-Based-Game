@@ -25,16 +25,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Awake()
         {
-            VisualElement root = _document.rootVisualElement;
-            _title = root.Q<Label>("result-title");
-            _stage = root.Q<Label>("result-stage");
-            _best = root.Q<Label>("result-best");
+            _title = Require<Label>("result-title", "결과 제목이 표시되지 않습니다");
+            _stage = Require<Label>("result-stage", "도달 스테이지가 표시되지 않습니다");
+            _best = Require<Label>("result-best", "최고 기록이 표시되지 않습니다");
 
-            Button confirm = root.Q<Button>("result-confirm");
-            if (confirm != null)
-            {
-                confirm.clicked += () => _pending.Complete(true);
-            }
+            BindButton("result-confirm", () => _pending.Complete(true));
 
             Hide();
         }

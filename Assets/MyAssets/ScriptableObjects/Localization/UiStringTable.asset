@@ -25,6 +25,19 @@ MonoBehaviour:
   - Key: ui.title.quit
     Ko: "\uC885\uB8CC"
     En: QUIT
+  - Key: ui.newrun.title
+    Ko: "\uC0C8 \uC6D0\uC815 \uC2DC\uC791"
+    En: New Expedition
+  - Key: ui.newrun.body
+    Ko: "\uC800\uC7A5\uB41C \uC774\uC5B4\uD558\uAE30 \uB370\uC774\uD130\uAC00 \uC0AC\uB77C\uC9D1\uB2C8\uB2E4.
+      \uC0C8\uB85C \uC2DC\uC791\uD560\uAE4C\uC694?"
+    En: Your saved progress will be lost. Start a new expedition?
+  - Key: ui.newrun.confirm
+    Ko: "\uC0C8\uB85C \uC2DC\uC791"
+    En: Start New
+  - Key: ui.newrun.cancel
+    Ko: "\uCDE8\uC18C"
+    En: Cancel
   - Key: ui.select.header
     Ko: "\uCE90\uB9AD\uD130 \uC120\uD0DD"
     En: Select Character
@@ -50,7 +63,7 @@ MonoBehaviour:
     Ko: "\uB9C8\uC2A4\uD130"
     En: Master
   - Key: ui.option.volume.bgm
-    Ko: BGM
+    Ko: "\uBC30\uACBD\uC74C"
     En: BGM
   - Key: ui.option.volume.sfx
     Ko: "\uD6A8\uACFC\uC74C"
@@ -138,8 +151,8 @@ MonoBehaviour:
     Ko: "ESC \uD0A4\uB85C\uB3C4 \uACC4\uC18D\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4"
     En: Press ESC to resume
   - Key: ui.result.title
-    Ko: "\uB9AC\uD0C0\uC774\uC5B4"
-    En: Retire
+    Ko: "\uC6D0\uC815 \uC885\uB8CC"
+    En: Expedition Ends
   - Key: ui.result.caption
     Ko: "\uB3C4\uB2EC \uC2A4\uD14C\uC774\uC9C0"
     En: Stage Reached
@@ -173,6 +186,9 @@ MonoBehaviour:
   - Key: ui.stat.res
     Ko: "\uC800\uD56D"
     En: RES
+  - Key: ui.stat.aggro
+    Ko: "\uC5B4\uADF8\uB85C"
+    En: Aggro
   - Key: choice.AttackUp.title
     Ko: "\uACF5\uACA9\uB825 \uAC15\uD654"
     En: Attack Up
@@ -221,7 +237,7 @@ MonoBehaviour:
     Ko: "\uCCB4\uB825 1000 \uD68C\uBCF5"
     En: Restore 1000 HP
   - Key: choice.EnemyStun.title
-    Ko: "\uC18D\uBC15"
+    Ko: "\uC2A4\uD134"
     En: Stun
   - Key: choice.EnemyStun.desc
     Ko: "\uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0\n\uC801 \uC804\uCCB4 \uCCAB \uD134
@@ -230,16 +246,16 @@ MonoBehaviour:
 
       Enemies skip first turn'
   - Key: choice.EnemyHpDown.title
-    Ko: "\uC57D\uD654"
-    En: Weaken
+    Ko: "\uC801 \uC57D\uD654"
+    En: Enemy Weaken
   - Key: choice.EnemyHpDown.desc
     Ko: "\uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0\n\uC801 \uCCB4\uB825 -30%"
     En: 'Next stage
 
       Enemy HP -30%'
   - Key: choice.EnemyAtkDown.title
-    Ko: "\uBB34\uC7A5 \uD574\uC81C"
-    En: Disarm
+    Ko: "\uC801 \uACF5\uACA9\uB825 \uAC10\uC18C"
+    En: Enemy Attack Debuff
   - Key: choice.EnemyAtkDown.desc
     Ko: "\uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0\n\uC801 \uACF5\uACA9\uB825 -30%"
     En: 'Next stage

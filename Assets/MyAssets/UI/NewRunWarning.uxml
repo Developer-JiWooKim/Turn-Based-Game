@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
+    <Style src="Common.uss" />
+    <!--
+      새 런 시작 경고 팝업 (NewRunWarningPopupUI). 저장된 이어하기 데이터가 있을 때만 뜬다.
+      OptionPopup / PointAllocation과 동일하게 <ui:Template>/<ui:Instance>로 화면 UXML에 얹는다.
+    -->
+    <ui:VisualElement name="newrun-popup" class="popup-overlay" style="display: none;">
+        <ui:VisualElement class="popup-frame panel-frame">
+            <ui:Label text="ui.newrun.title" class="popup-title" />
+            <ui:Label text="ui.newrun.body" class="popup-body newrun-body" />
+            <ui:VisualElement class="popup-button-row">
+                <ui:Button text="ui.newrun.cancel" name="newrun-cancel-button" class="btn btn-secondary popup-row-button" />
+                <ui:Button text="ui.newrun.confirm" name="newrun-confirm-button" class="btn btn-danger popup-row-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

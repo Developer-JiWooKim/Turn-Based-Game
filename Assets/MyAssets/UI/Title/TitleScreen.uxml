@@ -3,6 +3,7 @@
     <Style src="TitleScreen.uss" />
     <ui:Template name="OptionPopup" src="../OptionPopup.uxml" />
     <ui:Template name="PointAllocationPopup" src="../PointAllocation.uxml" />
+    <ui:Template name="NewRunWarningPopup" src="../NewRunWarning.uxml" />
     <ui:VisualElement name="screen-root" class="screen-root" picking-mode="Ignore">
         <!-- TitlePanelUI._rootElementName = "title-panel" -->
         <ui:VisualElement name="title-panel" class="panel" picking-mode="Ignore">
@@ -113,5 +114,6 @@
         <!-- Instance의 TemplateContainer 래퍼: 내용물 크기 기본값이라 화면 전체로 늘리되, 팝업이 닫혔을 때 클릭을 가로채지 않도록 Ignore -->
         <ui:Instance template="OptionPopup" picking-mode="Ignore" style="position: absolute; width: 100%; height: 100%;" />
         <ui:Instance template="PointAllocationPopup" picking-mode="Ignore" style="position: absolute; width: 100%; height: 100%;" />
+        <ui:Instance template="NewRunWarningPopup" picking-mode="Ignore" style="position: absolute; width: 100%; height: 100%;" />
     </ui:VisualElement>
 </ui:UXML>

@@ -109,12 +109,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
         }
 
         /// <summary>
-        /// 히트 스톱용 재생 속도 배율(1 = 보통 속도).
-        /// <see cref="Time.timeScale"/>을 쓰지 않는 이유는 <see cref="HitStop"/> 주석 참고.
-        /// </summary>
-        public void SetSpeedScale(float scale) => _animator.speed = scale;
-
-        /// <summary>
         /// 풀에서 재사용될 때 애니메이터를 초기 상태(기본 진입 상태 = Spawned)로 되돌린다.
         /// 버그 사례 - 이걸 빼먹으면 사망 포즈 그대로 다음 웨이브에 등장한다.
         ///
@@ -124,9 +118,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         public void ResetToSpawn()
         {
-            // 히트 스톱 도중 전투가 끝나 반납됐다면 느려진 속도가 그대로 남는다 — 재사용 전에 되돌린다.
-            _animator.speed = 1f;
-
             _animator.ResetTrigger(AttackHash);
             _animator.ResetTrigger(SkillHash);
             _animator.ResetTrigger(HitHash);

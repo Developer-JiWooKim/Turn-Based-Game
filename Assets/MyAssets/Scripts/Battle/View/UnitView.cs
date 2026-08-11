@@ -238,7 +238,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             _unitHealthBar.SetVisible(true); // 사망으로 숨겨진 채 재사용됐을 수도 있으니 활성화 먼저
-            _unitHealthBar.Set(currentHp, maxHp);
+
+            // 등장하는 유닛의 게이지는 채워진 상태로 시작해야 한다 — 여기서 연출을 쓰면
+            // 풀에서 물려받은 이전 전투의 잔량에서 스르륵 차오른다.
+            _unitHealthBar.SetImmediate(currentHp, maxHp);
             _unitHealthBar.SetSlotLabel(slotLabel);
 
             // 풀에서 재사용된 인스턴스에 이전 전투의 표기가 남지 않도록 둘 다 초기화한다.
@@ -519,15 +522,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
             // 마지막 프레임 오차를 남기지 않는다.
             transform.SetPositionAndRotation(destination, destinationRotation);
-        }
-
-        /// <summary>히트 스톱용 연출 속도 배율(1 = 보통). <see cref="HitStop"/>이 호출한다.</summary>
-        public void SetAnimationSpeed(float scale)
-        {
-            if (_unitAnimator != null)
-            {
-                _unitAnimator.SetSpeedScale(scale);
-            }
         }
 
         public async Task PlayHitAsync(int currentHp, int maxHp, CancellationToken ct = default)

@@ -24,6 +24,12 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         /// <summary>옵션 메뉴 설정</summary>
         public OptionsData Options = new();
 
+        /// <summary>
+        /// 진행 중이던 런의 체크포인트(타이틀의 '이어하기'). 파티가 비어 있으면 이어할 런이 없다는 뜻이다.
+        /// 보스를 클리어할 때마다 덮어쓰고, 전멸하면 비운다.
+        /// </summary>
+        public RunSnapshot Run = new();
+
         /// <summary>지금까지 획득한 영구 포인트 총량</summary>
         public int GetEarnedPoints(int stagesPerPoint) => stagesPerPoint <= 0 ? 0 : BestStage / stagesPerPoint;
 
