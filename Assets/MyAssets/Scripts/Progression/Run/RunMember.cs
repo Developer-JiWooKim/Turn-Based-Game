@@ -90,7 +90,7 @@ namespace Assets.MyAssets.Scripts.Progression.Run
             }
 
             Stats before = bucket != null ? Stats.Clone() : null;
-            int heal = effect.ApplyTo(Stats);
+            int heal = effect.ApplyTo(Stats, CreateScaleBase());
 
             if (bucket != null)
             {
@@ -105,5 +105,24 @@ namespace Assets.MyAssets.Scripts.Progression.Run
 
             CurrentHp = System.Math.Min(Stats.MaxHp, CurrentHp + heal);
         }
+
+        /// <summary>
+        /// 선택지 비율 성장의 기준이 되는 스탯 = <b>기준값 + 스테이지 자동 성장</b>(= <see cref="Stats"/> − <see cref="ChoiceGrowth"/>).
+        ///
+        /// 현재 스탯을 그대로 기준으로 삼으면 선택지가 복리로 부풀어(같은 선택지를 반복할수록 증가폭이 커진다)
+        /// 한 스탯에 몰아주는 것이 압도적으로 유리해진다. 반대로 <see cref="BaseStats"/>만 쓰면 기준이 런 내내
+        /// 고정이라 고정 증분과 다를 바 없어져, 애초에 비율로 바꾼 이유(후반 희석)가 그대로 남는다.
+        /// 자동 성장분까지만 기준에 넣으면 스테이지가 오를수록 선택지도 함께 커지되 폭주하지는 않는다.
+        ///
+        /// 파티 시너지는 전투용 <c>Unit</c>의 복사본에만 얹히므로 여기 <see cref="Stats"/>에는 애초에 섞이지 않는다.
+        /// </summary>
+        private Stats CreateScaleBase() =>
+            new(Stats.MaxHp - ChoiceGrowth.MaxHp,
+                Stats.Atk - ChoiceGrowth.Atk,
+                Stats.Spd - ChoiceGrowth.Spd,
+                Stats.Def - ChoiceGrowth.Def,
+                Stats.CritRate - ChoiceGrowth.CritRate,
+                Stats.CritDmg - ChoiceGrowth.CritDmg,
+                Stats.Res - ChoiceGrowth.Res);
     }
 }

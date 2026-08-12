@@ -34,14 +34,19 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         [Range(1f, 4f)][SerializeField] private float _accelMultiplier = 1.5f;
 
         [Header("몬스터 속도 — 선공을 지키려면 속도에 투자하게 만드는 압박")]
-        [Tooltip("스테이지당 몬스터 SPD 증가율. 0이면 SPD를 올리지 않는다(속도 강화 선택지가 무의미해진다).")]
-        [Range(0f, 0.2f)][SerializeField] private float _monsterSpdRate = 0.03f;
-        [Tooltip("이 스테이지 이후부터 몬스터 SPD가 오른다(첫 보스 구간까지는 기준값 유지).")]
-        [SerializeField] private int _spdStartStage = 5;
+        [Tooltip("보스 1회 처치당 몬스터 SPD 증가율. 0이면 SPD를 올리지 않는다(속도 강화 선택지가 무의미해진다).\n" +
+                 "스테이지당이 아니라 보스 단위인 이유: 아래 플레이어 보상과 갱신 주기를 맞춰야\n" +
+                 "'이번 보스로 따라잡았는지'가 읽히고, 두 비율을 같은 축에서 비교할 수 있다.")]
+        [Range(0f, 0.3f)][SerializeField] private float _monsterSpdRate = 0.12f;
+        [Tooltip("몬스터 SPD 증가를 세기 시작하는 기준 스테이지(그 전까지는 기준값 유지).\n" +
+                 "보스 간격의 위상도 함께 정한다 — 1이면 '보스를 잡은 바로 다음 스테이지부터' 빨라진다.\n" +
+                 "보스 스테이지 번호(5)를 넣으면 증가가 보스 스테이지 자체에 걸려 한 구간 늦어진다.")]
+        [SerializeField] private int _spdStartStage = 1;
 
         [Header("플레이어 — 보스 처치 보상")]
         [Tooltip("보스 1회 처치당 얻는 SPD(기준 SPD 대비 비율).\n" +
-                 "⚠️ 몬스터 SPD 증가분보다 작아야 한다 — 같은 속도로 주면 선공 압박이 사라져 속도 강화가 다시 무의미해진다.")]
+                 "⚠️ 위 몬스터 SPD 증가율보다 작아야 한다 — 같은 값을 주면 선공 압박이 사라져 속도 강화가 다시 무의미해진다.\n" +
+                 "게다가 몬스터는 복리, 이쪽은 선형이라 같은 값이어도 시간이 지날수록 몬스터가 앞선다.")]
         [Range(0f, 0.5f)][SerializeField] private float _bossSpdRate = 0.08f;
 
         /// <summary>

@@ -16,11 +16,11 @@ MonoBehaviour:
   _description: "A new ally\njoins your party"
   _category: 8
   _icon: {fileID: 21300000, guid: 5be5035a8fa248c43ac84d000f67aae7, type: 3}
-  _hpFlat: 0
-  _atkFlat: 0
-  _spdFlat: 0
-  _defFlat: 0
-  _healFlat: 0
+  _hpRate: 0
+  _atkRate: 0
+  _spdRate: 0
+  _defRate: 0
+  _healRate: 0
   _resFlat: 0
   _critRateFlat: 0
   _critDmgFlat: 0

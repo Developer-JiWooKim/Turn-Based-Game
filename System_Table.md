@@ -197,31 +197,23 @@ SpdDown,4,SPD 감소 비율,턴 순서 정렬 시 유효 스탯으로 반영
 **현재 값**
 
 ```csv
-AssetName,Title,Category,HpFlat,AtkFlat,SpdFlat,DefFlat,HealFlat,ResFlat,CritRateFlat,CritDmgFlat,EnemyHpMul,EnemyAtkMul,EnemySkipFirstTurn,Weight,WeightPerEmptySlot
-AttackUp,Attack Up,AttackUp,50,120,0,0,0,0,0,0,1,1,FALSE,1,0
-SpeedUp,Speed Up,SpeedUp,100,50,50,0,0,0,0,0,1(없음),1(없음),FALSE(없음),1(없음),0(없음)
-DefensiveUp,Defensive Up,DefensiveUp,60,35,0,80,0,0.1,0,0,1,1,FALSE,1,0
-CritUp,Crit Up,CritUp,50,0,0,0,0,0,0.08,0.25,1,1,FALSE,1,0
-Heal,Heal,Heal,0,0,0,0,1000,0,0,0,1,1,FALSE,1,0
+AssetName,Title,Category,HpRate,AtkRate,SpdRate,DefRate,HealRate,ResFlat,CritRateFlat,CritDmgFlat,EnemyHpMul,EnemyAtkMul,EnemySkipFirstTurn,Weight,WeightPerEmptySlot
+AttackUp,Attack Up,AttackUp,0.05,0.45,0,0,0,0,0,0,1,1,FALSE,1,0
+SpeedUp,Speed Up,SpeedUp,0.10,0.20,0.50,0,0,0,0,0,1(없음),1(없음),FALSE(없음),1(없음),0(없음)
+DefensiveUp,Defensive Up,DefensiveUp,0.06,0.14,0,0.60,0,0.1,0,0,1,1,FALSE,1,0
+CritUp,Crit Up,CritUp,0.05,0,0,0,0,0,0.08,0.25,1,1,FALSE,1,0
+Heal,Heal,Heal,0,0,0,0,0.50,0,0,0,1,1,FALSE,1,0
 EnemyStun,Stun,EnemyStun,0,0,0,0,0,0,0,0,1,1,TRUE,1(없음),0(없음)
 EnemyHpDown,Weaken,EnemyHpDown,0,0,0,0,0,0,0,0,0.7,1,FALSE,1(없음),0(없음)
 EnemyAtkDown,Disarm,EnemyAtkDown,0,0,0,0,0,0,0,0,1,0.7,FALSE,1(없음),0(없음)
 Recruit,Recruit,Recruit,0,0,0,0,0,0,0,0,1,1,FALSE,1,4
 ```
 
-
-```csv
-AssetName,현재 Description,실제 효과
-AttackUp,"HP +5 / ATK +12",HP +50 / ATK +120
-SpeedUp,"HP +5 / SPD +5",HP +50 / SPD +50
-DefensiveUp,"HP +15 / DEF +8 / RES +0.1",HP +150 / DEF +80 / RES +0.1
-CritUp,"HP +5 / Crit Rate +0.08 / Crit Dmg +0.4",HP +50 (나머지는 일치)
-Heal,"Restore 100 HP",1000 회복
-```
-
 **주의**
 
-- 설명문은 수치를 손으로 적어둔 것이라 **값을 바꿔도 자동으로 따라오지 않습니다.** 표에서 설명을 수치로부터 생성하는 열(수식)을 두면 이런 어긋남이 재발하지 않습니다
+- ⚠️ **2026-08-12에 파티 강화 수치가 전부 비율로 바뀌었습니다**(`_hpFlat` → `_hpRate` 등). 정수 스탯은 비율, 치명타·치명피해·저항은 %p 가산인 혼합 모델이고, 비율의 기준은 "기준 스탯 + 스테이지 자동 성장"입니다. 근거는 `SystemFormulaBalance.md`의 "로그라이크 선택지 성장" 절, 조정 근거는 `BalanceCurve.md` F절
+- ⚠️ **회복(`HealRate`)만 기준이 다릅니다** — 실제 최대 HP 대비 비율입니다
+- 설명문은 수치를 손으로 적어둔 것이라 **값을 바꿔도 자동으로 따라오지 않습니다.** 실제로 보이는 문구는 에셋의 `_description`이 아니라 `UiStringTable.asset`의 `choice.*.desc`이며, 둘 다 고쳐야 합니다
 - 영입 선택지는 파티가 꽉 차도 계속 등장하며, 고르면 교체 대상을 플레이어가 선택합니다. `WeightPerEmptySlot`은 "빈자리가 많을수록 자주 뜨게" 할 뿐입니다
 - 최종 가중치 = `Weight + WeightPerEmptySlot × 빈자리` + `투자 포인트 × _weightPerPoint`(9번 표)
 - **2026-08-10 1차 밸런싱**으로 SpeedUp·DefensiveUp·CritUp 수치가 바뀌었습니다(위 CSV는 반영본). 근거와 조정 전후 비교는 `BalanceCurve.md`의 D-0절 참고
@@ -240,12 +232,12 @@ Param,Value,대상,적용 방식
 PlayerHpRate,0.05,플레이어,기준 스탯 대비 스테이지당 flat 증가(선형 누적)
 PlayerAtkRate,0.04,플레이어,동일
 PlayerDefRate,0.03,플레이어,동일
-MonsterHpRate,0.08,몬스터,스폰 시 배율(복리)
-MonsterAtkRate,0.06,몬스터,스폰 시 배율(복리)
+MonsterHpRate,0.10,몬스터,스폰 시 배율(복리). 전투가 몇 라운드짜리인지를 움직인다
+MonsterAtkRate,0.08,몬스터,스폰 시 배율(복리). 안전율의 높이를 움직인다
 MonsterDefRate,0.03,몬스터,스폰 시 배율(복리)
 MonsterCompound,TRUE,몬스터,복리(ON) / 선형(OFF)
 AccelStartStage,30,몬스터,이 스테이지까지는 위 성장률 그대로
-AccelMultiplier,1.5,몬스터,가속 구간 성장률 배수(HP 8%→12% 등). 올리면 벽이 앞당겨짐
+AccelMultiplier,2.0,몬스터,가속 구간 성장률 배수(HP 10%→20% 등). 올리면 벽이 앞당겨짐(현재 41스테이지)
 MonsterSpdRate,0.03,몬스터,스테이지당 SPD 증가율(가속 미적용)
 SpdStartStage,5,몬스터,이 스테이지 이후부터 SPD가 오름
 BossSpdRate,0.08,플레이어,보스 1회 처치당 기준 SPD 대비 증가(몬스터 증가분보다 작게 유지할 것)

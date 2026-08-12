@@ -15,12 +15,12 @@ MonoBehaviour:
   _playerHpRate: 0.05
   _playerAtkRate: 0.04
   _playerDefRate: 0.03
-  _monsterHpRate: 0.08
-  _monsterAtkRate: 0.06
+  _monsterHpRate: 0.1
+  _monsterAtkRate: 0.08
   _monsterDefRate: 0.03
   _monsterCompound: 1
   _accelStartStage: 30
-  _accelMultiplier: 1.5
-  _monsterSpdRate: 0.03
-  _spdStartStage: 5
+  _accelMultiplier: 2
+  _monsterSpdRate: 0.12
+  _spdStartStage: 1
   _bossSpdRate: 0.08
