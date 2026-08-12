@@ -4,39 +4,35 @@ using Assets.MyAssets.Scripts.Battle.Data;
 
 namespace Assets.MyAssets.Scripts.Progression.Save
 {
-    /// <summary>
-    /// 런을 넘어 영구 보존되는 데이터. JsonUtility로 직렬화되므로 public 필드만 사용
-    /// </summary>
+    /// <summary>런을 넘어 영구 보존되는 데이터.</summary>
     [Serializable]
     public sealed class SaveData
     {
-        /// <summary>현재 세이브 포맷 버전</summary>
+        /// <summary>현재 세이브 포맷 버전.</summary>
         public const int CurrentVersion = 1;
 
         public int Version = CurrentVersion;
 
-        /// <summary>최고 도달 스테이지(로컬에 영구 저장, 재접속 후에도 유지)</summary>
+        /// <summary>최고 도달 스테이지.</summary>
         public int BestStage;
 
-        /// <summary>로그라이크 선택지 카테고리별로 투자한 영구 포인트(성향 커스터마이징)</summary>
+        /// <summary>로그라이크 선택지 카테고리별로 투자한 영구 포인트(성향 커스터마이징).</summary>
         public List<CategoryPoint> CategoryPoints = new();
 
-        /// <summary>옵션 메뉴 설정</summary>
+        /// <summary>옵션 메뉴 설정.</summary>
         public OptionsData Options = new();
 
-        /// <summary>
-        /// 진행 중이던 런의 체크포인트(타이틀의 '이어하기'). 파티가 비어 있으면 이어할 런이 없다는 뜻이다.
-        /// 보스를 클리어할 때마다 덮어쓰고, 전멸하면 비운다.
-        /// </summary>
+        /// <summary> 진행 중이던 런의 체크포인트.</summary>
         public RunSnapshot Run = new();
 
-        /// <summary>지금까지 획득한 영구 포인트 총량</summary>
+        /// <summary>지금까지 획득한 영구 포인트 총량.</summary>
         public int GetEarnedPoints(int stagesPerPoint) => stagesPerPoint <= 0 ? 0 : BestStage / stagesPerPoint;
 
-        /// <summary>카테고리에 투자되어 이미 쓰인 포인트 합계</summary>
+        /// <summary>카테고리에 투자되어 이미 쓰인 포인트 합계.</summary>
         public int GetSpentPoints()
         {
             int sum = 0;
+
             foreach (CategoryPoint entry in CategoryPoints)
             {
                 sum += entry.Points;
@@ -45,15 +41,15 @@ namespace Assets.MyAssets.Scripts.Progression.Save
             return sum;
         }
 
-        /// <summary>아직 투자하지 않고 남은 포인트 = 획득 총량 - 투자 합계</summary>
+        /// <summary>아직 투자하지 않고 남은 포인트. (획득 총량 - 투자 합계)</summary>
         public int GetAvailablePoints(int stagesPerPoint) => GetEarnedPoints(stagesPerPoint) - GetSpentPoints();
 
-        /// <summary>해당 카테고리에 투자된 포인트(투자한 적 없으면 0)</summary>
+        /// <summary>해당 카테고리에 투자된 포인트. (투자한 적 없으면 0)</summary>
         public int GetPoints(RoguelikeCategory category) => Find(category)?.Points ?? 0;
 
         /// <summary>
         /// 카테고리 투자량을 <paramref name="delta"/>만큼 조정한다.
-        /// 남은 포인트가 없으면 늘릴 수 없고, 투자량이 0이면 더 뺄 수 없다 — 이 규칙을 UI가 아니라 여기서 지킨다.
+        /// 남은 포인트가 없으면 늘릴 수 없고, 투자량이 0이면 더 뺄 수 없다.
         /// </summary>
         /// <returns>실제로 값이 바뀌었으면 true</returns>
         public bool TryAdjustPoints(RoguelikeCategory category, int delta, int stagesPerPoint)
@@ -74,7 +70,7 @@ namespace Assets.MyAssets.Scripts.Progression.Save
             return true;
         }
 
-        /// <summary>카테고리 투자 포인트를 설정(0이면 항목 자체를 제거해 세이브를 깔끔히 유지)</summary>
+        /// <summary>카테고리 투자 포인트를 설정. (0이면 항목 자체를 제거해 세이브를 깔끔히 유지)</summary>
         public void SetPoints(RoguelikeCategory category, int points)
         {
             CategoryPoint entry = Find(category);
@@ -98,13 +94,13 @@ namespace Assets.MyAssets.Scripts.Progression.Save
             }
         }
 
-        /// <summary>투자 내역을 전부 리셋</summary>
+        /// <summary>투자 내역을 전부 리셋.</summary>
         public void ResetPoints() => CategoryPoints.Clear();
 
         private CategoryPoint Find(RoguelikeCategory category) => CategoryPoints.Find(e => e.Category == category);
     }
 
-    /// <summary>카테고리 1종에 투자된 영구 포인트</summary>
+    /// <summary>카테고리 1종에 투자된 영구 포인트.</summary>
     [Serializable]
     public sealed class CategoryPoint
     {
@@ -112,27 +108,25 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         public int Points;
     }
 
-    /// <summary>옵션 메뉴에서 조정하는 설정값</summary>
+    /// <summary>옵션 메뉴에서 조정하는 설정값.</summary>
     [Serializable]
     public sealed class OptionsData
     {
-        /// <summary>마스터 볼륨(0~1)</summary>
+        /// <summary>마스터 볼륨(0~1).</summary>
         public float MasterVolume = 1f;
 
-        /// <summary>BGM 볼륨(0~1)</summary>
+        /// <summary>BGM 볼륨(0~1).</summary>
         public float BgmVolume = 1f;
 
-        /// <summary>효과음 볼륨(0~1)</summary>
+        /// <summary>효과음 볼륨(0~1).</summary>
         public float SfxVolume = 1f;
 
         /// <summary>
-        /// 화면 모드 프리셋 인덱스(<c>GameSettings.DisplayPresets</c>). -1이면 아직 고른 적 없음(현재 해상도 유지).
-        /// 해상도와 전체화면 여부를 프리셋 하나가 함께 정하므로 별도의 <c>Fullscreen</c> 값을 두지 않는다 —
-        /// 둘로 나누면 "창모드인데 1920x1080" 같은 어긋난 조합이 저장될 수 있다.
+        /// 화면 모드 프리셋 인덱스. (<c>GameSettings.DisplayPresets</c>, -1이면 현재 해상도 유지)
         /// </summary>
         public int ResolutionIndex = -1;
 
-        /// <summary>언어 코드(<c>"ko"</c> / <c>"en"</c>), Default = ko. 해석은 <c>Loc.Parse</c>가 한다.</summary>
+        /// <summary>언어 코드(ko / en). (Default = ko)</summary>
         public string Language = "ko";
 
         public string InputBindingOverrides = string.Empty;

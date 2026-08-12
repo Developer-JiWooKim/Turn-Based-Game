@@ -211,7 +211,13 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             return before - CurrentHp;
         }
 
-        /// <summary>로그라이크 성장 효과를 스탯에 누적하고, 늘어난 최대치·회복량만큼 HP를 채운다.</summary>
+        /// <summary>
+        /// 로그라이크 성장 효과를 스탯에 누적하고, 늘어난 최대치·회복량만큼 HP를 채운다.
+        ///
+        /// 비율 성장의 기준은 자기 스탯 자신이다 — 전투용 <see cref="Unit"/>은 성장의 출처(선택지/자동 성장)를
+        /// 구분해 들고 있지 않기 때문이다. 런 지속 성장은 <c>RunMember</c>가 그 구분을 알고 처리하므로,
+        /// 이 경로는 전투 중 일회성 효과에만 쓴다.
+        /// </summary>
         public void ApplyGrowth(in RoguelikeEffect effect)
         {
             if (!IsAlive)
@@ -219,7 +225,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 return;
             }
 
-            ApplyHeal(effect.ApplyTo(Stats));
+            ApplyHeal(effect.ApplyTo(Stats, Stats));
         }
 
         /// <summary>회복을 적용하고 실제 회복량을 반환한다. MaxHp를 넘지 않는다. (죽은 유닛은 부활 불가)</summary>

@@ -5,6 +5,7 @@ namespace Assets.MyAssets.Scripts.Audio.Data
 {
     /// <summary>
     /// 공용(씬 공통) 오디오 클립 모음 SO.
+    /// 
     /// 유닛별 전투음은 <see cref="UnitSfxSO"/>가 따로 담당한다.
     /// </summary>
     [CreateAssetMenu(menuName = "Audio/Audio Library", fileName = "AudioLibrary")]

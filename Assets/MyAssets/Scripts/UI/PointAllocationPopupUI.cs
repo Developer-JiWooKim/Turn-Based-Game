@@ -76,14 +76,13 @@ namespace Assets.MyAssets.Scripts.UI
             Refresh();
         }
 
-        /// <summary>헤더와 모든 행을 세이브 값으로 다시 그린다.</summary>
+        /// <summary>헤더와 모든 행을 세이브 값으로 다시 Refresh.</summary>
         private void Refresh()
         {
             SaveData save = SaveService.Current;
             int earned = save.GetEarnedPoints(_stagesPerPoint);
             int available = save.GetAvailablePoints(_stagesPerPoint);
 
-            // Refresh는 열 때마다·+/- 누를 때마다 불리므로 여기서는 보고하지 않는다(누락은 InitPanel의 Require가 1회 알린다).
             if (_headerLabel is not null)
             {
                 _headerLabel.text = Loc.Format("ui.allocation.points", available, earned);

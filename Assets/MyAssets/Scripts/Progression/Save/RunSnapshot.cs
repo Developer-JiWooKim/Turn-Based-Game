@@ -8,14 +8,12 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Progression.Save
 {
     /// <summary>
-    /// 진행 중이던 런의 체크포인트. <b>보스를 막 처치한 시점</b>의 상태이며,
-    /// 성장 선택지를 받기 <i>전</i>이라 재개하면 그 보스의 선택지부터 다시 진행한다
-    /// (<c>BattleDirector</c>의 재개 경로 참고).
+    /// 진행 중이던 런의 체크포인트. 
+    /// 보스를 막 처치한 시점의 상태이며, 성장 선택지를 받기 전이라 재개하면 그 보스의 선택지부터 다시 진행한다.
     ///
-    /// <see cref="RunData"/>를 그대로 직렬화하지 않는 이유는 두 가지다 —
-    /// SO 참조(<see cref="RunMember.Source"/>)는 JSON으로 남길 수 없고,
-    /// <c>Game.Core</c>의 <see cref="Stats"/>에 직렬화 속성을 붙이면 세이브 포맷이
-    /// 순수 로직 클래스의 필드 배치에 묶이기 때문이다.
+    /// <see cref="RunData"/>를 그대로 직렬화하지 않는 이유 —
+    /// 1. SO 참조(<see cref="RunMember.Source"/>)는 JSON으로 남길 수 없음.
+    /// 2. <c>Game.Core</c>의 <see cref="Stats"/>에 직렬화 속성을 붙이면 세이브 포맷이 순수 로직 클래스의 필드 배치에 묶이기 때문.
     /// </summary>
     [Serializable]
     public sealed class RunSnapshot
@@ -23,7 +21,7 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         /// <summary>클리어한(= 재개 시 승리 처리부터 이어갈) 스테이지</summary>
         public int Stage = 1;
 
-        /// <summary>마지막으로 발급된 Unit 식별자(<see cref="RunData.UnitIdSeed"/>)</summary>
+        /// <summary>마지막으로 발급된 Unit 식별자. (<see cref="RunData.UnitIdSeed"/>)</summary>
         public int UnitIdSeed;
 
         public float EnemyHpMultiplier = 1f;
@@ -32,7 +30,7 @@ namespace Assets.MyAssets.Scripts.Progression.Save
 
         public List<RunMemberSnapshot> Members = new();
 
-        /// <summary>이어할 런이 있는지. 별도 플래그를 두지 않고 파티 유무에서 파생시킨다.</summary>
+        /// <summary>이어할 런이 있는지.</summary>
         public bool HasParty => Members != null && Members.Count > 0;
 
         /// <summary>현재 런 상태를 스냅샷으로 뜬다.</summary>
@@ -56,8 +54,8 @@ namespace Assets.MyAssets.Scripts.Progression.Save
         }
 
         /// <summary>
-        /// 스냅샷을 런 데이터로 되돌린다. 캐릭터를 로스터에서 찾지 못하면(에셋 이름 변경·삭제)
-        /// 파티가 어긋난 채로 시작하는 것보다 낫도록 <b>null</b>을 반환한다.
+        /// 스냅샷을 런 데이터로 되돌린다. 
+        /// 캐릭터를 로스터에서 찾지 못하면(에셋 이름 변경·삭제) null을 반환한다.
         /// </summary>
         public RunData ToRunData(CharacterRosterSO roster)
         {

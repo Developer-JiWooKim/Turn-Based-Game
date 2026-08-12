@@ -3,8 +3,7 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Audio.Data
 {
     /// <summary>
-    /// 유닛 1종의 전투음 묶음(등장/공격/스킬/피격/사망)
-    /// 캐릭터·몬스터 프리팹의 UnitView에 프리팹별로 다른 에셋을 물린다.
+    /// 유닛 1종의 전투음 묶음(등장/공격/스킬/피격/사망).
     /// </summary>
     [CreateAssetMenu(menuName = "Audio/Unit SFX", fileName = "UnitSfx")]
     public sealed class UnitSfxSO : ScriptableObject

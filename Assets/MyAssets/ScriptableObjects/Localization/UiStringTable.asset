@@ -193,39 +193,39 @@ MonoBehaviour:
     Ko: "\uACF5\uACA9\uB825 \uAC15\uD654"
     En: Attack Up
   - Key: choice.AttackUp.desc
-    Ko: "\uCCB4\uB825 +50\n\uACF5\uACA9\uB825 +120"
-    En: 'HP +50
+    Ko: "\uCCB4\uB825 +5%\n\uACF5\uACA9\uB825 +45%"
+    En: 'HP +5%
 
-      ATK +120'
+      ATK +45%'
   - Key: choice.SpeedUp.title
     Ko: "\uC18D\uB3C4 \uAC15\uD654"
     En: Speed Up
   - Key: choice.SpeedUp.desc
-    Ko: "\uCCB4\uB825 +100\n\uC18D\uB3C4 +50\n\uACF5\uACA9\uB825 +50"
-    En: 'HP +100
+    Ko: "\uCCB4\uB825 +10%\n\uC18D\uB3C4 +50%\n\uACF5\uACA9\uB825 +20%"
+    En: 'HP +10%
 
-      SPD +50
+      SPD +50%
 
-      ATK +50'
+      ATK +20%'
   - Key: choice.DefensiveUp.title
     Ko: "\uBC29\uC5B4 \uAC15\uD654"
     En: Defensive Up
   - Key: choice.DefensiveUp.desc
-    Ko: "\uCCB4\uB825 +60\n\uBC29\uC5B4\uB825 +80\n\uACF5\uACA9\uB825 +35\n\uC800\uD56D
+    Ko: "\uCCB4\uB825 +6%\n\uBC29\uC5B4\uB825 +60%\n\uACF5\uACA9\uB825 +14%\n\uC800\uD56D
       +10%p"
-    En: 'HP +60
+    En: 'HP +6%
 
-      DEF +80
+      DEF +60%
 
-      ATK +35
+      ATK +14%
 
       RES +10%p'
   - Key: choice.CritUp.title
     Ko: "\uCE58\uBA85\uD0C0 \uAC15\uD654"
     En: Crit Up
   - Key: choice.CritUp.desc
-    Ko: "\uCCB4\uB825 +50\n\uCE58\uBA85\uD0C0 +8%p\n\uCE58\uBA85\uD53C\uD574 +25%p"
-    En: 'HP +50
+    Ko: "\uCCB4\uB825 +5%\n\uCE58\uBA85\uD0C0 +8%p\n\uCE58\uBA85\uD53C\uD574 +25%p"
+    En: 'HP +5%
 
       Crit Rate +8%p
 
@@ -234,8 +234,10 @@ MonoBehaviour:
     Ko: "\uD68C\uBCF5"
     En: Heal
   - Key: choice.Heal.desc
-    Ko: "\uCCB4\uB825 1000 \uD68C\uBCF5"
-    En: Restore 1000 HP
+    Ko: "\uCD5C\uB300 \uCCB4\uB825\uC758\n50% \uD68C\uBCF5"
+    En: 'Restore 50%
+
+      of max HP'
   - Key: choice.EnemyStun.title
     Ko: "\uC2A4\uD134"
     En: Stun
