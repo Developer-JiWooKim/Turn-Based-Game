@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
-    /// <summary> 가중치에 비례해 중복 없이 뽑는 추첨기 </summary>
+    /// <summary>가중치에 비례해 중복 없이 뽑는 추첨기.</summary>
     public static class WeightedPicker
     {
         /// <summary>

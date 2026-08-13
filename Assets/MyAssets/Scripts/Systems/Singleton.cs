@@ -9,7 +9,6 @@ namespace Assets.MyAssets.Scripts.Systems
 
         protected virtual void Awake()
         {
-            // 이미 다른 인스턴스가 있으면 중복 오브젝트를 파괴
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);

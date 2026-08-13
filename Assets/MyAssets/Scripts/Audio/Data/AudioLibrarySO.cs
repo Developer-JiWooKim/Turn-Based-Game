@@ -11,7 +11,7 @@ namespace Assets.MyAssets.Scripts.Audio.Data
     [CreateAssetMenu(menuName = "Audio/Audio Library", fileName = "AudioLibrary")]
     public sealed class AudioLibrarySO : ScriptableObject
     {
-        /// <summary>씬 이름 하나에 대응하는 BGM</summary>
+        /// <summary>씬 이름 하나에 대응하는 BGM.</summary>
         [Serializable]
         public struct SceneBgmEntry
         {
@@ -41,20 +41,20 @@ namespace Assets.MyAssets.Scripts.Audio.Data
         public AudioClip BossBgm => _bossBgm;
         public AudioClip UiClick => _uiClick;
 
-        /// <summary>방향키 이동음. 전용 클립이 없으면 UI 클릭음으로 대체</summary>
+        /// <summary>방향키 이동음. 전용 클립이 없으면 UI 클릭음으로 대체.</summary>
         public AudioClip UiNavigate => _uiNavigate ?? _uiClick;
 
-        /// <summary>확정음. 전용 클립이 없으면 UI 클릭음으로 대체</summary>
+        /// <summary>확정음. 전용 클립이 없으면 UI 클릭음으로 대체.</summary>
         public AudioClip Confirm => _confirm ?? _uiClick;
 
         public AudioClip VictoryStinger => _victoryStinger;
         public AudioClip DefeatStinger => _defeatStinger;
         public AudioClip Critical => _critical;
 
-        /// <summary>보스 여부에 따라 전투 BGM을 선택</summary>
+        /// <summary>보스 여부에 따라 전투 BGM을 선택.</summary>
         public AudioClip GetBattleBgm(bool boss) => boss ? _bossBgm : _battleBgm;
 
-        /// <summary>씬 이름에 대응하는 BGM(등록 안 됐으면 null)</summary>
+        /// <summary>씬 이름에 대응하는 BGM(등록 안 됐으면 null).</summary>
         public AudioClip GetSceneBgm(string sceneName)
         {
             if (_sceneBgm == null)

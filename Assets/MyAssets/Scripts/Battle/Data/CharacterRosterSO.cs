@@ -4,8 +4,9 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Battle.Data
 {
     /// <summary>
-    /// 선택 화면에 노출할 플레이어 캐릭터 6종 목록. 캐릭터 선택 패널이 이 SO를 참조해 순환한다.
-    /// (하드코딩 대신 SO로 관리 — 캐릭터 추가/순서 변경을 에디터에서 처리.)
+    /// 선택 화면에 노출할 플레이어 캐릭터 6종 목록. 
+    /// 
+    /// 캐릭터 선택 패널이 이 SO를 참조해 순환한다.
     /// </summary>
     [CreateAssetMenu(menuName = "Battle/Character Roster", fileName = "CharacterRoster")]
     public sealed class CharacterRosterSO : ScriptableObject
@@ -35,7 +36,9 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         }
 
         /// <summary>
-        /// 로스터 전체에서 스탯별 최댓값. 선택 화면의 스탯 바가 "이 로스터 안에서 얼마나 높은가"를
+        /// 로스터 전체에서 스탯별 최댓값. 
+        /// 
+        /// 선택 화면의 스탯 바가 "이 로스터 안에서 얼마나 높은가"를
         /// 그릴 때 기준으로 쓴다(밸런싱 값을 UI 코드에 박지 않기 위해 데이터에서 구한다).
         ///
         /// 최댓값이 곧 로스터의 성질이라 UI가 아니라 여기가 소유한다.

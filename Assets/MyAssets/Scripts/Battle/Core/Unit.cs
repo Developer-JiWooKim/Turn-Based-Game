@@ -5,7 +5,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
 {
     public sealed class Unit
     {
-        /// <summary>View가 자신에 대응하는 프리팹 인스턴스를 찾기 위한 고유 식별자</summary>
+        /// <summary>View가 자신에 대응하는 프리팹 인스턴스를 찾기 위한 고유 식별자.</summary>
         public readonly int Id;
         public readonly string DisplayName;
         public readonly TeamSide Team;

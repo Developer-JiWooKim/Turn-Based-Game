@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
-    /// 전투 진행을 잠시 멈추는 게이트(순수 계약, UnityEngine 비의존).
+    /// 전투 진행을 잠시 멈추는 게이트.
     /// <see cref="BattleSimulation"/>이 각 유닛 행동 직전에 이 대기를 통과한다.
     ///
     /// Time.timeScale로 멈추지 않는 이유: 연출 대기(<c>Awaitable.WaitForSecondsAsync</c>)가 timeScale에

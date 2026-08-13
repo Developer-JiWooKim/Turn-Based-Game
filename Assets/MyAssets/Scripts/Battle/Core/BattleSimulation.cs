@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
-    /// 한 전투(스테이지)의 진행을 담당하는 시뮬레이터
+    /// 한 스테이지의 진행을 담당하는 시뮬레이터.
     ///
     /// 흐름: BattleStarted → [턴: SPD 재정렬 → 각 유닛 행동(입력/AI 대기 → 데미지 해소 → 연출 대기 → 사망 처리)]
     ///       → 전투 종료 판정 → BattleEnded
@@ -17,7 +17,6 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     ///
     /// 이 클래스의 await는 "시간이 흐르기"를 기다리는 게 아니라 "바깥이 끝났다고 알려주기"를 기다린다.
     /// 멈추는 지점은 셋뿐이다 — 플레이어 입력(셀렉터), 연출 완료(WhenPlaybackComplete), 퍼즈 해제(<see cref="IPauseGate"/>).
-    /// Core는 UnityEngine에 의존하지 않아 프레임도 시간도 모르므로, 실제로 얼마나 멈출지는 전부 View가 정한다
     /// (구독자가 아무것도 등록하지 않으면 모든 대기가 즉시 통과해 전투가 연출 없이 끝까지 돌아간다).
     /// </summary>
     public sealed class BattleSimulation
@@ -64,8 +63,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                // order는 "턴 시작 시점의 생존자"를 굳힌 스냅샷이다. 도중에 죽어도 목록에는 남아 있으므로
-                // 행동 직전에 IsAlive를 다시 보고(아래), 도중에 합류한 유닛은 다음 턴부터 순서에 들어온다.
+                // order는 "턴 시작 시점의 생존자"를 굳힌 스냅샷이다.
                 // TurnOrder/BattleState는 재사용 버퍼를 돌려주므로 이 턴 안에서만 순회한다(보관 금지).
                 IReadOnlyList<Unit> order = TurnOrder.Build(_state.AliveUnits);
 
@@ -81,7 +79,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                     Unit actor = order[i];
 
                     // 배틀 중단(취소)을 매 유닛 행동 직전에 확인     
-                    // 버그 사례 — 턴 시작 지점에서만 보면 플레이어 차례 중 중단해도 이번 턴의 남은 몬스터 행동이 모두 끝난 뒤에야 반영된다.                
+                    // 버그 사례 — 턴 시작 지점에서만 보면 플레이어 차례 중 중단해도 이번 턴의 남은 몬스터 행동이 모두 끝난 뒤에야 반영된다.              
                     cancellationToken.ThrowIfCancellationRequested();
 
                     // 퍼즈는 행동 "직전"에만 걸린다 — 진행 중인 연출을 자르지 않기 위함.
@@ -93,15 +91,16 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                     // 두 검사 모두 await(퍼즈 대기·직전 유닛의 연출) "뒤"에 있어야 한다 — 기다리는 사이에 상태가 바뀐다.
                     if (!actor.IsAlive)
                     {
-                        continue;   // 이번 턴에 먼저 행동한 유닛에게 맞아 죽었다
+                        continue;   // 이번 턴에 행동할 유닛이 먼저 행동한 유닛에게 죽었을 경우
                     }
 
                     if (_state.IsBattleOver)
                     {
-                        break; // while 조건은 턴 사이에만 보므로, 턴 도중 승부가 나면 여기서 끊는다
+                        break; // 턴 도중 승부가 나면 여기서 끊는다
                     }
 
-                    // 상태이상 처리(도트 → 지속시간 감소 → 기절 판정). 행동할 수 없으면 이번 차례는 넘어간다.
+                    // 상태이상 처리(도트 → 지속시간 감소 → 기절 판정). 
+                    // 행동할 수 없으면 이번 차례는 넘어간다.
                     // 로그라이크 '몬스터 행동불가' 선택지도 스폰 시 부여된 Stun이라 여기서 함께 처리된다.
                     // 반드시 ActorTurnStarted "전"에 온다 
                     // 버그 사례 — 기절한 플레이어 유닛에게도 차례를 알리면 HUD에 "당신의 차례" 프롬프트가 뜬 채 아무 입력도 받지 않는 상태가 된다.
@@ -152,6 +151,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             // 반영할 때까지 들고 있으므로, 버퍼로 넘기면 다음 조회에 덮어써진다.
             List<Unit> survivors = _state.Players.Where(u => u.IsAlive).ToList();
             BattleEnded?.Invoke(this, new BattleEndedEventArgs(outcome, survivors));
+
             return outcome;
         }
 
@@ -177,7 +177,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             {
                 actor.ApplyDamage(dot);
 
-                // 타격과 같은 기준 — 적용량이 아니라 계산된 피해량을 넘긴다(HitResult.Damage 참고).
+                // 타격과 같은 기준 — 적용량이 아니라 계산된 피해량을 넘긴다.
                 var tickArgs = new StatusTickedEventArgs(actor, dot);
                 StatusTicked?.Invoke(this, tickArgs);
                 await tickArgs.WhenPlaybackComplete();
@@ -223,7 +223,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
             foreach (Unit target in plan.Targets)
             {
                 // 라인 스킬은 앞 대상이 이 공격으로 쓰러져도 나머지를 계속 때린다. 
-                // 계획을 세운 시점에 이미 죽어 있던 대상만 건너뛴다(대상 목록은 셀렉터가 생존자 중에서 고른 것).
+                // 계획을 세운 시점에 이미 죽어 있던 대상만 건너뛴다.
                 if (!target.IsAlive)
                 {
                     continue;
@@ -232,7 +232,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 DamageResult dmg = DamageCalculator.Calculate(plan.Actor, target, plan.PowerMultiplier, _rng);
                 target.ApplyDamage(dmg.Amount);
 
-                // 적용량(클램프된 값)이 아니라 계산된 피해량을 넘긴다 — 오버킬을 그대로 보여주기 위함(HitResult.Damage 참고).
+                // 적용량(클램프된 값)이 아니라 계산된 피해량을 넘긴다.
                 hits.Add(new HitResult(target, dmg.Amount, dmg.IsCritical, !target.IsAlive));
 
                 // 스킬에 딸린 상태이상은 살아남은 대상에게만 부여를 시도한다(저항 판정은 Unit이 담당).

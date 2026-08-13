@@ -65,11 +65,13 @@
 
 ### 구현된 것
 - **씬**: `Assets/MyAssets/Scenes/`에 `IntroScene`(타이틀+캐릭터 선택), `BattleScene`(전투), `AnimationMakeScene`(작업용) 존재. Build Settings에 IntroScene(0)·BattleScene(1) 등록됨. 씬 흐름: IntroScene에서 Title→CharacterSelect(오버레이) → `LoadScene("BattleScene")`, 전멸 시 BattleScene→`LoadScene("IntroScene")`
-- **널 체크 양식 (`Systems/NullCheck`)**: "비어 있으면 로그를 남긴다"를 한곳에 모은 공용 헬퍼. 프로젝트의 모든 null 보고가 `[클래스명] 무엇이 어떻다 — 결과(인스펙터 확인).` 형태로 통일된다. 메서드 3종:
+- **널 체크 양식 (`Systems/NullCheck`)**: "비어 있으면 로그를 남긴다"를 한곳에 모은 공용 헬퍼. 프로젝트의 모든 null 보고가 `[클래스명] 무엇이 어떻다 — 결과(인스펙터 확인).` 형태로 통일된다. **값이 어디서 오는가로 갈린다** — 로그를 읽는 사람이 뒤져야 할 곳이 달라지기 때문이다. 메서드 4종:
   - `LogIfMissing(Object, nameof(…), this, "결과")` — **인스펙터 참조**. 메시지에 "(인스펙터 확인)"이 붙는다
-  - `LogIfEmpty(array, …)` — **인스펙터 배열**(슬롯 목록, 선택지 풀). null과 길이 0을 함께 잡는다
-  - `LogIfNull(object, …)` — **일반 참조**(생성자 인자, `Q<Slider>()` 같은 UXML 조회 결과). "(인스펙터 확인)"이 붙지 않는다
-  - ⚠️ **`UnityEngine.Object`를 `LogIfNull`에 넘기면 컴파일 에러**다(`[Obsolete(error: true)]` 오버로드). 일반 `object`로 받으면 Unity의 `==` 오버로드가 사라져 **파괴된 객체가 null이 아닌 것으로 통과**하기 때문 — `Game.Core`의 `noEngineReferences`처럼 실수를 컴파일러가 막게 해뒀다
+  - `LogIfNullObject(Object, …)` — **런타임에 얻은 `UnityEngine.Object`**(`GetComponentInChildren`·`Instantiate`·`Find` 결과). Unity `==` 오버로드는 유지하되 "(인스펙터 확인)"은 붙이지 않는다 — 인스펙터 공란이 정상인 값에 그 힌트가 붙으면 **멀쩡한 빈 슬롯을 뒤지게 된다**(`UnitView._unitAnimator`/`_unitHealthBar`가 실제로 그랬다)
+  - `LogIfEmpty(array, …)` — **배열/목록**(슬롯 목록, 선택지 풀). null과 길이 0을 함께 잡는다. `inspector: false`로 넘기면 인스펙터 힌트가 빠진다(UXML 조회 결과용). ⚠️ **원소가 null인 구멍은 잡지 않는다**
+  - `LogIfNull(object, …)` — **순수 C# 참조**(생성자 인자, `Q<Slider>()` 같은 UXML 조회 결과). "(인스펙터 확인)"이 붙지 않는다
+  - ⚠️ **`UnityEngine.Object`를 `LogIfNull`에 넘기면 컴파일 에러**다(`[Obsolete(error: true)]` 오버로드). 일반 `object`로 받으면 Unity의 `==` 오버로드가 사라져 **파괴된 객체가 null이 아닌 것으로 통과**하기 때문 — `Game.Core`의 `noEngineReferences`처럼 실수를 컴파일러가 막게 해뒀다. 인스펙터면 `LogIfMissing`, 런타임 조회면 `LogIfNullObject`로 가라는 뜻이다
+  - **Unity `Object`를 받는 둘은 "빈 참조"와 "파괴된 참조"를 갈라 보고한다**(`LogIfUnityNull` 한 곳에서). `ReferenceEquals`가 false인데 `== null`이면 대입 자체는 됐던 것이라 **원인이 인스펙터가 아니라 수명 관리(또는 깨진 참조)**에 있다 — 이 경우엔 `LogIfMissing`이어도 인스펙터 힌트를 붙이지 않는다
   - 반환값을 `hasError |= …`로 누적해 **빠진 것을 한 번에 모두** 보고한다(하나 고치면 또 걸리는 식이 되지 않도록). 접두어는 `owner.GetType().Name`에서 뽑으므로 클래스명을 문자열로 적지 않는다 — 과거에 복붙으로 다른 클래스 이름이 남아 엉뚱한 파일을 뒤진 적이 있다. `owner as Object`로 컨텍스트를 넘겨 MonoBehaviour면 콘솔 클릭 시 해당 오브젝트가 선택된다
   - 호출 시점은 `Awake`(또는 생성자) 1회 + `#if UNITY_EDITOR`의 `OnValidate`(플레이 전에 인스펙터에서 발견). **예외: `UnitView`는 `OnValidate`를 두지 않는다** — 인스펙터 공란이 정상이고(`GetComponentInChildren`으로 자동 탐색) 탐색 전에는 항상 비어 보여 거짓 경고가 난다
   - 적용: `BattleDirector`·`UnitViewRegistry`·`UnitView`·`RoguelikeRewardService`·`GameManager`·`InputManager`·`InputBindingSaver`·`InputRebinder`·`CharacterPreview`·`GameUIController`·`AllocationRowsView` + UXML 조회를 하는 패널 전부(`BasePanelUI`의 헬퍼 경유 — 아래 항목 참고)

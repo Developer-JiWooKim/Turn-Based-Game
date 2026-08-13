@@ -25,7 +25,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     public sealed class TurnStartedEventArgs : EventArgs
     {
         public readonly int TurnNumber;
-        /// <summary>이번 턴의 SPD 기준 행동 순서</summary>
+        /// <summary>이번 턴의 SPD 기준 행동 순서.</summary>
         public readonly IReadOnlyList<Unit> Order;
 
         public TurnStartedEventArgs(int turnNumber, IReadOnlyList<Unit> order)
@@ -59,20 +59,18 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         public UnitDiedEventArgs(Unit unit) => Unit = unit;
     }
 
-    /// <summary>
-    /// 상태이상이 붙거나(Applied) 저항되거나(Resisted) 풀렸거나(Expired) 지속 턴이 줄었다(Ticked).
-    /// View는 <see cref="Unit"/>.Statuses를 다시 읽어 표시를 갱신하면 된다.
-    /// </summary>
+    /// <summary>상태이상이 변화했을 때 발생하는 이벤트.</summary>
     public sealed class StatusChangedEventArgs : EventArgs
     {
         public readonly Unit Unit;
 
+
+        public readonly StatusKind? Kind; // 어떤 상태이상에 대한 변화인지
+
         /// <summary>
-        /// 어떤 상태이상에 대한 변화인지. <see cref="StatusChangeReason.Ticked"/>는
+        /// <see cref="StatusChangeReason.Ticked"/>는
         /// "이 유닛의 상태가 한 턴 진행됐다"는 유닛 단위 알림이라 종류가 없다(null).
         /// </summary>
-        public readonly StatusKind? Kind;
-
         public readonly StatusChangeReason Reason;
 
         public StatusChangedEventArgs(Unit unit, StatusKind? kind, StatusChangeReason reason)
@@ -83,12 +81,12 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         }
     }
 
-    /// <summary>도트 피해가 들어갔다(자기 차례 시작 시). 피격 연출을 기다린다.</summary>
+    /// <summary>도트 피해 이벤트(자기 차례 시작 시). 피격 연출을 기다린다.</summary>
     public sealed class StatusTickedEventArgs : PlaybackEventArgs
     {
         public readonly Unit Unit;
 
-        /// <summary>계산된 도트 피해량. <see cref="HitResult.Damage"/>와 같은 기준이라 남은 HP로 깎지 않는다.</summary>
+        /// <summary>계산된 도트 피해량.</summary>
         public readonly int Damage;
 
         public StatusTickedEventArgs(Unit unit, int damage)

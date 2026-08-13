@@ -3,11 +3,11 @@ using System.Collections.Generic;
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
-    /// 한 전투(스테이지)의 유닛 구성과 생존 상태를 담는 컨테이너(순수 로직).
+    /// 한 스테이지의 유닛 구성과 생존 상태를 담는 컨테이너.
     /// 승패 판정과 대상 후보 조회의 기준이 된다.
     ///
     /// 조회 메서드들은 <b>모든 유닛의 모든 행동마다</b> 불리므로 LINQ 대신 직접 루프를 쓰고,
-    /// 결과 리스트는 호출자가 즉시 소비한다는 전제로 버퍼를 재사용한다(무한 타워라 할당이 런 내내 누적된다).
+    /// 결과 리스트는 호출자가 즉시 소비한다는 전제로 버퍼를 재사용한다.
     /// </summary>
     public sealed class BattleState
     {

@@ -46,7 +46,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         [Tooltip("시너지가 발동하는 최소 인원.")]
         [SerializeField] private int _synergyThreshold = 2;
 
-        // ⚠️ 스탯마다 "같은 %가 같은 가치"가 아니다 — 조정 전에 이 차이를 먼저 볼 것.
+        // 스탯마다 "같은 %가 같은 가치"가 아니다 — 조정 전에 이 차이를 먼저 볼 것.
         //  ATK  : 피해량에 선형으로 들어간다. +20%면 그대로 피해 +20%
         //  DEF  : 감쇠 공식 K/(K+DEF)이라 수익이 급격히 체감한다. DEF 150→300(+100%)이 받는 피해 −11.5%뿐
         //  SPD  : 모든 유닛이 턴당 1회 행동하므로 턴 "순서"만 바꾼다. 전투력 환산 가치가 가장 낮다
@@ -79,7 +79,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         /// 시너지 효과. 정수 스탯은 비율, 비율 스탯은 %p 가산이며 이유는 <see cref="SynergyBonus"/> 참고.
         /// 최대 HP는 시너지 대상이 아니라 회복 부작용이 없다.
         ///
-        /// ⚠️ 시너지 필드를 늘릴 때 함께 고쳐야 하는 곳은 <c>SynergyPanelView.DescribeEffect</c>(HUD 효과 표기)다 —
+        /// 시너지 필드를 늘릴 때 함께 고쳐야 하는 곳은 <c>SynergyPanelView.DescribeEffect</c>(HUD 효과 표기)다 —
         /// 다른 어셈블리(Game.View)라 컴파일러가 잡아주지 않아, 빠뜨리면 효과는 적용되는데 화면에만 안 나온다.
         /// (발동 판정 <see cref="HasSynergy"/>는 <see cref="SynergyBonus.IsEmpty"/>에 위임하므로 자동으로 따라온다.)
         /// </summary>

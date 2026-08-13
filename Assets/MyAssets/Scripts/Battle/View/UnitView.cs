@@ -211,8 +211,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         /// </summary>
         private void ValidateReferences()
         {
-            NullCheck.LogIfMissing(_unitHealthBar, nameof(_unitHealthBar), this, "체력바를 갱신할 수 없습니다");
-            NullCheck.LogIfMissing(_unitAnimator, nameof(_unitAnimator), this, "연출 없이 즉시 진행됩니다");
+            // 자동 탐색까지 거친 값이라 LogIfMissing이 아니다 — "(인스펙터 확인)"이 붙으면 정상인 빈 슬롯을 뒤지게 된다.
+            NullCheck.LogIfNullObject(_unitHealthBar, nameof(_unitHealthBar), this, "체력바를 갱신할 수 없습니다");
+            NullCheck.LogIfNullObject(_unitAnimator, nameof(_unitAnimator), this, "연출 없이 즉시 진행됩니다");
 
             // 발사 위치는 투사체를 쓰는 유닛에게만 필요하다 — 근접 유닛은 비어 있는 게 정상이라 조건부로 본다.
             if (_projectile != null)
