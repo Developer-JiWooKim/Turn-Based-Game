@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
-    /// 결과가 들어올 때까지 기다리는 한 번짜리 신호
+    /// 결과가 들어올 때까지 기다리는 한 번짜리 신호.
     ///
     /// 전투 흐름 곳곳에서 같은 패턴이 반복된다 — 플레이어 타겟 입력, 선택지 카드 클릭,
     /// 결과 화면 확인, 퍼즈 해제. 전부 "TCS 생성 → 취소 토큰 연결 → await → 정리"라
@@ -19,11 +19,11 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     {
         private TaskCompletionSource<T> _pending;
 
-        /// <summary>지금 결과를 기다리는 중인지</summary>
+        /// <summary>지금 결과를 기다리는 중인지.</summary>
         public bool IsWaiting => _pending != null;
 
         /// <summary>
-        /// 결과가 들어올 때까지 기다린다. 
+        /// 결과가 들어올 때까지 대기. 
         /// 취소되면 <see cref="OperationCanceledException"/>.
         /// 이미 대기 중이면 이전 대기는 취소된다(같은 신호를 두 번 열지 않도록).
         /// </summary>

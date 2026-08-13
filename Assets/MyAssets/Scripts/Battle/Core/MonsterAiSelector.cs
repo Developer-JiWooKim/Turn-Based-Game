@@ -9,14 +9,13 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     /// - 스킬이 없는 유닛(Normal): 살아있는 적 중 1명 일반 공격
     /// - 스킬이 있는 유닛(Elite/Boss): 스킬이 준비되면 무조건 스킬 우선 사용(단일/라인은 SkillProfile.Scope로 결정), 아니면 일반 공격
     ///
-    /// 단일 대상은 균등이 아니라 <b>어그로 가중 추첨</b>으로 고른다(<see cref="PickTarget"/>) —
-    /// 전열 캐릭터가 더 자주 맞아야 파티 구성에 "누구를 앞에 세울까"라는 판단이 생긴다.
+    /// 단일 대상은 균등이 아니라 <b>어그로 가중 추첨</b>으로 고른다(<see cref="PickTarget"/>).
     /// </summary>
     public sealed class MonsterAiSelector : IActionSelector
     {
         private readonly IRandom _rng;
 
-        /// <summary>대상 추첨용 가중치 버퍼. 행동마다 새로 만들지 않도록 재사용한다.</summary>
+        /// <summary>대상 추첨용 가중치 버퍼.</summary>
         private readonly List<float> _weights = new();
 
         public MonsterAiSelector(IRandom rng) => _rng = rng;
@@ -60,7 +59,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// </summary>
         private Unit PickTarget(Unit actor, IReadOnlyList<Unit> candidates)
         {
-            // ⚠️ candidates는 BattleState의 재사용 버퍼다 — 가중치를 즉시 읽어 소비하고 들고 있지 않는다.
+            // candidates는 BattleState의 재사용 버퍼다 — 가중치를 즉시 읽어 소비하고 들고 있지 않는다.
             _weights.Clear();
             for (int i = 0; i < candidates.Count; i++)
             {

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
     /// <summary>
-    /// 플레이어 유닛의 행동을 입력으로 받는 셀렉터. 플레이어는 공격만 하므로 "대상 선택"이 곧 행동 결정이다.
+    /// 플레이어 유닛의 행동을 입력으로 받는 셀렉터. 
+    /// 플레이어는 공격만 하므로 "대상 선택"이 곧 행동 결정이다.
     /// View(타겟팅 컨트롤러/HUD)는 <see cref="ActionRequested"/>를 구독해 UI를 띄우고,
     /// 몬스터를 클릭하면 <see cref="SubmitTarget"/>를 호출한다(View→Core 콜백).
     /// </summary>

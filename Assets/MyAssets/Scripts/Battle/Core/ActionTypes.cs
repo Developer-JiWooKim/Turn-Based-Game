@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Assets.MyAssets.Scripts.Battle.Core
 {
-    /// <summary>유닛의 행동 계획을 정의</summary>
+    /// <summary>유닛의 1회 행동 계획을 정의.</summary>
     public sealed class ActionPlan
     {
         public readonly Unit Actor;
@@ -25,10 +25,7 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     {
         public readonly Unit Target;
 
-        /// <summary>
-        /// 계산된 피해량. 과잉 피해(오버킬)를 그대로 담는다.
-        /// (HP 20 남은 적을 크리 300으로 잡으면 20이 아니라 300이 뜬다)
-        /// </summary>
+        /// <summary>계산된 피해량. 과잉 피해(오버킬)를 그대로 담는다.</summary>
         public readonly int Damage;
 
         public readonly bool IsCritical;
