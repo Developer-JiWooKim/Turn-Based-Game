@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
+    <!-- Common.uss가 먼저 와야 :root 색 변수와 .panel-frame/.btn을 아래에서 쓸 수 있다 -->
+    <Style src="../Common.uss" />
+    <Style src="MonsterInfo.uss" />
+    <ui:VisualElement name="monster-info-panel" class="monster-info-overlay" style="display: none;">
+        <ui:VisualElement class="monster-info-box panel-frame">
+            <ui:Label class="monster-info-title" text="ui.monsterInfo.title" />
+            <!-- 카드는 웨이브 구성에 달려 있어 MonsterInfoCardsView가 필요한 만큼 만든다 -->
+            <ui:VisualElement name="monster-info-cards" class="monster-info-cards" />
+            <!-- 표기한 디버프 확률이 저항 적용 전 값임을 밝히는 안내(TODO 1-4의 조건) -->
+            <ui:Label class="monster-info-note" text="ui.monsterInfo.chanceNote" />
+            <ui:Button name="monster-info-close" class="btn btn-secondary monster-info-close" text="ui.monsterInfo.close" />
+            <ui:Label class="monster-info-hint" text="ui.monsterInfo.hint" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

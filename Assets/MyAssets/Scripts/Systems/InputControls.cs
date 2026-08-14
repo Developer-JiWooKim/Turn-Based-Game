@@ -26,6 +26,13 @@ namespace Assets.MyAssets.Scripts.Systems
         public const string MenuSubmit = "Menu/Submit";
         public const string MenuPause = "Menu/Pause";
 
+        /// <summary>
+        /// 몬스터 정보 창(Tab) 토글. 전투 중에만 쓰지만 <b>Battle 맵이 아니라 Menu 맵</b>에 둔다 —
+        /// Battle 맵은 <c>IsGameplayInputEnabled</c> 게이트를 타는데, 창을 열면서 그 게이트를 닫으므로
+        /// Battle 맵에 두면 <b>같은 키로 다시 닫을 수 없다</b>. 퍼즈(ESC)를 Menu 맵에 둔 것과 같은 이유다.
+        /// </summary>
+        public const string MenuMonsterInfo = "Menu/MonsterInfo";
+
         public const string UiPoint = "UI/Point";
         public const string UiClick = "UI/Click";
 
@@ -40,6 +47,7 @@ namespace Assets.MyAssets.Scripts.Systems
             new("ui.keybind.next", new[] { BattleCycleNext, MenuNavNext }),
             new("ui.keybind.confirm", new[] { BattleConfirm, MenuSubmit }),
             new("ui.keybind.pause", new[] { MenuPause }),
+            new("ui.keybind.monsterInfo", new[] { MenuMonsterInfo }),
         };
     }
 

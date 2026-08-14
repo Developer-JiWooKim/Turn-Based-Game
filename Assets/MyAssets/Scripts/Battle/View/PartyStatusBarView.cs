@@ -208,6 +208,19 @@ namespace Assets.MyAssets.Scripts.Battle.View
             panel.RowIcon.EnableInClassList("party-row-icon--back", !front);
         }
 
+        /// <summary>
+        /// 플레이어가 HUD 토글로 이 표를 껐다 켠다.
+        /// 컨테이너째 숨기므로 개별 패널의 표시 여부(<see cref="SetParty"/>)와 서로를 덮지 않는다 —
+        /// 다시 켜면 레이아웃이 잡히며 <c>GeometryChangedEvent</c>가 정렬을 알아서 다시 맞춘다.
+        /// </summary>
+        public void SetVisible(bool visible)
+        {
+            if (_container != null)
+            {
+                _container.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
         /// <summary>현재 수치와 증감 내역을 다시 쓴다(상태이상 부여/해제, 시너지 변동, 사망 시).</summary>
         public void Refresh()
         {

@@ -98,6 +98,9 @@ MonoBehaviour:
   - Key: ui.keybind.pause
     Ko: "\uC77C\uC2DC\uC815\uC9C0"
     En: Pause
+  - Key: ui.keybind.monsterInfo
+    Ko: "\uBAAC\uC2A4\uD130 \uC815\uBCF4"
+    En: "Monster Info"
   - Key: ui.allocation.title
     Ko: "\uC131\uD5A5 \uD3EC\uC778\uD2B8"
     En: Trait Points
@@ -114,9 +117,21 @@ MonoBehaviour:
     Ko: "\uB2F9\uC2E0\uC758 \uCC28\uB840 \u2014 \uACF5\uACA9\uD560 \uBAAC\uC2A4\uD130\uB97C
       \uD074\uB9AD\uD558\uC138\uC694"
     En: "Your turn \u2014 click a monster to attack"
+  - Key: ui.hud.synergyToggle
+    Ko: "\uC2DC\uB108\uC9C0"
+    En: "Synergy"
+  - Key: ui.hud.statsToggle
+    Ko: "\uC2A4\uD0EF"
+    En: "Stats"
+  - Key: ui.hud.picksToggle
+    Ko: "\uAE30\uB85D"
+    En: "Log"
   - Key: ui.synergy.title
     Ko: "\uC2DC\uB108\uC9C0"
     En: Synergy
+  - Key: ui.choicePicks.title
+    Ko: "\uC120\uD0DD \uAE30\uB85D"
+    En: Choice Log
   - Key: ui.roguelike.header
     Ko: "\uC131\uC7A5 \uC120\uD0DD"
     En: Choose a Boon
@@ -189,6 +204,63 @@ MonoBehaviour:
   - Key: ui.stat.aggro
     Ko: "\uC5B4\uADF8\uB85C"
     En: Aggro
+  - Key: ui.monsterInfo.title
+    Ko: "\uBAAC\uC2A4\uD130 \uC815\uBCF4"
+    En: "MONSTER INFO"
+  - Key: ui.monsterInfo.close
+    Ko: "\uB2EB\uAE30"
+    En: "Close"
+  - Key: ui.monsterInfo.hint
+    Ko: "Tab \uD0A4\uB85C \uC5EC\uB2EB\uAE30"
+    En: "Press Tab to toggle"
+  - Key: ui.monsterInfo.chanceNote
+    Ko: "\uB514\uBC84\uD504 \uD655\uB960\uC740 \uC800\uD56D(RES) \uC801\uC6A9 \uC804 \uAE30\uBCF8\uAC12\uC785\uB2C8\uB2E4 \u2014 \uC2E4\uC81C \uD655\uB960 = \uAE30\uBCF8 \uD655\uB960 x (1 - \uB300\uC0C1 \uC800\uD56D)"
+    En: "Debuff chances are base values before RES \u2014 actual chance = base x (1 - target RES)"
+  - Key: ui.monsterInfo.skill
+    Ko: "\uC2A4\uD0AC"
+    En: "Skill"
+  - Key: ui.monsterInfo.scopeSingle
+    Ko: "\uB2E8\uC77C \uB300\uC0C1"
+    En: "Single target"
+  - Key: ui.monsterInfo.scopeLine
+    Ko: "\uC804\uCCB4 \uACF5\uACA9"
+    En: "All enemies"
+  - Key: ui.monsterInfo.power
+    Ko: "\uC704\uB825 {0}%"
+    En: "Power {0}%"
+  - Key: ui.monsterInfo.cooldown
+    Ko: "\uCFE8\uD0C0\uC784 {0}\uD134"
+    En: "Cooldown {0} turns"
+  - Key: ui.monsterInfo.cooldownNone
+    Ko: "\uCFE8\uD0C0\uC784 \uC5C6\uC74C"
+    En: "No cooldown"
+  - Key: ui.monsterInfo.statusLine
+    Ko: "{0} \u00B7 {1}\uD134 \u00B7 \uAE30\uBCF8 \uD655\uB960 {2}%"
+    En: "{0} \u00B7 {1} turns \u00B7 base {2}%"
+  - Key: ui.tier.normal
+    Ko: "\uC77C\uBC18"
+    En: "Normal"
+  - Key: ui.tier.elite
+    Ko: "\uC815\uC608"
+    En: "Elite"
+  - Key: ui.tier.boss
+    Ko: "\uBCF4\uC2A4"
+    En: "Boss"
+  - Key: ui.status.stun
+    Ko: "\uAE30\uC808"
+    En: "Stun"
+  - Key: ui.status.poison
+    Ko: "\uC911\uB3C5"
+    En: "Poison"
+  - Key: ui.status.atkDown
+    Ko: "\uACF5\uACA9\uB825 \uAC10\uC18C"
+    En: "ATK Down"
+  - Key: ui.status.defDown
+    Ko: "\uBC29\uC5B4\uB825 \uAC10\uC18C"
+    En: "DEF Down"
+  - Key: ui.status.spdDown
+    Ko: "\uC18D\uB3C4 \uAC10\uC18C"
+    En: "SPD Down"
   - Key: choice.AttackUp.title
     Ko: "\uACF5\uACA9\uB825 \uAC15\uD654"
     En: Attack Up

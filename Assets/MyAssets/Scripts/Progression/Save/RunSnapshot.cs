@@ -30,6 +30,15 @@ namespace Assets.MyAssets.Scripts.Progression.Save
 
         public List<RunMemberSnapshot> Members = new();
 
+        /// <summary>
+        /// 카테고리별 성장 선택지 선택 횟수(HUD 표기용). 인덱스는 <c>RoguelikeCategory</c> 값이다.
+        ///
+        /// ⚠️ enum <b>순서</b>에 묶여 있으므로 카테고리는 <b>뒤에만 추가</b>할 것(중간에 끼우면 기존 체크포인트의
+        /// 횟수가 엉뚱한 항목에 붙는다). 표기 전용 값이라 어긋나도 진행에는 영향이 없지만 숫자는 틀리게 보인다.
+        /// 길이가 달라도 <c>RunData.RestoreChoicePicks</c>가 겹치는 만큼만 채운다.
+        /// </summary>
+        public List<int> ChoicePicks = new();
+
         /// <summary>이어할 런이 있는지.</summary>
         public bool HasParty => Members != null && Members.Count > 0;
 
@@ -50,6 +59,7 @@ namespace Assets.MyAssets.Scripts.Progression.Save
                 snapshot.Members.Add(RunMemberSnapshot.Capture(member));
             }
 
+            snapshot.ChoicePicks.AddRange(run.ChoicePickCounts);
             return snapshot;
         }
 
@@ -85,6 +95,7 @@ namespace Assets.MyAssets.Scripts.Progression.Save
 
             var run = new RunData(Stage, UnitIdSeed, members);
             run.PendingModifiers.Restore(EnemyHpMultiplier, EnemyAtkMultiplier, EnemySkipFirstTurn);
+            run.RestoreChoicePicks(ChoicePicks);
             return run;
         }
     }

@@ -8,7 +8,7 @@ namespace Assets.MyAssets.Scripts.UI
     /// <summary>
     /// 키 설정 목록 UI.
     /// 
-    /// <see cref="InputManager"/>의 논리 컨트롤(이전/다음/확정/퍼즈)마다
+    /// <see cref="InputManager"/>의 논리 컨트롤(이전/다음/확정/퍼즈/정보 창)마다
     /// "이름 + 현재 키 버튼" 행을 만들고, 재설정 대기 표시와 라벨 갱신을 담당한다.
     ///
     /// 캡처·저장·초기화 같은 실제 동작은 전부 <see cref="InputManager"/>가 하고 여기서는 화면 표현만 맡는다. 

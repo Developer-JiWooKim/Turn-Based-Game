@@ -91,20 +91,71 @@ namespace Assets.MyAssets.Scripts.Progression.Run
 
             Stats before = bucket != null ? Stats.Clone() : null;
             int heal = effect.ApplyTo(Stats, CreateScaleBase());
-
-            if (bucket != null)
-            {
-                bucket.MaxHp += Stats.MaxHp - before.MaxHp;
-                bucket.Atk += Stats.Atk - before.Atk;
-                bucket.Spd += Stats.Spd - before.Spd;
-                bucket.Def += Stats.Def - before.Def;
-                bucket.CritRate += Stats.CritRate - before.CritRate;
-                bucket.CritDmg += Stats.CritDmg - before.CritDmg;
-                bucket.Res += Stats.Res - before.Res;
-            }
+            Accumulate(bucket, before);
 
             CurrentHp = System.Math.Min(Stats.MaxHp, CurrentHp + heal);
         }
+
+        /// <summary>
+        /// 영입 시 파티가 이미 쌓아둔 선택지 성장의 일부(<paramref name="rate"/> 비율)를 물려받는다.
+        /// <paramref name="donor"/>는 합류 시점 파티원들의 <see cref="ChoiceGrowth"/> 평균이다.
+        ///
+        /// <para>
+        /// ⚠️ <b>반드시 <see cref="ChoiceGrowth"/>에 누적해야 한다</b>(그래서 <see cref="ApplyStageGrowth"/>가 아니라 별도 경로다).
+        /// <see cref="CreateScaleBase"/>가 <c>Stats − ChoiceGrowth</c>로 비율 성장의 기준을 만들기 때문에,
+        /// 여기에 넣지 않으면 소급분만큼 기준이 부풀어 <b>이 멤버만 이후 선택지를 더 많이 받고 기존 파티원을 추월한다</b>.
+        /// 하단 파티 스탯 표기의 파란 <c>(+선택지)</c> 괄호에 잡히는 것은 그 결과이지 목적이 아니다.
+        /// </para>
+        ///
+        /// <para>
+        /// 스테이지 자동 성장과 달리 <see cref="RoguelikeEffect"/>를 쓰지 않는다 — 그쪽 flat 생성자에는
+        /// 치명타·치명피해·저항 칸이 없는데, 후반 파티 화력의 상당 부분이 치명피해 누계에 있어 빼놓을 수 없다.
+        /// </para>
+        /// </summary>
+        public void ApplyRecruitCatchUp(Stats donor, float rate)
+        {
+            if (donor == null || rate <= 0f || !IsAlive)
+            {
+                return;
+            }
+
+            Stats before = Stats.Clone();
+
+            Stats.MaxHp += Scale(donor.MaxHp, rate);
+            Stats.Atk += Scale(donor.Atk, rate);
+            Stats.Spd += Scale(donor.Spd, rate);
+            Stats.Def += Scale(donor.Def, rate);
+            Stats.CritRate = System.Math.Min(1f, Stats.CritRate + donor.CritRate * rate);
+            Stats.CritDmg += donor.CritDmg * rate;
+            Stats.Res = System.Math.Min(1f, Stats.Res + donor.Res * rate);
+
+            Accumulate(ChoiceGrowth, before);
+            CurrentHp = System.Math.Min(Stats.MaxHp, CurrentHp + (Stats.MaxHp - before.MaxHp));
+        }
+
+        /// <summary>
+        /// <b>실제로 반영된 증분</b>(적용 전후 차분)을 집계함에 누적한다.
+        /// 넣은 값을 그대로 더하지 않는 이유는 치명타·저항이 1.0으로 클램프되면 명목값과 실제 증가분이 달라지기 때문이다.
+        /// </summary>
+        private void Accumulate(Stats bucket, Stats before)
+        {
+            if (bucket == null)
+            {
+                return;
+            }
+
+            bucket.MaxHp += Stats.MaxHp - before.MaxHp;
+            bucket.Atk += Stats.Atk - before.Atk;
+            bucket.Spd += Stats.Spd - before.Spd;
+            bucket.Def += Stats.Def - before.Def;
+            bucket.CritRate += Stats.CritRate - before.CritRate;
+            bucket.CritDmg += Stats.CritDmg - before.CritDmg;
+            bucket.Res += Stats.Res - before.Res;
+        }
+
+        /// <summary>비율 증가분(정수). 반올림 규칙은 <see cref="RoguelikeEffect"/>·<see cref="SynergyBonus"/>와 같다.</summary>
+        private static int Scale(int value, float rate) =>
+            rate == 0f ? 0 : (int)System.Math.Round(value * rate, System.MidpointRounding.AwayFromZero);
 
         /// <summary>
         /// 선택지 비율 성장의 기준이 되는 스탯 = <b>기준값 + 스테이지 자동 성장</b>(= <see cref="Stats"/> − <see cref="ChoiceGrowth"/>).

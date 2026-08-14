@@ -15,10 +15,10 @@ MonoBehaviour:
   _displayName: Knight
   _prefab: {fileID: 2085239762575628085, guid: 181537248ce65a04e8869ca8e3d60879, type: 3}
   _icon: {fileID: 21300000, guid: 2d2905b28a7d2b540bc01ec66fc5d290, type: 3}
-  _maxHp: 1000
-  _atk: 200
+  _maxHp: 1500
+  _atk: 230
   _spd: 100
-  _def: 150
+  _def: 225
   _critRate: 0.25
   _critDmg: 1.5
   _res: 0.2

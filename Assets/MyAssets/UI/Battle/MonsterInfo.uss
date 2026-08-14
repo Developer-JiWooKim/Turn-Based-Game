@@ -1,0 +1,193 @@
+/* 화면 전체를 덮는 반투명 오버레이 (BattlePause/BattleResult와 동일한 톤) */
+.monster-info-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(16, 27, 48, 0.85);
+}
+
+/*
+  카드 4장(적 슬롯 수)이 한 줄에 들어갈 만큼만 넓게 잡는다.
+  .popup-frame(480px)을 쓰지 않는 이유는 옵션 팝업과 같다 — 그 클래스는 성향 포인트 팝업이 공유한다.
+*/
+.monster-info-box {
+    width: 1180px;
+    padding: 32px;
+    align-items: center;
+}
+
+.monster-info-title {
+    font-size: 34px;
+    color: var(--color-cream);
+    margin-bottom: 20px;
+}
+
+.monster-info-cards {
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+/* 배경/테두리는 .panel-frame(Common.uss)이 처리 */
+.monster-card {
+    width: 250px;
+    margin: 8px;
+    padding: 16px;
+    align-items: center;
+}
+
+/* 이미 쓰러진 몬스터 (턴 순서 칩의 turn-chip-dead와 같은 처리) */
+.monster-card--dead {
+    opacity: 0.35;
+}
+
+.monster-card-icon {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 8px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.monster-card-title {
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: var(--color-cream);
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.monster-card-tier {
+    font-size: 14px;
+    color: var(--color-violet-text);
+    opacity: 0.7;
+    margin-bottom: 10px;
+}
+
+/* 카드 폭을 다 쓰게 해야 라벨이 항상 같은 자리에서 시작한다
+   (.monster-card가 align-items: center라 그냥 두면 내용 폭으로 줄어든다). */
+.monster-card-stats {
+    width: 100%;
+}
+
+.monster-stat-row {
+    flex-direction: row;
+    align-items: center;
+    margin: 1px 0;
+}
+
+/* 라벨 폭을 고정해 값들이 세로로 줄을 맞춘다(.card-stat-label·.party-stat-label과 같은 방식).
+   영어 "Crit Rate"가 한국어 "치명피해"보다 길어 70px 아래로 줄이면 잘린다. */
+.monster-stat-label {
+    width: 70px;
+    flex-shrink: 0;
+    font-size: 14px;
+    color: var(--color-violet-text);
+    opacity: 0.8;
+    white-space: nowrap;
+}
+
+.monster-stat-value {
+    flex-grow: 1;
+    font-size: 14px;
+    -unity-font-style: bold;
+    color: var(--color-cream);
+    white-space: nowrap;
+}
+
+/* 스킬 블록 — 스탯과 구분되도록 위에 구분선을 둔다. 스킬이 없는 몬스터에서는 통째로 숨겨진다 */
+.monster-card-skill {
+    width: 100%;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top-width: 1px;
+    border-top-color: var(--color-violet-dim);
+}
+
+.monster-skill-name {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--color-mint-bright);
+    white-space: normal;
+}
+
+.monster-skill-meta {
+    font-size: 13px;
+    color: var(--color-violet-text);
+    opacity: 0.85;
+    white-space: normal;
+}
+
+.monster-skill-status {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 4px;
+}
+
+/*
+  상태이상 아이콘. 그림 경로는 USS가 들고 코드는 클래스만 토글한다(.party-row-icon과 같은 방식).
+  체력바(TMP 스프라이트)와 달리 여기는 UI Toolkit이라 PNG를 그대로 쓴다 —
+  Sprite Asset이나 Fallback 체인과는 무관하므로 아이콘을 추가해도 그쪽 등록은 필요 없다.
+*/
+.monster-status-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 5px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.monster-status-icon--stun {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_Stun.png');
+}
+
+.monster-status-icon--poison {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_Poison.png');
+}
+
+.monster-status-icon--atk-down {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_AttackDown.png');
+}
+
+.monster-status-icon--def-down {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_DefenseDown.png');
+}
+
+.monster-status-icon--spd-down {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_SpeedDown.png');
+}
+
+.monster-status-text {
+    flex-grow: 1;
+    font-size: 13px;
+    color: var(--color-danger-text);
+    white-space: normal;
+}
+
+/* 표기한 확률이 저항 적용 전 기본값임을 밝히는 안내 */
+.monster-info-note {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--color-violet-text);
+    opacity: 0.7;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+/* 크기만 오버라이드 — 배경/hover/pressed는 .btn(Common.uss)이 처리 */
+.monster-info-close {
+    width: 200px;
+    height: 48px;
+    margin-top: 12px;
+    font-size: 18px;
+}
+
+.monster-info-hint {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--color-violet-text);
+    opacity: 0.6;
+}

@@ -238,11 +238,8 @@
 }
 
 .nav-arrow {
-    font-size: 48px;
-    color: var(--color-cream);
-    -unity-font-style: bold;
-    -unity-text-outline-width: 2px;
-    -unity-text-outline-color: var(--color-outline);
+    align-items: center;
+    justify-content: center;
     background-color: var(--color-deep);
     border-width: 4px;
     border-bottom-width: 8px;
@@ -259,6 +256,24 @@
 .nav-arrow:active {
     border-bottom-width: 4px;
     translate: 0 4px;
+}
+
+/*
+  화살표 아이콘. 그림 경로는 USS가 들고 UXML은 클래스만 붙인다(HUD 버튼과 같은 방식).
+  ⚠️ 파일 확장자가 대문자 '.Png'다 — url()은 실제 파일명과 정확히 같아야 한다.
+*/
+.nav-arrow-icon {
+    width: 40px;
+    height: 40px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.nav-arrow-icon--prev {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/UI/LeftArrow.Png');
+}
+
+.nav-arrow-icon--next {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/UI/RightArrow.Png');
 }
 
 .indicator {

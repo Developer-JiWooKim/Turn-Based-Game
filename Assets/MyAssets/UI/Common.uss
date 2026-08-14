@@ -342,13 +342,14 @@
 
 /*
   min-width는 행마다 키 버튼의 x 위치를 맞추기 위한 것이다(가장 긴 이름이 들어갈 만큼만).
-  줄이면 이름이 긴 행에서만 버튼이 오른쪽으로 밀려 세로줄이 어긋난다.
+  줄이면 이름이 긴 행에서만 버튼이 오른쪽으로 밀려 세로줄이 어긋난다 —
+  현재 기준은 "몬스터 정보"/"Monster Info"이며, 컨트롤을 추가할 때 더 긴 이름이 생기면 함께 올릴 것.
 */
 .keybind-name {
     color: var(--color-cream);
     font-size: 22px;
     -unity-font-style: bold;
-    min-width: 110px;
+    min-width: 150px;
     margin-right: 8px;
 }
 

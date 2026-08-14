@@ -34,6 +34,7 @@ namespace Assets.MyAssets.Scripts.Systems
         private InputAction _menuNavNext;
         private InputAction _menuSubmit;
         private InputAction _menuPause;
+        private InputAction _menuMonsterInfo;
 
         // UI 맵(마우스)
         private InputAction _point;
@@ -72,6 +73,13 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <summary>이번 프레임에 퍼즈 토글(ESC)이 눌렸는지. 게임플레이 게이트와 무관</summary>
         public bool PauseTogglePressed => _menuPause?.WasPressedThisFrame() ?? false;
 
+        /// <summary>
+        /// 이번 프레임에 몬스터 정보 창 토글(Tab)이 눌렸는지. 게임플레이 게이트와 무관 —
+        /// 창을 여는 쪽이 그 게이트를 닫으므로, 묶으면 같은 키로 다시 닫을 수 없다
+        /// (<see cref="InputControls.MenuMonsterInfo"/> 주석 참고).
+        /// </summary>
+        public bool MonsterInfoTogglePressed => _menuMonsterInfo?.WasPressedThisFrame() ?? false;
+
         protected override void Awake()
         {
             base.Awake();
@@ -106,6 +114,7 @@ namespace Assets.MyAssets.Scripts.Systems
             _menuNavNext = _actions.FindAction(InputControls.MenuNavNext, throwIfNotFound: true);
             _menuSubmit = _actions.FindAction(InputControls.MenuSubmit, throwIfNotFound: true);
             _menuPause = _actions.FindAction(InputControls.MenuPause, throwIfNotFound: true);
+            _menuMonsterInfo = _actions.FindAction(InputControls.MenuMonsterInfo, throwIfNotFound: true);
 
             _point = _actions.FindAction(InputControls.UiPoint, throwIfNotFound: true);
             _click = _actions.FindAction(InputControls.UiClick, throwIfNotFound: true);
