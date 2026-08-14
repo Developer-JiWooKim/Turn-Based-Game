@@ -1,4 +1,5 @@
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Localization;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.Data
@@ -31,7 +32,11 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         [Tooltip("저항(RES) 적용 전 기본 부여 확률. 최종 확률 = 이 값 × (1 − 대상 RES).")]
         [Range(0f, 1f)][SerializeField] private float _statusApplyChance;
 
-        public string DisplayName => _displayName;
+        /// <summary>
+        /// 화면 표시 이름. <see cref="UnitStatsSO.DisplayName"/>과 같은 규약으로,
+        /// 에셋에 적힌 원문이 곧 문자열 표의 키다 — 표에 행이 없으면 원문이 그대로 나온다.
+        /// </summary>
+        public string DisplayName => Loc.Get(_displayName);
 
         /// <summary>Core가 쓰는 순수 스킬 정의를 만든다.</summary>
         public SkillProfile Create() =>

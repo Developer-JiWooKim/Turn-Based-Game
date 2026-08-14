@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.MonsterStatsSO
   _displayName: Skeleton Mage
   _prefab: {fileID: 4700444955393387195, guid: fd68a1a5045e99b4cb7f342e617c772c, type: 3}
+  _icon: {fileID: 21300000, guid: 57ea0451052b69844a25359f78f6de91, type: 3}
   _maxHp: 800
   _atk: 200
   _spd: 40

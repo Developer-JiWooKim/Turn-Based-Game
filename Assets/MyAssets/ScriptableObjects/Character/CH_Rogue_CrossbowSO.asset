@@ -15,10 +15,10 @@ MonoBehaviour:
   _displayName: Rogue(Crossbow)
   _prefab: {fileID: 6645575446373198296, guid: 3a2a224edf228b24eaa56e85bdf981a9, type: 3}
   _icon: {fileID: 21300000, guid: 8735f2bbbf6462c4886e11d321b49b03, type: 3}
-  _maxHp: 1000
-  _atk: 220
+  _maxHp: 1500
+  _atk: 255
   _spd: 150
-  _def: 60
+  _def: 90
   _critRate: 0.62
   _critDmg: 3
   _res: 0.1

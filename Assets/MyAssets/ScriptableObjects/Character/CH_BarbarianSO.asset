@@ -15,10 +15,10 @@ MonoBehaviour:
   _displayName: Barbarian
   _prefab: {fileID: 9091118785355780106, guid: 0d7a2dce5f0bdf741b844f124b77369f, type: 3}
   _icon: {fileID: 21300000, guid: abcc601d175f5554ba2255c62c198f6f, type: 3}
-  _maxHp: 1200
-  _atk: 270
+  _maxHp: 1800
+  _atk: 310
   _spd: 80
-  _def: 40
+  _def: 60
   _critRate: 0.3
   _critDmg: 2.5
   _res: 0

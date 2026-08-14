@@ -17,14 +17,21 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-/* ── 좌상단 파티 시너지 패널 ──────────────────────────
-   행은 SynergyPanelView가 만든다. 미발동 시너지는 --inactive로 흐리게만 구분하고
-   숫자(×N)는 요구 인원이라 발동 여부와 무관하게 고정이다. */
-.synergy-panel {
+/* ── 좌상단 세로 열 ────────────────────────────────────
+   시너지 패널 + 선택지 횟수 패널을 담는다. 절대 배치는 이 열 하나만 하고
+   안쪽 패널은 일반 흐름으로 쌓는다 — 시너지 패널은 높이가 가변이고 없으면 숨겨지므로
+   아래 패널에 top을 고정하면 겹치거나 허공에 뜬다. */
+.left-column {
     position: absolute;
     top: 16px;
     left: 20px;
     width: 300px;
+}
+
+/* ── 파티 시너지 패널 ──────────────────────────────────
+   행은 SynergyPanelView가 만든다. 미발동 시너지는 --inactive로 흐리게만 구분하고
+   숫자(×N)는 요구 인원이라 발동 여부와 무관하게 고정이다. */
+.synergy-panel {
     padding: 10px 12px;
     background-color: rgba(42, 36, 64, 0.3)
 }
@@ -87,6 +94,46 @@
     margin-left: 28px;
 }
 
+/* ── 선택지 선택 횟수 패널 (시너지 표 아래) ─────────────
+   성장 선택지만 세며, 한 번도 고르지 않은 항목은 행 자체가 숨겨진다.
+   시너지 패널과 같은 배경을 쓰되 위에 여백을 둬 두 표가 붙어 보이지 않게 한다. */
+.pick-panel {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background-color: rgba(42, 36, 64, 0.3)
+}
+
+/* 시너지 패널과 같은 이유 — 3D 전장 위에 글자가 바로 놓이므로 그림자로 가독성을 지킨다 */
+.pick-title,
+.pick-name,
+.pick-count {
+    text-shadow: 0 10px 0px rgb(0, 0, 0);
+}
+
+.pick-title {
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: var(--color-mint);
+    margin-bottom: 4px;
+}
+
+.pick-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.pick-name {
+    flex-grow: 1;
+    font-size: 13px;
+    color: var(--color-cream);
+}
+
+.pick-count {
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: var(--color-cyan-light);
+}
+
 /* 상단 턴 순서 바 (가로 나열) */
 .turn-order {
     position: absolute;
@@ -135,27 +182,82 @@
     opacity: 0.35;
 }
 
-/* 우상단 퍼즈 버튼 */
-.pause-hud-button {
+/* ── 우상단 버튼 줄 ───────────────────────────────────
+   시너지 토글 · 스탯 토글 · 몬스터 정보 · 퍼즈 순.
+   퍼즈를 맨 오른쪽에 두는 건 버튼이 늘기 전 자리를 그대로 지키기 위함이다. */
+.hud-buttons {
     position: absolute;
     top: 16px;
     right: 20px;
+    flex-direction: row;
+    align-items: center;
+}
+
+/* 아이콘 버튼 공통(정사각). 토글은 라벨이 붙어 아래에서 폭만 늘린다 */
+.hud-button {
     width: 44px;
     height: 44px;
-    font-size: 18px;
-    -unity-font-style: bold;
+    margin: 0 0 0 8px;
+    padding: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     border-radius: 10px;
     border-width: 2px;
     border-color: rgba(168, 240, 255, 0.5);
     background-color: rgba(16, 27, 48, 0.85);
-    color: rgb(234, 246, 255);
     transition-property: scale, border-color;
     transition-duration: 0.12s;
 }
 
-.pause-hud-button:hover {
+.hud-button:hover {
     scale: 1.08 1.08;
     border-color: rgb(168, 240, 255);
+}
+
+/* 시너지·스탯 토글 — 아이콘만으로는 어느 표를 켜고 끄는지 알 수 없어 이름을 함께 적는다
+   (Show/Off 아이콘이 두 버튼에서 같기 때문).
+   ⚠️ .hud-button과 특정도가 같아(클래스 1개) 이 규칙이 "아래"에 있어야 width가 이긴다 — 순서를 바꾸지 말 것. */
+.hud-toggle {
+    width: auto;
+    padding: 0 12px 0 8px;
+}
+
+.hud-toggle-label {
+    margin-left: 6px;
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: rgb(234, 246, 255);
+}
+
+/*
+  버튼 아이콘. 그림 경로는 USS가 들고 코드는 클래스만 토글한다(.party-row-icon과 같은 방식).
+  Button의 background-image를 쓰지 않는 이유는 그쪽이 테두리를 포함한 전체 박스를 채워
+  여백을 줄 수 없기 때문이다 — 그래서 자식 요소로 넣는다.
+  ⚠️ 파일 확장자가 대문자 '.Png'다. url()은 실제 파일명과 정확히 같아야 한다.
+*/
+.hud-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* 켜짐/꺼짐은 "지금 보이는 상태"를 나타낸다(눈 아이콘 관례) */
+.hud-icon--show {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/UI/Show.Png');
+}
+
+.hud-icon--off {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/UI/Off.Png');
+}
+
+.hud-icon--monster-info {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/UI/MonsterInfoButton.Png');
+}
+
+.hud-icon--pause {
+    background-image: url('project://database/Assets/MyAssets/Textures/Icons/UI/Pause.Png');
 }
 
 /* 하단 중앙 플레이어 차례 프롬프트 */

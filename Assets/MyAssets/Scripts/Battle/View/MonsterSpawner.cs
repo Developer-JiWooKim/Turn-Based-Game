@@ -8,6 +8,32 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Battle.View
 {
     /// <summary>
+    /// 이번 웨이브에 실제로 스폰된 몬스터 1마리 — 전투 유닛 + 데이터 원본 + 화면 배치 라벨.
+    ///
+    /// 셋을 함께 돌려주는 이유는 <see cref="MonsterInfoPanel"/>이 셋 다 필요한데,
+    /// 나중에 따로 조회하면 <b>어느 <see cref="Unit"/>이 어느 SO에서 나왔는지 되짚을 방법이 없기 때문</b>이다
+    /// (같은 SO가 한 웨이브에 여러 번 등장하고, 웨이브 중간에 빈 칸이 있으면 인덱스도 어긋난다).
+    /// </summary>
+    public readonly struct SpawnedMonster
+    {
+        /// <summary>전투에 참여하는 유닛. <see cref="Unit.Stats"/>에는 스테이지 배율·디버프가 이미 반영돼 있다.</summary>
+        public readonly Unit Unit;
+
+        /// <summary>스탯 원본. 아이콘·등급·스킬 이름처럼 Core로 넘어가지 않는 값이 여기에만 있다.</summary>
+        public readonly MonsterStatsSO Source;
+
+        /// <summary>체력바 왼쪽·턴 순서 칩과 같은 배치 라벨("E2"). View 스폰에 실패했으면 null.</summary>
+        public readonly string SlotLabel;
+
+        public SpawnedMonster(Unit unit, MonsterStatsSO source, string slotLabel)
+        {
+            Unit = unit;
+            Source = source;
+            SlotLabel = slotLabel;
+        }
+    }
+
+    /// <summary>
     /// "이번 스테이지에 어떤 몬스터가 나오는가"만 책임지는 컴포넌트.
     /// 웨이브 선택(수동 설계 구간 / 랜덤 풀)과 몬스터 <see cref="Unit"/> 생성 + View 스폰까지 담당
     ///
@@ -64,17 +90,17 @@ namespace Assets.MyAssets.Scripts.Battle.View
         }
 
         /// <summary>
-        /// 웨이브의 몬스터를 만들어 스폰한다. 
+        /// 웨이브의 몬스터를 만들어 스폰한다.
         /// 스탯은 기준값 → 스테이지 배율 → 로그라이크 디버프 순.
         /// </summary>
-        public List<Unit> SpawnWave(SpawnWaveSO wave, RunData run, in StageScaling scaling, int stage)
+        public List<SpawnedMonster> SpawnWave(SpawnWaveSO wave, RunData run, in StageScaling scaling, int stage)
         {
             // Consume() 전에 읽어둔다 — 스폰 루프가 끝나면 예약이 비워진다.
             RunModifiers modifiers = run.PendingModifiers;
             string debuffLabel = DescribeDebuff(modifiers);
             bool skipFirstTurn = modifiers.EnemySkipFirstTurn;
 
-            var enemies = new List<Unit>();
+            var enemies = new List<SpawnedMonster>();
             for (int i = 0; i < wave.Monsters.Count; i++)
             {
                 MonsterStatsSO so = wave.Monsters[i];
@@ -95,14 +121,14 @@ namespace Assets.MyAssets.Scripts.Battle.View
                     unit.ApplyStatus(new StatusEffect(StatusKind.Stun, 1, 0f, 1f));
                 }
 
-                enemies.Add(unit);
-
                 UnitView view = _registry.SpawnMonster(unit, so.Prefab, i);
                 if (view != null)
                 {
                     view.SetSpawnDebuff(debuffLabel);
                     view.RefreshStatuses(unit.Statuses);
                 }
+
+                enemies.Add(new SpawnedMonster(unit, so, view != null ? view.SlotLabel : null));
             }
 
             modifiers.Consume(); // 이번 스테이지에 소모 — 다음 스테이지로 넘어가지 않는다

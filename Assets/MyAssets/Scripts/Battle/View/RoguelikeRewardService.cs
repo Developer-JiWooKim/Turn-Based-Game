@@ -101,7 +101,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             RoguelikeEffect effect = picked.CreateEffect();
-            run.ApplyChoice(effect);
+            run.ApplyChoice(effect, picked.Category);
             if (!effect.Recruit)
             {
                 return default;

@@ -31,6 +31,15 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private VisualElement _container;
         private readonly List<SynergyRow> _rows = new();
 
+        /// <summary>
+        /// 지금 보여줄 시너지가 있는지. 플레이어의 표시 설정과 <b>함께</b> 판정해야 해서 들고 있는다 —
+        /// 한쪽만 보고 <c>display</c>를 쓰면 나중에 부른 쪽이 다른 쪽의 결정을 덮어쓴다.
+        /// </summary>
+        private bool _hasAny;
+
+        /// <summary>플레이어가 HUD 토글로 꺼두지 않았는지(<see cref="SetVisible"/>).</summary>
+        private bool _userVisible = true;
+
         /// <summary>행을 미리 만들어 둔다 — 시너지 종류는 파티 인원을 넘을 수 없다.</summary>
         public void Build(VisualElement container)
         {
@@ -95,13 +104,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 return;
             }
 
-            bool any = synergies != null && synergies.Count > 0;
-            _container.style.display = any ? DisplayStyle.Flex : DisplayStyle.None;
+            _hasAny = synergies != null && synergies.Count > 0;
+            ApplyVisibility();
 
             for (int i = 0; i < _rows.Count; i++)
             {
                 SynergyRow row = _rows[i];
-                bool used = any && i < synergies.Count;
+                bool used = _hasAny && i < synergies.Count;
 
                 row.Root.style.display = used ? DisplayStyle.Flex : DisplayStyle.None;
                 if (!used)
@@ -124,6 +133,24 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 Sprite icon = source != null ? source.Icon : null;
                 row.Icon.style.display = icon != null ? DisplayStyle.Flex : DisplayStyle.None;
                 row.Icon.style.backgroundImage = icon != null ? Background.FromSprite(icon) : default;
+            }
+        }
+
+        /// <summary>
+        /// 플레이어가 HUD 토글로 이 표를 껐다 켠다. "보여줄 시너지가 없으면 숨긴다"는 규칙은 그대로 살아 있어,
+        /// 켜도 시너지가 하나도 없으면 표는 나타나지 않는다.
+        /// </summary>
+        public void SetVisible(bool visible)
+        {
+            _userVisible = visible;
+            ApplyVisibility();
+        }
+
+        private void ApplyVisibility()
+        {
+            if (_container != null)
+            {
+                _container.style.display = _userVisible && _hasAny ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
 

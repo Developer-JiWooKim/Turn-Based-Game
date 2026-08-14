@@ -18,7 +18,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
         [Range(0f, 0.5f)][SerializeField] private float _playerAtkRate = 0.04f;
         [Range(0f, 0.5f)][SerializeField] private float _playerDefRate = 0.03f;
 
-        [Header("몬스터 — 스테이지당 증가율 (플레이어보다 높게)")]
+        [Header("몬스터 — 스테이지당 증가율 (Compound 활성화 시 복리)")]
         [Range(0f, 0.5f)][SerializeField] private float _monsterHpRate = 0.12f;
         [Range(0f, 0.5f)][SerializeField] private float _monsterAtkRate = 0.09f;
         [Range(0f, 0.5f)][SerializeField] private float _monsterDefRate = 0.07f;
@@ -49,6 +49,13 @@ namespace Assets.MyAssets.Scripts.Battle.Data
                  "게다가 몬스터는 복리, 이쪽은 선형이라 같은 값이어도 시간이 지날수록 몬스터가 앞선다.")]
         [Range(0f, 0.5f)][SerializeField] private float _bossSpdRate = 0.08f;
 
+        [Header("영입자 소급 — 파티가 이미 쌓아둔 선택지 성장을 얼마나 물려받는가")]
+        [Tooltip("0.6 = 현재 파티원들의 선택지 누계 평균의 60%를 갖고 합류한다. 0이면 소급하지 않는다.\n" +
+                 "스테이지 자동 성장은 이 값과 무관하게 항상 전부 소급된다.\n" +
+                 "⚠️ 1에 가까울수록 '파티를 살려두는 게 이득'이라는 규칙이 사라진다 —\n" +
+                 "0이면 후반 영입자가 기존 파티원 공격력의 25% 수준이라 연쇄 사망을 부른다(BalanceCurve.md G절).")]
+        [Range(0f, 1f)][SerializeField] private float _recruitChoiceCatchUpRate = 0.6f;
+
         /// <summary>
         /// Core가 쓰는 순수 성장 규칙을 만든다.
         /// </summary>
@@ -63,6 +70,7 @@ namespace Assets.MyAssets.Scripts.Battle.Data
                              _monsterCompound,
                              _accelStartStage, _accelMultiplier,
                              _monsterSpdRate, _spdStartStage,
-                             _bossSpdRate, bossStageInterval);
+                             _bossSpdRate, bossStageInterval,
+                             _recruitChoiceCatchUpRate);
     }
 }

@@ -15,10 +15,10 @@ MonoBehaviour:
   _displayName: Rogue(Dagger)
   _prefab: {fileID: 692377184739284772, guid: cde5a405bcc6e2d4dbd720b145be3611, type: 3}
   _icon: {fileID: 21300000, guid: 1ebfcf642563fad498cb2bd0822d1328, type: 3}
-  _maxHp: 1000
-  _atk: 180
+  _maxHp: 1500
+  _atk: 210
   _spd: 150
-  _def: 80
+  _def: 120
   _critRate: 0.5
   _critDmg: 2.5
   _res: 0.1

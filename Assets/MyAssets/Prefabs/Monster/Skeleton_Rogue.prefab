@@ -57,9 +57,9 @@ MonoBehaviour:
   _approachDuration: 0.25
   _approachJumpHeight: 0.8
   _turnDuration: 0.15
-  _projectile: {fileID: 3804598909023672672, guid: 6b78af83ad3cba343bd32c927fb29a9b, type: 3}
-  _muzzleFlash: {fileID: 7917120168021017062, guid: 85859c19852f64d43b1f296d4a7fca03, type: 3}
-  _hitEffect: {fileID: 3039980818029749698, guid: 083c17ed86759cc4487ffa6ca1c4eb1a, type: 3}
+  _projectile: {fileID: 6352496620267841446, guid: 756d37cf3b5f8964cae715a9e54bd4e9, type: 3}
+  _muzzleFlash: {fileID: 7791377747172389325, guid: 22f0ef14f57b3b34d84885e0442f923d, type: 3}
+  _hitEffect: {fileID: 4062411183944805677, guid: b2b2a3fc6a4c3444db01e70f094d7cdd, type: 3}
   _muzzlePoint: {fileID: 2349139422806537363}
   _skillProjectile: {fileID: 8279534137011481278, guid: 6593b77f7aab353499675157480d8efa, type: 3}
   _skillMuzzleFlash: {fileID: 7917120168021017062, guid: 9b50124b9c21e814892aee9419ee1c29, type: 3}

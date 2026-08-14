@@ -15,10 +15,10 @@ MonoBehaviour:
   _displayName: Mage
   _prefab: {fileID: 1510330627128820198, guid: d55a75d52be3e45489d297eed6468992, type: 3}
   _icon: {fileID: 21300000, guid: 90137e63274d636418f6fe2286bc95fe, type: 3}
-  _maxHp: 800
-  _atk: 350
+  _maxHp: 1200
+  _atk: 400
   _spd: 30
-  _def: 10
+  _def: 15
   _critRate: 0.3
   _critDmg: 3
   _res: 0

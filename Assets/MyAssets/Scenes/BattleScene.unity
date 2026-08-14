@@ -367,6 +367,53 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &182997044
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 182997045}
+  - component: {fileID: 182997046}
+  m_Layer: 0
+  m_Name: MonsterInfoPanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &182997045
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182997044}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1080875723}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &182997046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182997044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de2c4112c6b730d439eba3eda80952d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.View::Assets.MyAssets.Scripts.Battle.View.MonsterInfoPanel
+  _document: {fileID: 1080875724}
+  _rootElementName: 
+  _hud: {fileID: 1101142485}
 --- !u!1 &280080008
 GameObject:
   m_ObjectHideFlags: 0
@@ -1108,9 +1155,66 @@ Transform:
   - {fileID: 1185081540}
   - {fileID: 61136177}
   - {fileID: 2105543750}
+  - {fileID: 1080875723}
   - {fileID: 1221640480}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1080875722
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1080875723}
+  - component: {fileID: 1080875724}
+  m_Layer: 0
+  m_Name: MonsterInfo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1080875723
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080875722}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 182997045}
+  m_Father: {fileID: 1024962851}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1080875724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080875722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: b6c15c0b8eda61d4ba05d2fcab39bc20, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: 271aaa9615680b341b9467df65d66c8b, type: 3}
+  m_SortingOrder: 25
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1 &1101142484
 GameObject:
   m_ObjectHideFlags: 0
@@ -1801,6 +1905,7 @@ MonoBehaviour:
   _rewards: {fileID: 2004449482}
   _targeting: {fileID: 2124535029}
   _pausePanel: {fileID: 1968191386}
+  _monsterInfo: {fileID: 182997046}
 --- !u!4 &1846023251
 Transform:
   m_ObjectHideFlags: 0

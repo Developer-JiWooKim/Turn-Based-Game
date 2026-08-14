@@ -56,6 +56,8 @@ namespace Assets.MyAssets.Scripts.Battle.View
         [SerializeField] private TargetingController _targeting;
         [Tooltip("ESC/HUD 버튼으로 여는 퍼즈 오버레이. 비워두면 퍼즈 없이 진행한다.")]
         [SerializeField] private BattlePausePanel _pausePanel;
+        [Tooltip("Tab으로 여는 몬스터 정보 창. 비워두면 정보 창 없이 진행한다.")]
+        [SerializeField] private MonsterInfoPanel _monsterInfo;
 
         private RunData _run;
         private StageScaling _scaling;
@@ -133,7 +135,10 @@ namespace Assets.MyAssets.Scripts.Battle.View
             if (_pausePanel != null)
             {
                 _pausePanel.AbortRequested += OnAbortRequested;
-                _pausePanel.Initialize(_presenter); // 연출 재생 중에는 '배틀 중단'을 잠그기 위함
+
+                // 연출 재생 중에는 '배틀 중단'을 잠그고, 퍼즈가 열릴 때 Tab 정보 창을 함께 닫기 위함
+                // (둘은 같은 배틀 입력 게이트를 쓴다).
+                _pausePanel.Initialize(_presenter, _monsterInfo);
                 _pausePanel.SetBattleActive(false); // 전투 구간에 들어갈 때만 켠다
             }
 
@@ -218,6 +223,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
             // 표시도 트래커에서 받는다 — 전투 중 갱신과 같은 판정 기준을 쓰기 위함.
             _presenter.SetSynergies(synergyTracker.GetSynergies());
 
+            // 선택지 횟수는 스테이지 사이에만 바뀌므로 여기서 한 번만 밀어 넣는다.
+            _presenter.SetChoicePicks(_run.GetChoicePicks());
+
             // 하단 스탯 바도 이번 스테이지 구성으로 다시 배정한다(영입·교체·사망이 여기서 흡수된다).
             _presenter.SetParty(_run, players);
 
@@ -225,7 +233,20 @@ namespace Assets.MyAssets.Scripts.Battle.View
             // View는 런 내내 재사용되니 이전 스테이지의 표기를 여기서 지워준다.
             _registry.RefreshStatuses(players);
 
-            List<Unit> enemies = _spawner.SpawnWave(wave, _run, _scaling, stage);
+            List<SpawnedMonster> spawned = _spawner.SpawnWave(wave, _run, _scaling, stage);
+
+            // Core에는 Unit만 넘기고, SO·배치 라벨까지 필요한 Tab 정보 창에는 스폰 결과를 통째로 넘긴다.
+            var enemies = new List<Unit>(spawned.Count);
+            foreach (SpawnedMonster monster in spawned)
+            {
+                enemies.Add(monster.Unit);
+            }
+
+            if (_monsterInfo != null)
+            {
+                _monsterInfo.SetWave(spawned);
+            }
+
             await _registry.WhenSpawnPlayed(_registry.EnemyViews, _cts.Token);
 
             // 인스펙터에 연결되지 않았으면 진짜 null을 넘긴다(Unity의 == 오버로드는 인터페이스 캐스트에서 사라지므로).
@@ -257,6 +278,14 @@ namespace Assets.MyAssets.Scripts.Battle.View
             BattleOutcome outcome = await RunSimulationAsync(simulation);
 
             _presenter.Unbind();
+
+            // 몬스터 View가 정리되므로 정보 창도 함께 비운다 — 안 그러면 이어지는 성장 선택지 화면에서
+            // Tab을 눌렀을 때 방금 끝난 웨이브가 그대로 뜬다.
+            if (_monsterInfo != null)
+            {
+                _monsterInfo.SetWave(null);
+            }
+
             _registry.ClearMonsters();
             _registry.ClearStatuses(); // 상태이상은 전투와 함께 끝난다 — 선택지 화면에 표기가 남지 않도록 여기서 지운다
 
@@ -280,6 +309,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             using CancellationTokenSource stageCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
             _stageCts = stageCts;
 
+            _presenter.SetBattleActive(true); // HUD 버튼 줄(토글·정보·퍼즈)은 전투 구간에만 보인다
             if (_pausePanel != null)
             {
                 _pausePanel.SetBattleActive(true);
@@ -298,6 +328,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
             {
                 // Dispose(using 종료)보다 먼저 참조를 끊어야 중단 핸들러가 파기된 CTS를 취소하지 않는다.
                 _stageCts = null;
+                _presenter.SetBattleActive(false);
                 if (_pausePanel != null)
                 {
                     _pausePanel.SetBattleActive(false);

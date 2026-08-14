@@ -38,6 +38,13 @@ namespace Assets.MyAssets.Scripts.Battle.Core
     /// </para>
     ///
     /// 치명타·저항은 여전히 스케일링 대상이 아니다(곱하면 금방 상한에 붙는다). 선택지로만 성장한다.
+    ///
+    /// <para>
+    /// <b>영입자 소급</b>(2026-08-12): 스테이지 자동 성장은 처음부터 전부 소급했지만 선택지 성장은 소급하지 않았다.
+    /// 선택지가 비율로 바뀌면서 후반에 고른 한 장이 초반 것의 몇 배 값어치가 되자 그 격차가 감당할 수 없이 벌어져
+    /// (36스테이지 영입자가 기존 파티원 ATK의 25%), <b>파티가 쌓아둔 몫의 일부를 물려받도록</b> 규칙을 바꿨다.
+    /// 비율은 <see cref="RecruitChoiceCatchUpRate"/>이며 근거는 <c>BalanceCurve.md</c> G절.
+    /// </para>
     /// </summary>
     public readonly struct StageScaling
     {
@@ -74,13 +81,23 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// <summary>보스가 등장하는 스테이지 간격. 출처는 <c>MonsterSpawner</c>이며 생성 시 주입된다.</summary>
         private readonly int _bossStageInterval;
 
+        /// <summary>
+        /// 영입자가 물려받는 <b>파티의 선택지 성장 비율</b>(0.6 = 60%). 0이면 소급하지 않는다.
+        ///
+        /// 스테이지 자동 성장(위 성장률)과 달리 이 값은 스테이지 번호가 아니라 <b>현재 파티가 쌓아둔 몫</b>에서
+        /// 나오므로 여기서 계산하지 않고 비율만 들고 있는다 — 실제 적용은 <c>RunData.ApplyCatchUp</c>이 한다.
+        /// </summary>
+        public readonly float RecruitChoiceCatchUpRate;
+
         public StageScaling(float playerHpRate, float playerAtkRate, float playerDefRate,
                             float monsterHpRate, float monsterAtkRate, float monsterDefRate,
                             bool monsterCompound,
                             int accelStartStage, float accelMultiplier,
                             float monsterSpdRate, int spdStartStage,
-                            float bossSpdRate, int bossStageInterval)
+                            float bossSpdRate, int bossStageInterval,
+                            float recruitChoiceCatchUpRate)
         {
+            RecruitChoiceCatchUpRate = recruitChoiceCatchUpRate;
             _playerHpRate = playerHpRate;
             _playerAtkRate = playerAtkRate;
             _playerDefRate = playerDefRate;

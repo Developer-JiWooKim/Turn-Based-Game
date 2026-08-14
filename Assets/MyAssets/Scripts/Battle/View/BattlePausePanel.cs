@@ -37,6 +37,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private BattlePresenter _presenter;
 
         /// <summary>
+        /// Tab 몬스터 정보 창(<see cref="BattleDirector"/>가 주입, 없을 수 있다).
+        /// 그 창과 이 패널은 같은 배틀 입력 게이트를 쓰므로 동시에 열려 있으면 안 된다 —
+        /// 퍼즈가 열릴 때 닫고 잠갔다가, 풀릴 때 다시 허용한다.
+        /// </summary>
+        private MonsterInfoPanel _monsterInfo;
+
+        /// <summary>
         /// 퍼즈 해제를 기다리는 신호. null이면 퍼즈 중이 아니다.
         ///
         /// 여기는 <see cref="PendingSignal{T}"/>를 쓰지 않는다 — 그쪽은 "기다리는 쪽이 신호를 연다"는 모델인데,
@@ -79,8 +86,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
             HideOverlay();
         }
 
-        /// <summary>연출 재생 여부를 알려줄 프레젠터를 받아둔다(전투 시작 전 1회).</summary>
-        public void Initialize(BattlePresenter presenter) => _presenter = presenter;
+        /// <summary>연출 재생 여부를 알려줄 프레젠터와, 함께 여닫을 몬스터 정보 창을 받아둔다(전투 시작 전 1회).</summary>
+        public void Initialize(BattlePresenter presenter, MonsterInfoPanel monsterInfo)
+        {
+            _presenter = presenter;
+            _monsterInfo = monsterInfo;
+        }
 
         protected override void OnEnable()
         {
@@ -160,11 +171,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
             {
                 Resume();
             }
-
-            if (_hud != null)
-            {
-                _hud.SetPauseButtonVisible(active);
-            }
         }
 
         /// <summary>퍼즈 화면에 표시할 현재 스테이지(스테이지 시작 시 <see cref="BattleDirector"/>가 밀어넣는다).</summary>
@@ -178,6 +184,13 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
 
             _resumeSignal = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            // 게이트를 건드리기 전에 정보 창부터 닫는다 — 순서가 뒤집히면 그쪽이 복구를 예약해
+            // 퍼즈 중에 배틀 입력이 되살아난다(SetSuspended 주석 참고).
+            if (_monsterInfo != null)
+            {
+                _monsterInfo.SetSuspended(true);
+            }
 
             // 배틀 입력만 닫는다 — UI 입력은 열려 있어야 퍼즈 메뉴를 조작할 수 있다.
             _enableInputAtFrame = -1; // 직전 해제의 복구 예약이 남아 있으면 취소
@@ -262,6 +275,12 @@ namespace Assets.MyAssets.Scripts.Battle.View
             TaskCompletionSource<bool> pending = _resumeSignal;
             _resumeSignal = null;
             _enableInputAtFrame = Time.frameCount + 1; // 이유는 필드 주석 참고
+
+            if (_monsterInfo != null)
+            {
+                _monsterInfo.SetSuspended(false); // Tab을 다시 허용(창은 닫힌 채로 둔다)
+            }
+
             return pending;
         }
 

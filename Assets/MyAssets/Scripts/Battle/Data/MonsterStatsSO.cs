@@ -28,6 +28,12 @@ namespace Assets.MyAssets.Scripts.Battle.Data
 
         public MonsterTier Tier => _tier;
 
+        /// <summary>
+        /// 연결된 스킬 에셋(없으면 null). 전투 규칙은 <see cref="CreateSkill"/>가 만든 순수 값만 쓰고,
+        /// 이 참조는 <b>표기용</b>이다 — 스킬 이름처럼 Core로 넘어가지 않는 값을 Tab 정보 창이 읽는다.
+        /// </summary>
+        public SkillSO Skill => _skill;
+
         /// <summary>스킬 정의를 만든다. 스킬이 없으면 null.</summary>
         public SkillProfile CreateSkill() => _skill != null ? _skill.Create() : null;
     }

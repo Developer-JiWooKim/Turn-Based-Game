@@ -24,3 +24,4 @@ MonoBehaviour:
   _monsterSpdRate: 0.12
   _spdStartStage: 1
   _bossSpdRate: 0.08
+  _recruitChoiceCatchUpRate: 0.6

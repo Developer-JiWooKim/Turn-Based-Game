@@ -8,7 +8,7 @@
 
 ## 표기 규칙 (모든 표 공통)
 
-- **정수 스탯**(HP/ATK/SPD/DEF)은 2026-08 기준 10배 리스케일된 값입니다. 캐릭터 HP 800~1200, ATK 180~350 규모
+- **정수 스탯**(HP/ATK/SPD/DEF)은 2026-08 기준 10배 리스케일된 값입니다. 캐릭터 HP 1200~1800, ATK 210~400 규모(2026-08-12 4차 조정 반영)
 - **비율 스탯**(치명타/치명피해/저항/성장률/스킬 배율/상태이상 크기)은 리스케일 대상이 아닙니다. `0.3` = 30%
 - **배율**은 1.0이 "변화 없음"입니다. `0.7` = 30% 감소
 - `(없음)` = 에셋에 키 자체가 없어 코드 기본값이 적용되는 항목. `(EMPTY)` = 슬롯은 있으나 미할당
@@ -59,15 +59,17 @@
 
 ```csv
 RosterOrder,AssetName,DisplayName,Prefab,MaxHp,Atk,Spd,Def,CritRate,CritDmg,Res
-1,CH_KnightSO,Knight,Knight.prefab,1000,200,100,150,0.25,1.5,0.2
-2,CH_BarbarianSO,Barbarian,Barbarian.prefab,1200,270,80,40,0.3,2.5,0
-3,CH_MageSO,Mage,Mage.prefab,800,350,30,10,0.3,3,0
-4,CH_Rogue_CrossbowSO,Rogue(Crossbow),Rogue_Crossbow.prefab,1000,220,150,60,0.62,3,0.1
-5,CH_Rogue_DaggerSO,Rogue(Dagger),Rogue_Dagger.prefab,1000,180,150,80,0.5,2.5,0.1
-6,CH_RangerSO,Ranger,Ranger.prefab,900,300,100,30,0.4,2.1,0
+1,CH_KnightSO,Knight,Knight.prefab,1500,230,100,225,0.25,1.5,0.2
+2,CH_BarbarianSO,Barbarian,Barbarian.prefab,1800,310,80,60,0.3,2.5,0
+3,CH_MageSO,Mage,Mage.prefab,1200,400,30,15,0.3,3,0
+4,CH_Rogue_CrossbowSO,Rogue(Crossbow),Rogue_Crossbow.prefab,1500,255,150,90,0.62,3,0.1
+5,CH_Rogue_DaggerSO,Rogue(Dagger),Rogue_Dagger.prefab,1500,210,150,120,0.5,2.5,0.1
+6,CH_RangerSO,Ranger,Ranger.prefab,1350,345,100,45,0.4,2.1,0
 ```
 
 **주의**
+
+- **2026-08-12 4차 조정으로 HP·DEF ×1.5 / ATK ×1.15 상향된 값입니다**(SPD·치명타·치명피해·저항은 그대로). 근거는 `BalanceCurve.md` F-6 — 몬스터 쪽은 건드리지 않았고, 벽의 위치(40스테이지)도 그대로입니다
 
 - 2026-08-10에 에셋 이름이 `CH_`(캐릭터)/`MO_`(몬스터) 접두어로 정리되어 캐릭터·몬스터 동명 문제(`MageSO`)가 사라졌습니다. GUID는 그대로라 참조도 유지됩니다
 - 선택 화면 스탯 바의 최댓값은 이 표에서 파생됩니다(`CharacterRosterSO.CreateStatCeiling`) — 새 캐릭터가 최댓값을 갱신하면 기존 캐릭터의 바 길이가 전부 짧아집니다
@@ -241,6 +243,7 @@ AccelMultiplier,2.0,몬스터,가속 구간 성장률 배수(HP 10%→20% 등). 
 MonsterSpdRate,0.03,몬스터,스테이지당 SPD 증가율(가속 미적용)
 SpdStartStage,5,몬스터,이 스테이지 이후부터 SPD가 오름
 BossSpdRate,0.08,플레이어,보스 1회 처치당 기준 SPD 대비 증가(몬스터 증가분보다 작게 유지할 것)
+RecruitChoiceCatchUpRate,0.6,영입자,합류 시 현재 파티원 ChoiceGrowth 평균의 이 비율을 물려받음(0이면 소급 없음)
 ```
 
 **주의**

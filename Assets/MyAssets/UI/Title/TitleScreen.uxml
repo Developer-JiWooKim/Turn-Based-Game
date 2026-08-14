@@ -38,7 +38,11 @@
                 <ui:Label text="ui.select.header" class="select-header-text" />
             </ui:VisualElement>
             <ui:VisualElement name="select-body" class="select-body" picking-mode="Ignore">
-                <ui:Button text="◀" name="prev-button" class="nav-arrow" />
+                <!-- 화살표는 글자(◀)가 아니라 아이콘이다. Button의 background-image를 쓰지 않는 이유는
+                     그쪽이 원형 테두리까지 포함한 전체 박스를 채워 여백을 줄 수 없기 때문 -->
+                <ui:Button name="prev-button" class="nav-arrow">
+                    <ui:VisualElement class="nav-arrow-icon nav-arrow-icon--prev" picking-mode="Ignore" />
+                </ui:Button>
                 <ui:VisualElement name="preview-column" class="preview-column" picking-mode="Ignore">
                     <!-- 프리뷰 카메라의 RenderTexture가 CharacterSelectPanelUI에서 배선됨 -->
                     <ui:VisualElement name="character-preview" class="character-preview" />
@@ -92,7 +96,9 @@
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:Button text="▶" name="next-button" class="nav-arrow" />
+                <ui:Button name="next-button" class="nav-arrow">
+                    <ui:VisualElement class="nav-arrow-icon nav-arrow-icon--next" picking-mode="Ignore" />
+                </ui:Button>
             </ui:VisualElement>
             <ui:VisualElement name="indicator" class="indicator" picking-mode="Ignore">
                 <ui:VisualElement class="dot dot-active" />

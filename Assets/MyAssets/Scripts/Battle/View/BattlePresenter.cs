@@ -73,6 +73,19 @@ namespace Assets.MyAssets.Scripts.Battle.View
             }
         }
 
+        /// <summary>
+        /// 전투 구간에 들어가고 나갈 때 HUD 버튼 줄(시너지·스탯 토글 / 몬스터 정보 / 퍼즈)을 켜고 끈다.
+        /// 퍼즈 패널이 아니라 여기가 맡는 이유 — 그쪽은 인스펙터 <b>선택</b> 참조라,
+        /// 비워두면 퍼즈뿐 아니라 나머지 버튼까지 함께 사라진다.
+        /// </summary>
+        public void SetBattleActive(bool active)
+        {
+            if (_hud != null)
+            {
+                _hud.SetButtonBarVisible(active);
+            }
+        }
+
         /// <summary>이번 스테이지에 발동 중인 파티 시너지를 HUD에 표시한다.</summary>
         public void SetSynergies(IReadOnlyList<PartySynergy> synergies)
         {
@@ -80,6 +93,19 @@ namespace Assets.MyAssets.Scripts.Battle.View
             {
                 _hud.ShowSynergies(synergies);
                 _hud.RefreshPartyStats(); // 시너지는 Stats를 직접 고치므로 하단 스탯 바도 같이 갱신
+            }
+        }
+
+        /// <summary>
+        /// 지금까지 고른 성장 선택지 횟수를 HUD에 표시한다.
+        /// 값이 바뀌는 시점은 선택지를 고른 직후(= 스테이지 사이)뿐이라 스테이지 시작에 한 번만 밀어 넣으면 된다 —
+        /// 전투 중에는 변할 일이 없어 <see cref="SetSynergies"/>처럼 사망 시 갱신할 필요도 없다.
+        /// </summary>
+        public void SetChoicePicks(IReadOnlyList<ChoicePick> picks)
+        {
+            if (_hud != null)
+            {
+                _hud.ShowChoicePicks(picks);
             }
         }
 
