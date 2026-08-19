@@ -5,9 +5,9 @@ using UnityEngine;
 namespace Assets.MyAssets.Scripts.Battle.Data
 {
     /// <summary>
-    /// 스킬 1종의 데이터. 유닛 종류에 묶이지 않은 별도 에셋이라 몬스터·캐릭터가 같은 타입을 참조한다
-    /// (현재는 <see cref="MonsterStatsSO"/>만 쓰지만, 캐릭터 스킬이 추가되면 코드 변경 없이 그대로 재사용).
-    /// 같은 스킬을 여러 유닛이 공유할 수도 있다.
+    /// 스킬 1종의 데이터. 유닛 종류에 묶이지 않은 별도 에셋이라 여러 유닛이 같은 스킬을 공유할 수 있다.
+    /// <b>캐릭터 스킬은 2026-08-19에 범위에서 제외됐으므로</b>(`TODO.md`의 '구현하지 않기로 한 것')
+    /// 이 타입을 참조하는 것은 <see cref="MonsterStatsSO"/>뿐이다.
     /// </summary>
     [CreateAssetMenu(menuName = "Battle/Skill", fileName = "Skill")]
     public sealed class SkillSO : ScriptableObject

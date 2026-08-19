@@ -4,7 +4,7 @@ using Assets.MyAssets.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Assets.MyAssets.Scripts.Battle.View
+namespace Assets.MyAssets.Scripts.Battle.View.Panels
 {
     /// <summary>
     /// Tab으로 여닫는 몬스터 정보 창(UI Toolkit). 이번 웨이브에 서 있는 몬스터의

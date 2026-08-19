@@ -5,7 +5,7 @@ using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.UI;
 using UnityEngine.UIElements;
 
-namespace Assets.MyAssets.Scripts.Battle.View
+namespace Assets.MyAssets.Scripts.Battle.View.Panels
 {
     /// <summary>
     /// 런이 끝났을 때 성과(도달 스테이지)를 보여주는 결과 팝업(UI Toolkit).

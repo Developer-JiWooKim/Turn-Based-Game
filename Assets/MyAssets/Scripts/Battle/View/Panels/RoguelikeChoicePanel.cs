@@ -10,7 +10,7 @@ using Assets.MyAssets.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Assets.MyAssets.Scripts.Battle.View
+namespace Assets.MyAssets.Scripts.Battle.View.Panels
 {
     /// <summary>
     /// 카드에 표로 세우는 스탯 한 줄. 라벨과 값을 한 문자열로 합치지 않는 이유는

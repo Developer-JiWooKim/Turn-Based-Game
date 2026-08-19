@@ -136,7 +136,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
         ///
         /// 높이·전방 오프셋 값 대신 프리팹 안의 앵커(<see cref="_muzzlePoint"/>)를 쓴다 —
         /// 무기나 손 본 아래에 두면 <b>공격 모션을 따라 움직여</b> 실제 무기 위치에서 발사된다.
-        /// 발사 시점에 읽으므로(<c>BattlePresenter.FlyProjectilesAsync</c>) 그 순간의 자세가 반영된다.
+        /// 발사 시점에 읽으므로(<c>ActionPlayback.FlyProjectilesAsync</c>) 그 순간의 자세가 반영된다.
         ///
         /// 앵커가 없으면 몸통 높이로 대신한다 — 발밑에서 날아가는 것보다는 낫고,
         /// 어차피 <see cref="ValidateReferences"/>가 연결 누락을 로그로 알린다.

@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: EnemyStun
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.RoguelikeChoiceSO
   _title: Stun
-  _description: "Next stage\nEnemies skip first turn"
+  _description: 'Next stage
+
+    Enemies skip first turn'
   _category: 5
-  _icon: {fileID: 21300000, guid: 3872476ef67297b4296df1c50ad062ef, type: 3}
+  _icon: {fileID: 21300000, guid: 34858c11ef2bf5341aaae5950754a75c, type: 3}
   _hpRate: 0
   _atkRate: 0
   _spdRate: 0
@@ -27,3 +29,5 @@ MonoBehaviour:
   _enemyHpMul: 1
   _enemyAtkMul: 1
   _enemySkipFirstTurn: 1
+  _weight: 1
+  _weightPerEmptySlot: 0

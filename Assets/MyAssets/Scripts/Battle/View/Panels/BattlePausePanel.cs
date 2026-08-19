@@ -9,7 +9,7 @@ using Assets.MyAssets.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Assets.MyAssets.Scripts.Battle.View
+namespace Assets.MyAssets.Scripts.Battle.View.Panels
 {
     /// <summary>
     /// 배틀 퍼즈 오버레이(UI Toolkit) 겸 <see cref="IPauseGate"/> 구현.

@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Battle.View.Panels;
 using Assets.MyAssets.Scripts.Progression.Run;
-using Assets.MyAssets.Scripts.Systems;
 using UnityEngine;
 
 namespace Assets.MyAssets.Scripts.Battle.View
@@ -14,6 +14,11 @@ namespace Assets.MyAssets.Scripts.Battle.View
     /// 애니메이션이 끝날 때까지의 Task를 이벤트에 등록해 시뮬레이션을 대기시킨다.
     ///
     /// 시뮬레이션은 웨이브마다 새로 만들어지므로 <see cref="Bind"/>/<see cref="Unbind"/>로 구독을 갈아끼운다.
+    ///
+    /// <b>행동 1회를 어떻게 보여줄지는 <see cref="ActionPlayback"/>이 맡는다.</b> 여기 남은 것은
+    /// "이벤트를 받아 화면 어디에 반영할지"와 시뮬레이션을 대기시키는 <see cref="RegisterPlayback"/>이며,
+    /// 연출 참조(이펙트·투사체·팝업·쉐이크)는 인스펙터 배선을 유지하려고 이 클래스가 계속 들고 있다가
+    /// <see cref="Initialize"/>에서 넘겨준다.
     /// </summary>
     public sealed class BattlePresenter : MonoBehaviour
     {
@@ -40,6 +45,9 @@ namespace Assets.MyAssets.Scripts.Battle.View
         private BattleSimulation _simulation;
         private UnitView _activeView; // 현재 파랑 강조 중인 행동 유닛 View(다음 행동 유닛으로 넘어갈 때 원복).
 
+        /// <summary>행동 1회의 연출 시퀀스. Initialize에서 만들며 인스펙터 참조를 그대로 넘겨받는다.</summary>
+        private ActionPlayback _playback;
+
         private int _activeLayer;
 
         private CancellationToken _ct;
@@ -58,11 +66,16 @@ namespace Assets.MyAssets.Scripts.Battle.View
 
         private void Awake() => _activeLayer = LayerMask.NameToLayer(_activeLayerName);
 
-        /// <summary>씬 종료 시 연출을 취소할 토큰과 View 레지스트리를 받아둔다(전투 시작 전 1회).</summary>
+        /// <summary>
+        /// 씬 종료 시 연출을 취소할 토큰과 View 레지스트리를 받아둔다(전투 시작 전 1회).
+        /// 연출 시퀀스(<see cref="ActionPlayback"/>)도 여기서 만든다 — 취소 토큰이 이 시점에 정해지기 때문이다.
+        /// </summary>
         public void Initialize(CancellationToken ct, UnitViewRegistry registry)
         {
             _ct = ct;
             _registry = registry;
+            _playback = new ActionPlayback(registry, ct, _impactDelay,
+                                           _damagePopups, _hitEffects, _projectiles, _cameraShake);
         }
 
         public void SetStage(int stage)
@@ -277,7 +290,7 @@ namespace Assets.MyAssets.Scripts.Battle.View
                 _hud.HidePrompt(); // 입력 완료 → 연출 단계이므로 "당신의 차례" 프롬프트 숨김
             }
 
-            RegisterPlayback(e, PlayActionAsync(e.Result));
+            RegisterPlayback(e, _playback.PlayAsync(e.Result));
         }
 
         private void OnUnitDied(object sender, UnitDiedEventArgs e)
@@ -326,201 +339,6 @@ namespace Assets.MyAssets.Scripts.Battle.View
                     _damagePopups.Spawn(view.PopupOrigin, e.Damage, DamageKind.DoT);
                 }
             }
-        }
-
-        private async Task PlayActionAsync(ActionResult result)
-        {
-            if (!_registry.TryGet(result.Actor.Id, out UnitView actorView))
-            {
-                return;
-            }
-
-            // 공격 전에 대상을 향한다 — 근접은 앞으로 이동까지, 원거리는 회전만.
-            // 둘의 차이는 UnitView가 흡수하므로 여기서는 구분하지 않는다.
-            TryGetFacingTarget(result, out UnitView facingTarget);
-
-            try
-            {
-                if (facingTarget != null)
-                {
-                    // 전체 공격을 전장 한가운데서 쓰는 유닛(보스 등)만 예외적으로 목적지가 다르다.
-                    if (result.Kind == ActionKind.Skill && actorView.MovesToCenterOnSkill)
-                    {
-                        await actorView.MoveToAsync(_registry.GetBattlefieldCenter(),
-                                                    GetTargetsCenter(result, facingTarget.transform.position), _ct);
-                    }
-                    else
-                    {
-                        await actorView.FaceTargetAsync(facingTarget.transform.position, _ct);
-                    }
-                }
-
-                await PlayStrikeAsync(result, actorView);
-
-                if (facingTarget != null)
-                {
-                    await actorView.RestorePoseAsync(_ct);
-                }
-            }
-            finally
-            {
-                // 취소(씬 종료·배틀 중단)로 중간에 끊기면 그 유닛만 돌아선 채(근접이면 엉뚱한 자리에) 남는다.
-                if (facingTarget != null)
-                {
-                    actorView.SnapHome();
-                }
-            }
-        }
-
-        /// <summary>
-        /// 맞는 대상들의 평균 위치. 전장 한가운데서 전체 공격을 쓸 때 어느 쪽을 보고 시전할지 정한다 —
-        /// 첫 대상만 보면 끝자리 대상을 향해 비스듬히 서게 된다.
-        /// </summary>
-        private Vector3 GetTargetsCenter(ActionResult result, Vector3 fallback)
-        {
-            Vector3 sum = Vector3.zero;
-            int count = 0;
-
-            foreach (HitResult hit in result.Hits)
-            {
-                if (_registry.TryGet(hit.Target.Id, out UnitView view))
-                {
-                    sum += view.transform.position;
-                    count++;
-                }
-            }
-
-            return count > 0 ? sum / count : fallback;
-        }
-
-        /// <summary>
-        /// 바라볼 대상 — 여러 명을 때리는 라인 스킬이면 첫 대상을 기준으로 삼는다.
-        /// 이미 죽어 View가 사라진 대상은 건너뛴다.
-        /// </summary>
-        private bool TryGetFacingTarget(ActionResult result, out UnitView view)
-        {
-            foreach (HitResult hit in result.Hits)
-            {
-                if (_registry.TryGet(hit.Target.Id, out view))
-                {
-                    return true;
-                }
-            }
-
-            view = null;
-            return false;
-        }
-
-        /// <summary>
-        /// 원거리 유닛의 투사체를 대상마다 쏘고 <b>전부 도착할 때까지</b> 기다린다.
-        /// 스포너나 프리팹이 없으면 즉시 통과하므로 근접 유닛은 영향을 받지 않는다.
-        ///
-        /// 대상이 여럿(라인 스킬)이면 마지막 하나가 닿을 때까지 기다린다 — 가까운 대상이 먼저 맞는 것처럼
-        /// 보이지는 않지만, 피해는 이미 계산이 끝나 있어 결과에는 영향이 없다(연출 순서만의 문제).
-        /// </summary>
-        private async Task FlyProjectilesAsync(ActionResult result, UnitView actorView, UnitView.AttackEffects effects)
-        {
-            if (_projectiles == null || effects.Projectile == null)
-            {
-                return;
-            }
-
-            bool isSkill = result.Kind == ActionKind.Skill;
-
-            // 대상별 발사 구간을 먼저 모은다 — 총구 발사는 출발점이 하나지만
-            // 낙하 연출은 "대상 머리 위"라 대상마다 다르기 때문.
-            // (총구 발사의 출발점은 회전이 끝난 뒤 계산해야 대상 쪽에서 나간다 — FaceTargetAsync가 이미 돌려놨다.)
-            var launches = new List<(Vector3 From, Vector3 To)>();
-            foreach (HitResult hit in result.Hits)
-            {
-                if (_registry.TryGet(hit.Target.Id, out UnitView targetView))
-                {
-                    // 도착 지점은 타격 이펙트가 터지는 자리와 같다 — 닿은 곳에서 이펙트가 나야 자연스럽다.
-                    Vector3 to = targetView.HitEffectOrigin;
-                    launches.Add((actorView.ResolveLaunchOrigin(isSkill, to), to));
-                }
-            }
-
-            if (launches.Count == 0)
-            {
-                return;
-            }
-
-            // 발사 섬광이 먼저 터지고 한 박자 뒤에 투사체가 출발한다.
-            foreach ((Vector3 from, Vector3 to) in launches)
-            {
-                _projectiles.SpawnMuzzle(effects.MuzzleFlash, from, to);
-            }
-
-            await _projectiles.WaitMuzzleLeadAsync(_ct);
-
-            var flights = new List<Task>();
-            foreach ((Vector3 from, Vector3 to) in launches)
-            {
-                flights.Add(_projectiles.FlyAsync(effects.Projectile, from, to, _ct));
-            }
-
-            await Task.WhenAll(flights);
-        }
-
-        /// <summary>공격 애니메이션 → 타격 시점 대기 → 투사체 비행 → 피격 연출 일괄 발동 → 연출 완료 대기.</summary>
-        private async Task PlayStrikeAsync(ActionResult result, UnitView actorView)
-        {
-            // 1) 공격/스킬 애니메이션 시작. 이펙트도 행동 종류에 따라 갈리므로 여기서 한 번만 고른다.
-            bool isSkill = result.Kind == ActionKind.Skill;
-            UnitView.AttackEffects effects = actorView.ResolveEffects(isSkill);
-
-            Task actorAnim = isSkill
-                ? actorView.PlaySkillAsync(_ct)
-                : actorView.PlayAttackAsync(_ct);
-
-            // 2) 타격 시점까지 대기 — 클립에 심은 애니메이션 이벤트가 있으면 그 프레임, 없으면 고정 지연.
-            //    원거리 유닛에게 이 시점은 "명중"이 아니라 "발사"다.
-            await actorView.WaitForImpactAsync(_impactDelay, _ct);
-
-            // 2-b) 투사체가 있으면 여기서 쏘고 도착할 때까지 기다린다 — 화살이 닿기 전에 피해 숫자가 뜨면
-            //      순서가 거꾸로 보인다. 투사체가 없는 유닛은 즉시 통과한다.
-            await FlyProjectilesAsync(result, actorView, effects);
-
-            // 3) 타격 순간에 피격 연출·이펙트·숫자를 한꺼번에 터뜨린다.
-            var playback = new List<Task> { actorAnim };
-            bool anyCritical = false;
-            foreach (HitResult hit in result.Hits)
-            {
-                if (hit.IsCritical)
-                {
-                    anyCritical = true;
-                }
-                if (_registry.TryGet(hit.Target.Id, out UnitView targetView))
-                {
-                    playback.Add(targetView.PlayHitAsync(hit.Target.CurrentHp, hit.Target.Stats.MaxHp, _ct));
-
-                    // 이펙트와 팝업은 연출 대기에 넣지 않는다 — 장식이라 전투 페이싱을 늦출 이유가 없다.
-                    // 명중 이펙트는 맞은 쪽이 아니라 <b>때린 쪽</b>의 것을 쓴다 — 공격의 성질(화살/마법)을 나타내기 때문.
-                    if (_hitEffects != null)
-                    {
-                        _hitEffects.SpawnHit(targetView.HitEffectOrigin, hit.IsCritical, effects.HitEffect);
-                    }
-
-                    if (_damagePopups != null)
-                    {
-                        _damagePopups.Spawn(targetView.PopupOrigin, hit.Damage,
-                                            hit.IsCritical ? DamageKind.Critical : DamageKind.Normal);
-                    }
-                }
-            }
-
-            if (anyCritical)
-            {
-                if (_cameraShake != null)
-                {
-                    _cameraShake.Shake();
-                }
-
-                AudioManager.Sfx(AudioManager.Library?.Critical);
-            }
-
-            await Task.WhenAll(playback);
         }
 
         private void OnBattleEnded(object sender, BattleEndedEventArgs e)
