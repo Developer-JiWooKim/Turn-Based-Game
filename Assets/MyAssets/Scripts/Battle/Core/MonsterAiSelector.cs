@@ -36,13 +36,13 @@ namespace Assets.MyAssets.Scripts.Battle.Core
                 // AliveEnemiesOf는 재사용 버퍼를 돌려주므로, ActionPlan이 들고 있는 동안 다른 질의가 덮어쓸 수 있다.
                 IReadOnlyList<Unit> targets = skill.Scope == TargetScope.Line
                     ? new List<Unit>(enemies)
-                    : new[] { PickTarget(actor, enemies) };
+                    : new[] { PickTarget(enemies) };
 
                 actor.ConsumeSkill();
                 return Task.FromResult(new ActionPlan(actor, ActionKind.Skill, targets, skill.PowerMultiplier));
             }
 
-            Unit target = PickTarget(actor, enemies);
+            Unit target = PickTarget(enemies);
             return Task.FromResult(new ActionPlan(actor, ActionKind.Attack, new[] { target }, 1f));
         }
 
@@ -50,14 +50,13 @@ namespace Assets.MyAssets.Scripts.Battle.Core
         /// 단일 대상 하나를 고른다 — 후보들의 <see cref="Unit.AggroWeight"/>에 비례하며,
         /// 후보 목록이 곧 생존자라 전열이 쓰러지면 남은 유닛들끼리 알아서 다시 정규화된다.
         ///
-        /// "누구를 때릴지"를 정하는 유일한 지점이라 <b>도발(Taunt) 상태이상이 들어올 자리</b>이기도 하다 —
-        /// <paramref name="actor"/>는 그래서 미리 받아 두었고 <b>아직 읽지 않는다</b>. 도발이 생기면
-        /// 여기서 "actor에게 도발이 걸려 있으면 시전자를 반환"만 앞에 붙이면 된다
-        /// (그때 <see cref="ActiveStatus"/>에 시전자 Id 필드가 필요해진다).
-        /// 광역기(<see cref="TargetScope.Line"/>)는 이 함수를 타지 않으므로 "도발에 걸려도 광역기는
-        /// 아군 전체가 맞는다"는 규칙이 분기 없이 성립한다.
+        /// 광역기(<see cref="TargetScope.Line"/>)는 후보 전원이 대상이라 이 함수를 타지 않는다.
+        ///
+        /// 원래 도발(Taunt)을 어그로 추첨 앞에 붙이려고 시전자를 인자로 받아 두었으나,
+        /// 도발과 캐릭터 스킬이 2026-08-19에 범위에서 빠지면서 읽는 곳이 없어져 인자를 제거했다
+        /// (TODO.md의 '구현하지 않기로 한 것').
         /// </summary>
-        private Unit PickTarget(Unit actor, IReadOnlyList<Unit> candidates)
+        private Unit PickTarget(IReadOnlyList<Unit> candidates)
         {
             // candidates는 BattleState의 재사용 버퍼다 — 가중치를 즉시 읽어 소비하고 들고 있지 않는다.
             _weights.Clear();

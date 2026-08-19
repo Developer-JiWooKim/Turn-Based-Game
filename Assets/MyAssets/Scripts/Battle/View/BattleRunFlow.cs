@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Assets.MyAssets.Scripts.Battle.Data;
+using Assets.MyAssets.Scripts.Battle.View.Panels;
 using Assets.MyAssets.Scripts.Progression.Run;
 using Assets.MyAssets.Scripts.Progression.Save;
 using Assets.MyAssets.Scripts.Systems;

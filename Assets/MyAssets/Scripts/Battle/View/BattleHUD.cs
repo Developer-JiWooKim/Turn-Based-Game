@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Assets.MyAssets.Scripts.Battle.Core;
+using Assets.MyAssets.Scripts.Battle.View.Panels;
 using Assets.MyAssets.Scripts.Localization;
 using Assets.MyAssets.Scripts.Progression.Run;
 using Assets.MyAssets.Scripts.Systems;

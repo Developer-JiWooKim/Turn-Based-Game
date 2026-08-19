@@ -15,7 +15,7 @@ MonoBehaviour:
   _title: Heal
   _description: Restore 50% of max HP
   _category: 4
-  _icon: {fileID: 21300000, guid: b3d5e99a0be8e8741807cbb2cb3b94ff, type: 3}
+  _icon: {fileID: 21300000, guid: 9f84464336ff9de4182f90d25ff1b745, type: 3}
   _hpRate: 0
   _atkRate: 0
   _spdRate: 0

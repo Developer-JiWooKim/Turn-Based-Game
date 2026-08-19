@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: EnemyHpDown
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Battle.Data.RoguelikeChoiceSO
   _title: Weaken
-  _description: "Next stage\nEnemy HP -30%"
+  _description: 'Next stage
+
+    Enemy HP -30%'
   _category: 6
-  _icon: {fileID: 21300000, guid: 73f2879fef5164f47a3e44489c68c5ec, type: 3}
+  _icon: {fileID: 21300000, guid: 0fad6a151a41bd943819b6d2330fcb36, type: 3}
   _hpRate: 0
   _atkRate: 0
   _spdRate: 0
@@ -27,3 +29,5 @@ MonoBehaviour:
   _enemyHpMul: 0.7
   _enemyAtkMul: 1
   _enemySkipFirstTurn: 0
+  _weight: 1
+  _weightPerEmptySlot: 0
