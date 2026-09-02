@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="dark">
 <meta name="description" content="Unity 6.5로 만든 턴제 배틀 로그라이크 '끝없는 원정'의 개발 포트폴리오. 전투 규칙을 순수 C#으로 격리한 계층 분리 아키텍처와 전투 코어 코드를 정리했습니다.">
 <meta name="author" content="김지우">
 <link rel="canonical" href="https://developer-jiwookim.github.io/Turn-Based-Game/">
@@ -16,7 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%E2%9A%94%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <style>
-html{color-scheme:light dark}
+html{color-scheme:dark; background:#0B0912}
 body{margin:0}
 img{max-width:100%}
 [hidden]{display:none!important}
@@ -26,131 +26,213 @@ img{max-width:100%}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ───────────────────────────────────────────────────────────
+   끝없는 원정 — 다크 단일 테마.
+   색은 게임 아트에서 가져왔다: 오로라 청록(액센트) / 보랏빛 던전(지면)
+   / 스켈레톤 눈·횃불의 불꽃(강조) / 보물 금색(문자열).
+   ─────────────────────────────────────────────────────────── */
 :root{
-  --ground:#E6E8EC; --surface:#FAFBFC; --surface-2:#EFF1F4; --sunk:#F4F6F8; --code-bg:#F2F4F7;
-  --ink:#14181F; --ink-2:#3E4753; --ink-3:#6B7480;
-  --rule:#CDD2D9; --rule-2:#B4BCC6;
-  --accent:#A32E2E; --kw:#A32E2E; --ty:#2E6BA8; --st:#2E7D4F;
-  --shadow:0 1px 2px rgba(20,24,31,.06), 0 10px 30px -14px rgba(20,24,31,.28);
+  --ground:#0B0912; --surface:#14111F; --surface-2:#1C1830; --sunk:#0D0B16; --code-bg:#070610;
+  --ink:#ECE9F5; --ink-2:#B9B3D2; --ink-3:#8B85A8;
+  --rule:#241F38; --rule-2:#362F52;
+  --accent:#4FE0BE; --accent-deep:#2A9C86;
+  --kw:#FF9052; --ty:#4FE0BE; --st:#E8C77E;
+  --glow-teal:rgba(79,224,190,.13); --glow-violet:rgba(140,86,255,.15);
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 24px 60px -28px rgba(0,0,0,.95);
   --serif:"Gowun Batang","Nanum Myeongjo",Georgia,serif;
   --sans:"IBM Plex Sans KR","Malgun Gothic",system-ui,sans-serif;
   --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --ground:#0E1116; --surface:#1A1F28; --surface-2:#161A21; --sunk:#12161C; --code-bg:#12161C;
-    --ink:#DDE2E8; --ink-2:#A8B1BC; --ink-3:#79838F;
-    --rule:#2A313B; --rule-2:#3B434F;
-    --accent:#CE5B58; --kw:#CE5B58; --ty:#4F94D4; --st:#46A06F;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 34px -16px rgba(0,0,0,.8);
-  }
-}
-:root[data-theme="dark"]{
-  --ground:#0E1116; --surface:#1A1F28; --surface-2:#161A21; --sunk:#12161C; --code-bg:#12161C;
-  --ink:#DDE2E8; --ink-2:#A8B1BC; --ink-3:#79838F;
-  --rule:#2A313B; --rule-2:#3B434F;
-  --accent:#CE5B58; --kw:#CE5B58; --ty:#4F94D4; --st:#46A06F;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 34px -16px rgba(0,0,0,.8);
-}
 
 *{box-sizing:border-box}
-body{background:var(--ground); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.75; -webkit-font-smoothing:antialiased}
-.wrap{max-width:1060px; margin:0 auto; padding:0 28px}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.75;
+  -webkit-font-smoothing:antialiased; position:relative; overflow-x:hidden;
+}
+/* 타이틀 화면의 오로라. 히어로 뒤에만 깔리고 스크롤하면 지나간다. */
+body::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:860px;
+  pointer-events:none; z-index:0;
+  background:
+    radial-gradient(64% 46% at 18% 0%, var(--glow-violet), transparent 64%),
+    radial-gradient(56% 40% at 82% 6%, var(--glow-teal), transparent 62%);
+}
+.wrap{max-width:1060px; margin:0 auto; padding:0 28px; position:relative; z-index:1}
 .measure{max-width:66ch}
 p{margin:0 0 1.1em}
 p:last-child{margin-bottom:0}
 strong{font-weight:600; color:var(--ink)}
-:focus-visible{outline:2px solid var(--ty); outline-offset:3px; border-radius:2px}
+a{color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(79,224,190,.32)}
+a:hover{border-bottom-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
 img{display:block; width:100%; height:auto}
+::selection{background:var(--accent-deep); color:#04120E}
 
-/* masthead */
-.masthead{padding:72px 0 0}
-.kicker{font-family:var(--mono); font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); margin:0 0 22px}
-h1{font-family:var(--serif); font-weight:700; font-size:clamp(40px,6.6vw,68px); line-height:1.12; letter-spacing:-.015em; margin:0 0 10px; text-wrap:balance}
-.subtitle{font-family:var(--mono); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); margin:0 0 30px}
+/* ── masthead ── */
+.masthead{padding:76px 0 0}
+.kicker{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ink-3); margin:0 0 22px;
+}
+.kicker::before{
+  content:""; display:inline-block; width:20px; height:1px; background:var(--accent);
+  vertical-align:middle; margin-right:12px; box-shadow:0 0 8px var(--accent);
+}
+h1{
+  font-family:var(--serif); font-weight:700; font-size:clamp(40px,6.6vw,68px);
+  line-height:1.12; letter-spacing:-.015em; margin:0 0 10px; text-wrap:balance; color:var(--ink);
+}
+@supports ((background-clip:text) or (-webkit-background-clip:text)){
+  h1{
+    background:linear-gradient(178deg,#F6F3FF 8%,#A8ECDC 96%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+}
+.subtitle{
+  font-family:var(--mono); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--accent); margin:0 0 30px; opacity:.86;
+}
 .lede{font-size:18.5px; line-height:1.72; color:var(--ink-2); max-width:60ch}
-.lede em{font-style:normal; color:var(--ink); font-weight:500; box-shadow:inset 0 -.48em 0 color-mix(in srgb, var(--accent) 14%, transparent)}
+.lede em{
+  font-style:normal; color:var(--ink); font-weight:500;
+  box-shadow:inset 0 -.46em 0 rgba(79,224,190,.16);
+}
 
-.plate{margin:44px 0 0; border:1px solid var(--rule); box-shadow:var(--shadow); background:var(--sunk)}
+.plate{
+  margin:44px 0 0; background:var(--sunk);
+  border:1px solid var(--rule-2); box-shadow:var(--shadow), 0 0 0 1px rgba(79,224,190,.05);
+}
 .platecap{font-family:var(--mono); font-size:11.5px; color:var(--ink-3); margin:11px 0 0; line-height:1.6}
 
-.spec{display:grid; grid-template-columns:repeat(auto-fit,minmax(146px,1fr)); margin:48px 0 0; border-top:1px solid var(--rule-2)}
+.spec{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(146px,1fr));
+  margin:48px 0 0; border-top:1px solid var(--rule-2);
+}
 .spec div{padding:16px 18px 14px; border-bottom:1px solid var(--rule); border-right:1px solid var(--rule)}
 .spec div:last-child{border-right:none}
-.spec dt{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); margin:0 0 5px}
-.spec dd{margin:0; font-size:15px; font-weight:500; font-variant-numeric:tabular-nums}
+.spec dt{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink-3); margin:0 0 5px;
+}
+.spec dd{margin:0; font-size:15px; font-weight:500; color:var(--ink); font-variant-numeric:tabular-nums}
 .spec dd small{display:block; font-weight:400; font-size:12.5px; color:var(--ink-3); font-family:var(--mono)}
 
-/* sections */
+/* ── sections ── */
 section{padding:64px 0; border-bottom:1px solid var(--rule)}
 section:last-of-type{border-bottom:none}
-.eyebrow{font-family:var(--mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin:0 0 10px}
-h2{font-family:var(--serif); font-weight:700; font-size:clamp(26px,3.4vw,34px); line-height:1.3; margin:0 0 18px; text-wrap:balance; letter-spacing:-.005em}
+.eyebrow{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--accent); margin:0 0 10px;
+}
+h2{
+  font-family:var(--serif); font-weight:700; font-size:clamp(26px,3.4vw,34px);
+  line-height:1.3; margin:0 0 18px; text-wrap:balance; letter-spacing:-.005em; color:var(--ink);
+}
 h3{font-weight:600; font-size:17px; line-height:1.5; margin:0 0 8px; color:var(--ink)}
 .section-intro{margin-bottom:34px}
 .block{margin:0 0 44px}
 .block:last-child{margin-bottom:0}
 .block > .measure{margin-bottom:18px}
 
-/* code */
+/* ── code ── */
 figure.code{margin:0 0 20px; border:1px solid var(--rule); background:var(--code-bg)}
 figure.code figcaption{
   display:flex; justify-content:space-between; align-items:center; gap:16px;
-  padding:8px 14px; border-bottom:1px solid var(--rule); background:var(--surface-2);
+  padding:9px 14px; border-bottom:1px solid var(--rule); background:var(--surface-2);
   font-family:var(--mono); font-size:11px; color:var(--ink-3); letter-spacing:.04em;
 }
 figure.code figcaption b{font-weight:500; color:var(--ink-2)}
-figure.code figcaption span{letter-spacing:.12em; text-transform:uppercase; font-size:10px; white-space:nowrap}
-pre{margin:0; padding:16px 18px; overflow-x:auto; font-family:var(--mono); font-size:12.5px; line-height:1.75; color:var(--ink-2); tab-size:2}
+figure.code figcaption span{
+  letter-spacing:.12em; text-transform:uppercase; font-size:10px; white-space:nowrap;
+  color:var(--accent); opacity:.75;
+}
+pre{
+  margin:0; padding:16px 18px; overflow-x:auto; font-family:var(--mono);
+  font-size:12.5px; line-height:1.75; color:var(--ink-2); tab-size:2;
+}
 .c{color:var(--ink-3)}
 .k{color:var(--kw); font-weight:500}
 .t{color:var(--ty)}
 .s{color:var(--st)}
-.hl{background:color-mix(in srgb, var(--accent) 11%, transparent); display:inline-block; width:100%}
-code{font-family:var(--mono); font-size:.9em; background:var(--surface-2); padding:1px 5px; color:var(--ink)}
-.codenote{font-size:13.5px; color:var(--ink-3); line-height:1.65; margin:0 0 20px; max-width:74ch; padding-left:14px; border-left:2px solid var(--rule-2)}
+.hl{
+  display:inline-block; width:100%;
+  background:linear-gradient(90deg, rgba(255,144,82,.15), rgba(255,144,82,.03));
+  box-shadow:inset 2px 0 0 var(--kw);
+}
+code{
+  font-family:var(--mono); font-size:.9em; color:#D6D0EE;
+  background:rgba(79,224,190,.07); padding:1.5px 6px;
+}
+.codenote{
+  font-size:13.5px; color:var(--ink-3); line-height:1.65; margin:0 0 20px;
+  max-width:74ch; padding-left:14px; border-left:2px solid var(--accent-deep);
+}
 
-/* layer chain */
+/* ── layer chain ── */
 .chain{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px}
-.layer{flex:1 1 156px; background:var(--surface); border:1px solid var(--rule); border-top:2px solid var(--rule-2); padding:14px 15px 15px}
-.layer--core{border-top-color:var(--accent)}
+.layer{
+  flex:1 1 156px; background:var(--surface); border:1px solid var(--rule);
+  border-top:2px solid var(--rule-2); padding:14px 15px 15px;
+}
+.layer--core{border-top-color:var(--accent); box-shadow:0 -1px 18px -6px var(--accent)}
 .layer .n{font-family:var(--mono); font-size:10.5px; color:var(--ink-3); letter-spacing:.1em}
 .layer .nm{font-family:var(--mono); font-size:14px; font-weight:500; margin:3px 0 6px; color:var(--ink)}
 .layer .ln{font-family:var(--mono); font-size:11.5px; color:var(--ink-3); font-variant-numeric:tabular-nums}
 .layer .note{font-size:12px; line-height:1.5; color:var(--accent); margin-top:9px; font-weight:500}
 
-/* shots */
+/* ── screenshots ── */
 .shot{margin:0 0 30px}
 .shot figcaption{font-size:13.5px; color:var(--ink-3); margin:11px 0 0; line-height:1.65; max-width:74ch}
-.shot .frame{border:1px solid var(--rule); box-shadow:var(--shadow); background:var(--sunk)}
+.shot .frame{
+  background:var(--sunk); border:1px solid var(--rule-2);
+  box-shadow:var(--shadow), 0 0 0 1px rgba(79,224,190,.05);
+}
 .pair{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px}
-.callouts{list-style:none; margin:14px 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:0 24px}
-.callouts li{font-size:13.5px; color:var(--ink-2); line-height:1.6; padding:6px 0; display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:baseline}
-.callouts b{font-family:var(--mono); font-size:10.5px; color:var(--accent); letter-spacing:.06em; font-weight:500; white-space:nowrap}
+.callouts{
+  list-style:none; margin:14px 0 0; padding:0;
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:0 24px;
+}
+.callouts li{
+  font-size:13.5px; color:var(--ink-2); line-height:1.6; padding:6px 0;
+  display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:baseline;
+}
+.callouts b{
+  font-family:var(--mono); font-size:10.5px; color:var(--accent);
+  letter-spacing:.06em; font-weight:500; white-space:nowrap;
+}
 
-/* tables */
+/* ── tables ── */
 .tablewrap{overflow-x:auto; margin:0 0 16px; border:1px solid var(--rule); background:var(--surface)}
 table{border-collapse:collapse; width:100%; font-size:13.5px}
 caption{text-align:left; font-size:13px; color:var(--ink-3); padding:0 0 9px; line-height:1.6}
 th,td{padding:9px 14px; text-align:right; border-bottom:1px solid var(--rule)}
-thead th{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); font-weight:500; background:var(--surface-2); border-bottom:1px solid var(--rule-2); white-space:nowrap}
-tbody th{font-family:var(--mono); font-weight:500; text-align:left; color:var(--ink); white-space:nowrap}
+thead th{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:500; background:var(--surface-2);
+  border-bottom:1px solid var(--rule-2); white-space:nowrap;
+}
+tbody th{font-family:var(--mono); font-weight:500; text-align:left; color:var(--accent); white-space:nowrap}
 td{color:var(--ink-2)}
-td.num{font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+td.num{font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink)}
 td.desc{text-align:left; font-size:13px; line-height:1.6}
 tbody tr:last-child th, tbody tr:last-child td{border-bottom:none}
 tfoot th, tfoot td{border-top:1px solid var(--rule-2); border-bottom:none; color:var(--ink); font-weight:500}
 
-/* bugs */
+/* ── bugs ── */
 .bugs{display:grid; gap:1px; background:var(--rule); border:1px solid var(--rule)}
 .bug{background:var(--surface); padding:20px 24px; display:grid; gap:6px}
-.bug .sym{font-size:15px; font-weight:500}
+.bug .sym{font-size:15px; font-weight:500; color:var(--ink)}
 .bug .cause{font-size:14.5px; color:var(--ink-2); line-height:1.7}
-.bug .cause b{color:var(--accent); font-weight:500}
+.bug .cause b{color:var(--kw); font-weight:500}
 
+/* ── footer ── */
+footer{
+  padding:36px 0 64px; display:flex; justify-content:space-between; align-items:baseline;
+  flex-wrap:wrap; gap:8px 20px; font-family:var(--mono); font-size:12.5px; color:var(--ink-3);
+  border-top:1px solid var(--rule); margin-top:8px;
+}
 
-footer{padding:36px 0 64px; display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px 20px; font-family:var(--mono); font-size:12.5px; color:var(--ink-3)}
-footer a{color:var(--ink-2)}
 @media (prefers-reduced-motion:reduce){ *{animation:none !important; transition:none !important} }
 </style>
 </head>
