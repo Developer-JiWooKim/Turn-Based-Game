@@ -66,7 +66,6 @@ img{display:block; width:100%; height:auto}
 /* masthead */
 .masthead{padding:72px 0 0}
 .kicker{font-family:var(--mono); font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); margin:0 0 22px}
-.kicker span{color:var(--accent)}
 h1{font-family:var(--serif); font-weight:700; font-size:clamp(40px,6.6vw,68px); line-height:1.12; letter-spacing:-.015em; margin:0 0 10px; text-wrap:balance}
 .subtitle{font-family:var(--mono); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3); margin:0 0 30px}
 .lede{font-size:18.5px; line-height:1.72; color:var(--ink-2); max-width:60ch}
@@ -150,7 +149,8 @@ tfoot th, tfoot td{border-top:1px solid var(--rule-2); border-bottom:none; color
 .bug .cause b{color:var(--accent); font-weight:500}
 
 
-footer{padding:44px 0 64px; font-family:var(--mono); font-size:12px; color:var(--ink-3); line-height:1.9}
+footer{padding:36px 0 64px; display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px 20px; font-family:var(--mono); font-size:12.5px; color:var(--ink-3)}
+footer a{color:var(--ink-2)}
 @media (prefers-reduced-motion:reduce){ *{animation:none !important; transition:none !important} }
 </style>
 </head>
@@ -158,7 +158,7 @@ footer{padding:44px 0 64px; font-family:var(--mono); font-size:12px; color:var(-
 <div class="wrap">
 
 <header class="masthead">
-  <p class="kicker">개인 프로젝트 · Unity 6.5 · 2026.07 — 2026.08 · <span>진행 중</span></p>
+  <p class="kicker">개인 프로젝트 · Unity 6.5 · 2026.07 — 2026.08</p>
   <h1>끝없는 원정</h1>
   <p class="subtitle">Endless Expedition · 턴제 배틀 로그라이크</p>
   <p class="lede">
@@ -653,9 +653,8 @@ view.Initialize(unitId, currentHp, maxHp, CreateSlotLabel(team, index));
   </div>
 </section>
 <footer>
-  끝없는 원정 (Endless Expedition) v0.0.1 · Unity 6000.5.3f1<br>
-  C# 12,607줄 / 92파일 · 어셈블리 5개 · 커밋 54개 · 2026.07 — 2026.08<br>
-  이 페이지의 코드는 저장소에서 그대로 발췌했으며, 생략한 부분만 <code>...</code>로 표시했습니다.
+  <span>김지우 · 끝없는 원정 (Endless Expedition)</span>
+  <span><a href="https://github.com/Developer-JiWooKim/Turn-Based-Game" target="_blank" rel="noopener">github.com/Developer-JiWooKim/Turn-Based-Game</a></span>
 </footer>
 
 </div>
