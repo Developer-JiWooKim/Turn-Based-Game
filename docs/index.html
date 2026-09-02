@@ -195,18 +195,28 @@ code{
   box-shadow:var(--shadow), 0 0 0 1px rgba(79,224,190,.05);
 }
 .video-frame iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
-/* 영상 URL이 아직 없을 때의 자리표시자 — accent 점선으로 "채워 넣을 자리"임을 표시한다 */
+/* 영상 URL이 아직 없을 때의 자리표시자. --sunk는 --ground와 명도 차가 거의 없어
+   (대비 1.01) 점선 하나로는 다크 배경에 묻혀 버린다 — 그래서 배경 자체를
+   teal 글로우로 채워 "빈 공간"이 아니라 "채워 넣을 자리"로 읽히게 한다. */
 .video-frame.is-placeholder{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
-  border:1px dashed var(--rule-2); box-shadow:none;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  background:
+    radial-gradient(60% 90% at 50% 45%, rgba(79,224,190,.10), transparent 72%),
+    var(--surface);
+  border:1px dashed rgba(79,224,190,.45); box-shadow:none;
 }
 .video-frame.is-placeholder .play{
-  width:56px; height:56px; border-radius:50%; border:1px solid var(--rule-2);
+  width:64px; height:64px; border-radius:50%;
+  background:rgba(79,224,190,.12); border:1px solid rgba(79,224,190,.55);
   display:flex; align-items:center; justify-content:center; color:var(--accent);
 }
-.video-frame.is-placeholder .play svg{width:20px; height:20px; fill:currentColor}
-.video-frame.is-placeholder span{
-  font-family:var(--mono); font-size:12px; letter-spacing:.04em; color:var(--ink-3);
+.video-frame.is-placeholder .play svg{width:22px; height:22px; margin-left:3px; fill:currentColor}
+.video-frame.is-placeholder .label{
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent);
+}
+.video-frame.is-placeholder span.note{
+  font-family:var(--sans); font-size:13.5px; color:var(--ink-2);
 }
 .pair{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px}
 .callouts{
@@ -310,7 +320,8 @@ footer{
   <figure class="shot">
     <div class="video-frame is-placeholder">
       <span class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
-      <span>플레이 영상 추가 예정</span>
+      <span class="label">Coming Soon</span>
+      <span class="note">플레이 영상 추가 예정</span>
     </div>
   </figure>
 
