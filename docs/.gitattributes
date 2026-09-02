@@ -1,0 +1,4 @@
+# GitHub Pages는 Git LFS 파일을 서빙하지 않는다 — 포인터 텍스트가 그대로 나간다.
+# 이 폴더의 이미지는 LFS를 거치지 않고 일반 blob으로 저장한다.
+*.jpg -filter -diff -merge
+*.png -filter -diff -merge
