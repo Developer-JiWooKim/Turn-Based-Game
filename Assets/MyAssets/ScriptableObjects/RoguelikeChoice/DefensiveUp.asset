@@ -21,7 +21,7 @@ MonoBehaviour:
 
     RES +10%p'
   _category: 2
-  _icon: {fileID: 21300000, guid: d6795ea9f25bced48b72bb391a606c24, type: 3}
+  _icon: {fileID: 21300000, guid: 903ee05cf72b517459995350a5ed833d, type: 3}
   _hpRate: 0.06
   _atkRate: 0.14
   _spdRate: 0

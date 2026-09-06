@@ -12,10 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b9fd171fc929ec438f4e447eac40a7d, type: 3}
   m_Name: AudioLibrarySO
   m_EditorClassIdentifier: Assembly-CSharp::Assets.MyAssets.Scripts.Audio.Data.AudioLibrarySO
-  _sceneBgm: []
+  _sceneBgm:
+  - SceneName: TitleScene
+    Clip: {fileID: 0}
+  - SceneName: BattleScene
+    Clip: {fileID: 0}
   _battleBgm: {fileID: 0}
   _bossBgm: {fileID: 0}
   _uiClick: {fileID: 0}
+  _uiNavigate: {fileID: 0}
+  _confirm: {fileID: 0}
   _victoryStinger: {fileID: 0}
   _defeatStinger: {fileID: 0}
   _critical: {fileID: 0}

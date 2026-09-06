@@ -22,7 +22,7 @@ namespace Assets.MyAssets.Scripts.Systems
         /// <summary>
         /// 현재 런이 세이브 체크포인트에서 복원된 것인지.
         /// 체크포인트는 "보스를 막 처치한 시점"이라, BattleScene은 이 값이 true면
-        /// 전투가 아니라 <b>승리 후 처리(진급·성장·선택지)</b>부터 이어간다.
+        /// 전투가 아니라 승리 후 처리(진급·성장·선택지)부터 이어간다.
         /// </summary>
         public bool IsResumedRun { get; private set; }
 
