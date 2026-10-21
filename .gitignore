@@ -76,3 +76,30 @@ crashlytics-build.properties
 
 # 에디터 플레이 중 생성되는 로컬 세이브 (SaveService — 에디터에서만 프로젝트 루트에 저장)
 /[Ss]ave[Dd]ata/
+
+# ──────────────────────────────────────────────
+# 외부 에셋 (재배포 불가 — 저장소 미포함, README의 "외부 에셋 / 라이선스" 참고)
+# 새 외부 에셋을 추가하면 여기에 먼저 등록할 것
+# ──────────────────────────────────────────────
+/[Aa]ssets/RPG Icons Pixel Art/
+/[Aa]ssets/RPG Icons Pixel Art.meta
+/[Aa]ssets/MasterStylizedProjectiles/
+/[Aa]ssets/MasterStylizedProjectiles.meta
+/[Aa]ssets/ithappy/
+/[Aa]ssets/ithappy.meta
+/[Aa]ssets/Toon Shaders Pro/
+/[Aa]ssets/Toon Shaders Pro.meta
+/[Aa]ssets/Casual_Hit/
+/[Aa]ssets/Casual_Hit.meta
+/[Aa]ssets/NoobGameDev/
+/[Aa]ssets/NoobGameDev.meta
+/[Aa]ssets/Vefects/
+/[Aa]ssets/Vefects.meta
+
+# 에디터 크래시 복구 씬
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
+
+# 개인 작업 자료
+/CLAUDE.md
+/Images/

@@ -323,11 +323,11 @@
 }
 
 .party-row-icon--front {
-    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Position/Front.png');
+    background-image: url('project://database/Assets/RPG%20Icons%20Pixel%20Art/Swordsman_skills/PNG/Icon31.png');
 }
 
 .party-row-icon--back {
-    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Position/Back.png');
+    background-image: url('project://database/Assets/RPG%20Icons%20Pixel%20Art/Archer/PNG/Icon19.png');
 }
 
 /* 사망한 파티원 (턴 순서 칩의 turn-chip-dead와 같은 처리) */

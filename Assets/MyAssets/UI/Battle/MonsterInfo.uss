@@ -141,23 +141,23 @@
 }
 
 .monster-status-icon--stun {
-    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_Stun.png');
+    background-image: url('project://database/Assets/RPG%20Icons%20Pixel%20Art/Anti-buffs/PNG/Icon42.png');
 }
 
 .monster-status-icon--poison {
-    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_Poison.png');
+    background-image: url('project://database/Assets/RPG%20Icons%20Pixel%20Art/Undead%20Skills%20Icons/PNG/Icon5.png');
 }
 
 .monster-status-icon--atk-down {
-    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_AttackDown.png');
+    background-image: url('project://database/Assets/RPG%20Icons%20Pixel%20Art/Anti-buffs/PNG/Icon32.png');
 }
 
 .monster-status-icon--def-down {
-    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_DefenseDown.png');
+    background-image: url('project://database/Assets/RPG%20Icons%20Pixel%20Art/Anti-buffs/PNG/Icon14.png');
 }
 
 .monster-status-icon--spd-down {
-    background-image: url('project://database/Assets/MyAssets/Textures/Icons/Debuff/Debuff_SpeedDown.png');
+    background-image: url('project://database/Assets/RPG%20Icons%20Pixel%20Art/Anti-buffs/PNG/Icon28.png');
 }
 
 .monster-status-text {

@@ -7,6 +7,11 @@
 - **핵심 재미**: 확률적 요소로 인해 매 판 어디까지 돌파 가능한지 달라짐 (재도전 동기)
 - **아트 스타일**: 스타일라이즈드 로우폴리, 캐주얼 판타지 (Adventurers Character Pack 기반)
 
+## 시연 방법
+
+- **바로 플레이하기 (Windows)**: [Releases](https://github.com/Developer-JiWooKim/Turn-Based-Game/releases/latest)에서 zip을 받아 압축을 풀고 `EndlessExpedition.exe`를 실행한다 (Windows 10/11 64bit)
+- **에디터에서 열기**: 이 저장소에는 재배포가 불가능한 외부 에셋이 빠져 있다. 클론한 뒤 맨 아래 [외부 에셋 / 라이선스](#외부-에셋--라이선스)의 에셋을 같은 경로에 임포트하고 `Assets/MyAssets/Scenes/IntroScene`에서 플레이한다
+
 ## 씬 구조 (3개 고정, 세부 화면은 오버레이/팝업 처리)
 
 ```
@@ -163,11 +168,6 @@ BattleScene (전투 → 로그라이크 선택지 팝업 → 퍼즈/결과 화�
 - 해상도: 창모드 3종 + 전체화면 — 미구현
 - 언어: 미구현. 기획 초안은 "기본값 영어"였으나 현재 구현·텍스트는 한국어 기준(`SaveData.Language = "ko"`)이며 **기능 자체를 뺄지 검토 중**
 
-## 사용 에셋
-
-- 캐릭터/애니메이션: Adventurers Character Pack (애니메이션, 리깅 포함, 스타일라이즈드 로우폴리)
-- 무기/이펙트 등 추가 에셋은 확정되는 대로 추가 기재
-
 ## 미정 사항 (TBD)
 
 - 게임 타이틀(제목)
@@ -175,3 +175,32 @@ BattleScene (전투 → 로그라이크 선택지 팝업 → 퍼즈/결과 화�
 - 로그라이크 선택지 정확한 수치/가중치 값
 - 모바일 확장 여부
 - 다국어 지원 여부
+
+## 외부 에셋 / 라이선스
+
+### 저장소에 포함되지 않은 에셋
+
+Unity Asset Store 에셋은 Standard EULA상 원본 파일을 공개 배포할 수 없어 저장소에서 제외했다(`.gitignore` 등록).
+에디터에서 열려면 아래 에셋을 **표의 경로 그대로** 임포트해야 한다. 프로젝트는 `.meta`의 GUID로 참조하므로 원본을 임포트하면 연결이 복구된다.
+
+| 에셋 | 임포트 경로 | 용도 | 라이선스 |
+|---|---|---|---|
+| [RPG Icons Pixel Art](https://assetstore.unity.com/packages/slug/186427) | `Assets/RPG Icons Pixel Art` | 로그라이크 선택지·상태이상·전열/후열 아이콘 | Asset Store Standard EULA |
+| [Master Stylized Projectile](https://assetstore.unity.com/packages/slug/255608) | `Assets/MasterStylizedProjectiles` | 투사체·발사·명중 이펙트 | Asset Store Standard EULA |
+| [Casual_Hit](https://assetstore.unity.com/packages/slug/318002) | `Assets/Casual_Hit` | 타격 이펙트 | Asset Store Standard EULA |
+| [Toon Shaders Pro for URP](https://assetstore.unity.com/packages/slug/305845) | `Assets/Toon Shaders Pro` | 캐릭터·몬스터 툰 셰이딩 (`MyAssets/Materials/*_Toon.mat`) | Asset Store Standard EULA |
+| [Health System For Dummies](https://assetstore.unity.com/packages/slug/215755) | `Assets/NoobGameDev` | 월드스페이스 체력바 이미지 | Asset Store Standard EULA |
+| Platformer 8 Underworld (ithappy) | `Assets/ithappy` | 전투 맵 배경 프랍 | Asset Store Standard EULA |
+
+- **임포트 후 추가 설정**: 없음. Master Stylized Projectile의 머티리얼 일부가 저장소 이력상 수정돼 있었지만 전부 Unity가 자동 재직렬화한 기본값이라 원본 그대로 동작한다. ithappy 에셋은 기본이 URP라 Render Pipeline 변환이 필요 없다
+- 아이콘은 원본 팩 파일을 직접 참조한다(복사본을 두지 않는다). 상태이상 아이콘의 TMP Sprite Asset(`MyAssets/Textures/Icons/Debuff/SpriteAssets/`)도 원본 텍스처를 가리킨다
+
+### 저장소에 포함된 서드파티 리소스
+
+| 리소스 | 경로 | 라이선스 |
+|---|---|---|
+| KayKit : Adventurers Character Pack 2.0 / Skeletons 1.1 / Character Animations 1.1 — Kay Lousberg ([kaylousberg.com](https://www.kaylousberg.com)) | `Assets/KayKit_*` | CC0 1.0 (각 폴더의 `License.txt`) |
+| TextMesh Pro 기본 리소스 · LiberationSans 폰트 | `Assets/TextMesh Pro` | Unity 기본 리소스 · SIL OFL 1.1 (`LiberationSans - OFL.txt`) |
+
+- KayKit은 itch.io 배포본(.meta 없는 fbx/gltf)이라 다시 받아 임포트하면 GUID가 바뀌어 모델 참조가 끊긴다. CC0라 재배포가 허용되므로 저장소에 그대로 둔다
+- 타이틀·캐릭터 선택 배경, 타이틀 로고, 캐릭터·몬스터 프로필 아이콘은 직접(AI 도구로) 제작했다
