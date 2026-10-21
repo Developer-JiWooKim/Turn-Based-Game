@@ -17,7 +17,7 @@ MonoBehaviour:
 
     Enemies skip first turn'
   _category: 5
-  _icon: {fileID: 21300000, guid: b97d460deff583e4a92617b6c9ffe8c7, type: 3}
+  _icon: {fileID: 21300000, guid: 3872476ef67297b4296df1c50ad062ef, type: 3}
   _hpRate: 0
   _atkRate: 0
   _spdRate: 0

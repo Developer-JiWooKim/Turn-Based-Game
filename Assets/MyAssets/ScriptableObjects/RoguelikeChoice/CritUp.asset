@@ -19,7 +19,7 @@ MonoBehaviour:
 
     Crit DMG +25%p'
   _category: 3
-  _icon: {fileID: 21300000, guid: 61e353f455b1a0040a2b93fb708859a5, type: 3}
+  _icon: {fileID: 21300000, guid: 44c24dad40b7f8c438b86371e0f751c2, type: 3}
   _hpRate: 0.05
   _atkRate: 0
   _spdRate: 0
