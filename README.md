@@ -1,198 +1,52 @@
-# 프로젝트 기획 문서 (끝없는 원정, Endless Expedition)
+# 끝없는 원정 (Endless Expedition) — 게임 클라이언트 포트폴리오 (김지우)
 
-## 게임 개요
-- **장르**: 턴제 JRPG 스타일 커맨드 배틀 + 로그라이크 무한 타워
-- **엔진**: Unity 6.5
-- **플랫폼**: PC 우선 (추후 여유 시 모바일 확장 고려)
-- **핵심 재미**: 확률적 요소로 인해 매 판 어디까지 돌파 가능한지 달라짐 (재도전 동기)
-- **아트 스타일**: 스타일라이즈드 로우폴리, 캐주얼 판타지 (Adventurers Character Pack 기반)
+SPD 순서로 싸우는 턴제 배틀 로그라이크 무한 타워. Unity 6.5 (URP).
 
-## 시연 방법
+- **포트폴리오 페이지**: https://developer-jiwookim.github.io/Turn-Based-Game/
+- **플레이 빌드 (Windows)**: [Releases](https://github.com/Developer-JiWooKim/Turn-Based-Game/releases/latest)
 
-- **바로 플레이하기 (Windows)**: [Releases](https://github.com/Developer-JiWooKim/Turn-Based-Game/releases/latest)에서 zip을 받아 압축을 풀고 `EndlessExpedition.exe`를 실행한다 (Windows 10/11 64bit)
-- **에디터에서 열기**: 이 저장소에는 재배포가 불가능한 외부 에셋이 빠져 있다. 클론한 뒤 맨 아래 [외부 에셋 / 라이선스](#외부-에셋--라이선스)의 에셋을 같은 경로에 임포트하고 `Assets/MyAssets/Scenes/IntroScene`에서 플레이한다
+> 이 저장소에는 **직접 작성한 C# 스크립트와 어셈블리 정의(asmdef/asmref)만** 남겨 두었습니다.
+> 씬·프리팹·에셋·프로젝트 설정은 포함하지 않으므로 Unity 프로젝트로 열 수 없습니다.
 
-## 씬 구조 (3개 고정, 세부 화면은 오버레이/팝업 처리)
+## 스크립트 구조
+
+원래 프로젝트의 `Assets/MyAssets/Scripts/`를 루트로 옮겼습니다. 네임스페이스는 원래 경로 기준(`Assets.MyAssets.Scripts.*`)입니다.
 
 ```
-IntroScene
-  ├ 타이틀 (게임 시작 / 옵션 / 종료)
-  └ 캐릭터 선택 → 성향 포인트 배분 팝업        ← 오버레이, 씬 전환 아님
-  ↓
-BattleScene (전투 → 로그라이크 선택지 팝업 → 퍼즈/결과 화면 팝업)
+Scripts/
+├ Battle/
+│ ├ Core/        Game.Core — 전투 규칙 (순수 C#, noEngineReferences: UnityEngine 참조 없음)
+│ ├ Data/        Game.Data — 유닛·스킬·스폰·선택지 ScriptableObject 정의
+│ └ View/        Game.View — 전투 연출, HUD, 타게팅, 스폰
+│   └ Panels/    퍼즈·결과·몬스터 정보·로그라이크 선택지 패널
+├ Progression/   Game.Progression — 런 상태(Run), 영구 저장(Save, JSON)
+├ Systems/       Game.Systems — GameManager, 오디오, 입력·키 리바인딩, 설정
+├ UI/            타이틀·캐릭터 선택·옵션 화면, 화면 상태 머신(States)   (asmref → Game.View)
+├ Audio/         효과음 데이터(Data → Game.Data), UI 클릭음(View → Game.View)
+└ Localization/  문자열 조회 진입점과 테이블 SO                      (asmref → Game.Data)
 ```
 
-기획 단계에서는 타이틀과 캐릭터 선택을 별도 씬(TitleScene / SettingScene, 문서 내 다른 곳에서는 SelectWeaponScene)으로 잡았으나,
-실제 구현은 둘을 **`IntroScene` 하나에 오버레이로 통합**해 2씬 구성이다. 씬은 추후 추가될 수 있음.
+어셈블리 참조 방향: `Core` ← `Data` ← `Progression` ← `Systems` ← `View`. 전투 규칙(Core)은 다른 어셈블리와 Unity 엔진을 참조하지 않습니다.
 
-## 캐릭터
+### 먼저 보면 좋은 파일
 
-- **6종**: Knight, Barbarian, Rogue(두건/단검), Rogue(민머리/석궁), Mage, Ranger
-  - 전부 독립된 유형으로 취급 (두 Rogue도 서로 다른 캐릭터)
-- 파티: 1명으로 시작 → 최대 4명까지 확장 (로그라이크 선택지로 영입)
-- **캐릭터는 기본 공격만 수행한다.** 개성은 **스탯 · 전열/후열 어그로 · 파티 시너지 · 로그라이크 선택지**로 표현한다
-  - 캐릭터별 고유 스킬(액티브/패시브)과 상태이상 **도발**은 **2026-08-19에 범위에서 제외**했다 — 판단 근거와 착수 전 정리해 뒀던 걸림돌은 `TODO.md`의 '구현하지 않기로 한 것'에 남겨 뒀다
-  - 스킬·쿨타임·상태이상 시스템 자체는 **몬스터 전용으로 계속 쓰인다**(엘리트/보스). 지워지는 기능은 없다
-- **몬스터 정보 조회 (도입 예정)**: 전투 중 **Tab**으로 몬스터의 이름·아이콘·스탯과 스킬 정보(어떤 디버프를 몇 % 확률로 거는지)를 확인할 수 있다
-- 캐릭터 해금 요소 없음, 처음부터 6종 전부 사용 가능
+| 주제 | 파일 |
+|---|---|
+| 한 스테이지 전투 진행 (순수 C#) | [`BattleSimulation.cs`](Scripts/Battle/Core/BattleSimulation.cs) |
+| 비율 감소 데미지 계산 | [`DamageCalculator.cs`](Scripts/Battle/Core/DamageCalculator.cs) |
+| 규칙 기반 몬스터 행동 선택 | [`MonsterAiSelector.cs`](Scripts/Battle/Core/MonsterAiSelector.cs) |
+| 시뮬레이션 이벤트 → 연출·HUD 갱신 | [`BattlePresenter.cs`](Scripts/Battle/View/BattlePresenter.cs) |
+| 행동 1회 연출 시퀀스 | [`ActionPlayback.cs`](Scripts/Battle/View/ActionPlayback.cs) |
+| UI 화면 상태 머신 | [`GameFlowFSM.cs`](Scripts/UI/GameFlowFSM.cs) |
 
-### 전열 / 후열
+## 사용한 외부 에셋 (저장소 미포함)
 
-- 근접(Knight, Barbarian, Rogue 단검)은 **전열**, 원거리(Rogue 석궁, Ranger, Mage)는 **후열**
-- 화면 배치는 가로 일렬 그대로이고, **몬스터가 대상을 고를 확률**만 달라진다 — 전열이 훨씬 자주 맞는다
-- 후열도 낮은 확률로 맞는다(전열만 맞는 구조가 아니다). 전열이 전부 쓰러지면 후열이 그 자리를 물려받는다
-- 확률은 캐릭터별 어그로 수치로 조정한다(현재 기사 4 / 바바리안·도적 단검 3 / 후열 1)
+- KayKit : Adventurers Character Pack 2.0 / Skeletons 1.1 / Character Animations 1.1 — Kay Lousberg ([kaylousberg.com](https://www.kaylousberg.com)), CC0 1.0
+- [RPG Icons Pixel Art](https://assetstore.unity.com/packages/slug/186427) — Asset Store Standard EULA
+- [Master Stylized Projectile](https://assetstore.unity.com/packages/slug/255608) — Asset Store Standard EULA
+- [Casual_Hit](https://assetstore.unity.com/packages/slug/318002) — Asset Store Standard EULA
+- [Toon Shaders Pro for URP](https://assetstore.unity.com/packages/slug/305845) — Asset Store Standard EULA
+- [Health System For Dummies](https://assetstore.unity.com/packages/slug/215755) — Asset Store Standard EULA
+- Platformer 8 Underworld (ithappy) — Asset Store Standard EULA
 
-### 스탯
-- HP (체력)
-- ATK (공격력)
-- SPD (속도, 턴 순서 결정, 전투 중 변동 가능)
-- DEF (방어력)
-- CRIT Rate (치명타 확률, 최대 100%)
-- CRIT DMG (치명타 데미지 배율)
-- RES (디버프 저항력)
-
-세부 수치/밸런싱은 캐릭터 프리팹 제작 시 확정 (TBD).
-
-### 파티 시너지
-- 동일 캐릭터(같은 무기 포함)가 파티에 2명 이상 있으면 유형별 추가 효과 발동
-  - Knight = DEF + RES, Barbarian = ATK, Mage = CRIT DMG, Ranger = SPD + RES, Rogue(단검) = CRIT Rate, Rogue(석궁) = ATK + SPD
-  - 발동 인원·수치는 `CharacterStatsSO`의 시너지 필드로 관리(밸런싱 단계에서 조정)
-  - **HP/ATK/SPD/DEF는 비율 증가, CRIT/RES는 %p 가산**이다. 무한 타워라 고정값 시너지는 후반에 무의미해지지만, 이미 비율값인 치명타·저항은 비율로 올려도 거의 변화가 없기 때문
-- 해당 유형 캐릭터가 다운(추방)되어 조건이 깨지면 시너지 즉시 소멸
-- 전투 화면 좌상단 패널에 발동 중인 시너지를 표시하며, **아직 인원이 모자란 시너지도 흐리게 함께 보여준다** — "한 명만 더 모으면 발동"이 보여야 영입 선택지를 고를 근거가 되기 때문
-
-## 캐릭터 선택 화면 (구현 위치: IntroScene 오버레이)
-
-- 좌측: 3D 캐릭터 미리보기 — 선택이 바뀌면 실시간으로 갱신
-- 기획 초안은 "우측에 캐릭터 리스트"였으나, 실제 구현은 **한 명씩 순환**하는 방식이다(prev/next 버튼 + 좌/우 방향키). 선택 중인 캐릭터의 이름 옆에 초상 아이콘, 아래에 스탯 바 6종 표시
-- 참고 이미지는 레이아웃 참고용이며, 최종 비주얼은 별도로 결정
-- 성향 포인트 배분은 이 화면 하단의 '성향' 버튼으로 여는 오버레이 팝업이다(별도 씬 아님)
-
-## 전투 시스템
-
-- **진영 규모**: 다대다 (양측 각각 1~N마리 가변)
-- **대형**: 가로 일렬 배치 (전열/후열 구분 없음)
-- **턴 순서**: 전체 유닛(플레이어+몬스터)을 SPD 기준으로 정렬, 모두 한 번씩 행동하면 턴 종료 → 다음 턴 시작 시 SPD 재정렬 (SPD는 버프/디버프로 전투 중 변동 가능)
-- **커맨드**
-  - 플레이어: 공격만 수행 (스킬 없음)
-  - 몬스터(보스 한정): 일반 공격 + 스킬 공격(쿨타임 있음), 스킬 사용 가능하면 무조건 스킬 우선 사용
-- **타겟팅**: 몬스터를 직접 클릭하거나 좌/우 방향키로 순환 겨냥 후 Enter/Space로 대상 지정, 단일 대상 스킬과 범위(라인) 스킬 존재
-- **데미지 계산**: 비율 감소 방식
-  - `최종 데미지 = ATK × (100 / (100 + DEF))` (정확한 상수/보정치는 밸런싱 단계에서 조정)
-- **승리/패배 조건**
-  - 승리 조건 없음 (무한 진행, 타워를 계속 오르는 방식)
-  - 패배 조건: 파티 전원의 HP가 0이 되어 전멸 시 리타이어
-  - 캐릭터 HP가 0이 되면 즉시 파티에서 영구 추방 (해당 런에서 복귀 불가, 다음 스테이지부터 제외)
-- **전투 화면 정보 표시**
-  - 상단: 스테이지 / 턴 순서 / 현재 행동 유닛
-  - 좌상단: 파티 시너지 목록(미발동 포함)
-  - 하단: 파티원별 스탯 표기 — 각 캐릭터 아래에 정렬되며 `현재값 (+선택지) (+자동성장) (+시너지) (-디버프)` 형태로 **그 값이 어디서 왔는지**를 함께 보여준다
-  - 유닛 위 체력바와 턴 순서 칩에 같은 배치 인덱스(`A1`/`E2`) 표기 — 같은 캐릭터를 2명 영입해도 칩과 화면 위 유닛을 짝지을 수 있다
-- **퍼즈**: ESC 키 또는 HUD 우상단 버튼으로 전투를 일시정지. 퍼즈 화면에서 현재 스테이지·이전 최고 기록을 보여주고, 계속하기 / 배틀 중단(즉시 결과 화면)을 선택. 진행 중인 연출은 자르지 않고 다음 행동 직전에 멈춘다
-- **연출 수준**: 중간
-  - 캐릭터 기본 공격 애니메이션 (에셋 포함)
-  - 피격 위치에 데미지 숫자 팝업 (일반 / 크리티컬 / 도트 피해를 색으로 구분). **표시값은 클램프 전 피해량** — HP가 조금 남은 적을 크게 때려도 실제 화력이 그대로 보인다
-  - 타격 순간에 파티클 + 피격 모션 + 숫자가 함께 터진다. 시점은 공격 클립에 심은 애니메이션 이벤트가 정한다
-  - 근접 캐릭터는 대상 앞으로 점프해 공격하고 제자리로 돌아온다. 원거리는 제자리에서 대상 쪽으로 회전한 뒤 투사체를 발사한다
-  - 몬스터 스킬은 종류마다 연출이 다르다 — 스켈레톤 메이지는 번개가 대상 머리 위에서 떨어지고, 보스(워리어)는 전장 한가운데로 나와 전체 공격을 쓴다
-  - 크리티컬 등 주요 순간에 카메라 쉐이크
-  - 이펙트(파티클)는 외부 에셋 구매/다운로드로 준비
-
-## 몬스터
-
-- **노멀**: 기본 공격만 (스킬 없음)
-- **엘리트**: 노멀 대비 스탯 상향 + **단일 대상 스킬** 보유(쿨타임 있음), 스킬 가능 시 무조건 스킬 우선 사용
-- **보스**: 노멀 대비 스탯 대폭 상향 + **전체(라인) 대상 스킬** 보유(쿨타임 있음), 스킬 가능 시 무조건 스킬 우선 사용
-- 스킬에는 상태이상을 딸려 붙일 수 있음 (아래 참고)
-- 스탯 배율은 몬스터 프리팹 제작 시 확정 (TBD)
-
-### 상태이상
-
-스킬이 적중하면 대상에게 상태이상을 걸 수 있다. 종류는 기절(행동 불가), 중독(자기 차례마다 최대 HP 비율 피해),
-공격력/방어력/속도 감소 5종.
-
-- **RES(디버프 저항)로 저항 가능** — 최종 부여 확률 = `스킬의 부여 확률 × (1 − 대상 RES)`. RES 100%면 완전 면역
-- 지속 시간은 "대상의 행동 기회" 기준으로 줄어들고, 같은 종류를 다시 맞으면 더 강한 값으로 갱신된다
-- **거는 쪽은 몬스터뿐이다** — 캐릭터 고유 스킬을 범위에서 뺐으므로 플레이어가 스킬로 상태이상을 거는 경로는 없다
-  (예외: 로그라이크 '행동불가' 선택지가 다음 스테이지 몬스터에게 **스폰 시 기절 1턴을 확정 부여**한다 — 저항 판정 없음)
-
-### 스폰 방식
-- **1~5스테이지**: 수동 설계 (에디터에서 직접 배치)
-- **6스테이지 이후**: 정해진 스폰 패턴 풀에서 랜덤 선택
-  - 예: 노멀 몬스터 4마리 / 엘리트 1 + 노멀 2~3
-- **5의 배수 스테이지** (10, 15, 20...): 무조건 보스 패턴 (보스 1 + 노멀 0~2)
-
-## 진행 구조 (로그라이크 무한 타워)
-
-무한 타워 형식으로, 스테이지를 클리어할 때마다 아래 선택지 중 하나를 골라 성장하며 계속 위로 도전한다. 얼마나 깊이 도달할 수 있는지가 이 게임의 핵심 재미 요소.
-
-### 로그라이크 선택지 (9종, 3개 제시 후 1개 선택)
-
-| 카테고리 | 효과 | 지속성 |
-|---|---|---|
-| 공격력 증가 | ATK 증가 | 런 종료까지 유지 |
-| 스피드 증가 | SPD 증가 | 런 종료까지 유지 |
-| 방어형 강화 | HP / DEF / RES 동시 증가 | 런 종료까지 유지 |
-| 크리티컬 강화 | CRIT Rate + CRIT DMG 동시 증가 (Rate는 100% 클램프, 초과분은 사실상 DMG만 증가) | 런 종료까지 유지 |
-| 회복 | 파티 전체 HP 회복 | 즉시 소모 |
-| 몬스터 행동불가 | 다음 스테이지 몬스터 전체 1턴간 행동 불가 | 일회성 (효과 강함) |
-| 몬스터 체력감소 | 다음 스테이지 몬스터 HP 감소 | 일회성 (효과 강함) |
-| 몬스터 공격력감소 | 다음 스테이지 몬스터 ATK 감소 | 일회성 (효과 강함) |
-| 파티원 영입 | 6종 중 랜덤 등장(중복 허용). 파티 여유 있으면 즉시 합류, 4명 초과 시 영입 여부와 교체 대상을 플레이어가 선택 | 영구 (해당 런) |
-
-- 몬스터 디버프 계열은 일회성이지만 효과가 강해서, 보스 스테이지 직전에 아껴뒀다가 사용하는 전략이 가능
-- 카테고리별 등장 가중치 존재 (균등 아님, 수치는 밸런싱 단계에서 조정)
-
-## 성장 시스템
-
-- **런 내부 성장**: 위 로그라이크 선택지로만 진행, 매 런 종료 시 리셋
-- **영구 포인트 시스템** (재화 아님, 소모성 자원 없음)
-  - 10스테이지 단위로 최초 돌파할 때마다 영구 포인트 1점 획득
-  - 이 포인트를 로그라이크 선택지 카테고리별 등장 가중치에 투자 가능 (성향 커스터마이징)
-  - 투자한 포인트는 언제든 무료로 리스펙(초기화) 가능
-  - 배분 화면은 캐릭터 선택 화면(IntroScene)의 '성향' 버튼으로 여는 오버레이 팝업 (기획 초안의 "SelectWeaponScene"은 이 화면의 옛 이름)
-- **기록**: 최고 도달 스테이지를 로컬에 영구 저장, 게임 재접속 후에도 유지
-- **아이템 시스템 없음** (개발 범위 관리를 위해 제외)
-
-## UI
-
-- 화면 UI: **UI Toolkit**
-- 월드스페이스 UI (몬스터 체력바, 이름표 등 3D 공간 내 UI): **uGUI**
-- 전체적으로 일관된 비주얼 스타일 유지
-
-## 옵션 메뉴
-
-- 사운드 볼륨 조절 (마스터 / BGM / SFX) — 구현 완료
-- 키 리바인딩 (이전/다음/확정/퍼즈 4종) — 구현 완료
-- 해상도: 창모드 3종 + 전체화면 — 미구현
-- 언어: 미구현. 기획 초안은 "기본값 영어"였으나 현재 구현·텍스트는 한국어 기준(`SaveData.Language = "ko"`)이며 **기능 자체를 뺄지 검토 중**
-
-## 외부 에셋 / 라이선스
-
-### 저장소에 포함되지 않은 에셋
-
-Unity Asset Store 에셋은 Standard EULA상 원본 파일을 공개 배포할 수 없어 저장소에서 제외했다(`.gitignore` 등록).
-에디터에서 열려면 아래 에셋을 **표의 경로 그대로** 임포트해야 한다. 프로젝트는 `.meta`의 GUID로 참조하므로 원본을 임포트하면 연결이 복구된다.
-
-| 에셋 | 임포트 경로 | 용도 | 라이선스 |
-|---|---|---|---|
-| [RPG Icons Pixel Art](https://assetstore.unity.com/packages/slug/186427) | `Assets/RPG Icons Pixel Art` | 로그라이크 선택지·상태이상·전열/후열 아이콘 | Asset Store Standard EULA |
-| [Master Stylized Projectile](https://assetstore.unity.com/packages/slug/255608) | `Assets/MasterStylizedProjectiles` | 투사체·발사·명중 이펙트 | Asset Store Standard EULA |
-| [Casual_Hit](https://assetstore.unity.com/packages/slug/318002) | `Assets/Casual_Hit` | 타격 이펙트 | Asset Store Standard EULA |
-| [Toon Shaders Pro for URP](https://assetstore.unity.com/packages/slug/305845) | `Assets/Toon Shaders Pro` | 캐릭터·몬스터 툰 셰이딩 (`MyAssets/Materials/*_Toon.mat`) | Asset Store Standard EULA |
-| [Health System For Dummies](https://assetstore.unity.com/packages/slug/215755) | `Assets/NoobGameDev` | 월드스페이스 체력바 이미지 | Asset Store Standard EULA |
-| Platformer 8 Underworld (ithappy) | `Assets/ithappy` | 전투 맵 배경 프랍 | Asset Store Standard EULA |
-
-- **임포트 후 추가 설정**: 없음. Master Stylized Projectile의 머티리얼 일부가 저장소 이력상 수정돼 있었지만 전부 Unity가 자동 재직렬화한 기본값이라 원본 그대로 동작한다. ithappy 에셋은 기본이 URP라 Render Pipeline 변환이 필요 없다
-- 아이콘은 원본 팩 파일을 직접 참조한다(복사본을 두지 않는다). 상태이상 아이콘의 TMP Sprite Asset(`MyAssets/Textures/Icons/Debuff/SpriteAssets/`)도 원본 텍스처를 가리킨다
-
-### 저장소에 포함된 서드파티 리소스
-
-| 리소스 | 경로 | 라이선스 |
-|---|---|---|
-| KayKit : Adventurers Character Pack 2.0 / Skeletons 1.1 / Character Animations 1.1 — Kay Lousberg ([kaylousberg.com](https://www.kaylousberg.com)) | `Assets/KayKit_*` | CC0 1.0 (각 폴더의 `License.txt`) |
-| TextMesh Pro 기본 리소스 · LiberationSans 폰트 | `Assets/TextMesh Pro` | Unity 기본 리소스 · SIL OFL 1.1 (`LiberationSans - OFL.txt`) |
-
-- KayKit은 itch.io 배포본(.meta 없는 fbx/gltf)이라 다시 받아 임포트하면 GUID가 바뀌어 모델 참조가 끊긴다. CC0라 재배포가 허용되므로 저장소에 그대로 둔다
-- 타이틀·캐릭터 선택 배경, 타이틀 로고, 캐릭터·몬스터 프로필 아이콘은 직접(AI 도구로) 제작했다
+타이틀·캐릭터 선택 배경, 타이틀 로고, 캐릭터·몬스터 프로필 아이콘은 직접(AI 도구로) 제작했습니다.
