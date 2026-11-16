@@ -1,4 +1,4 @@
-# 끝없는 원정 (Endless Expedition) — 게임 클라이언트 포트폴리오 (김지우)
+# 끝없는 원정 (Endless Expedition)
 
 SPD 순서로 싸우는 턴제 배틀 로그라이크 무한 타워. Unity 6.5 (URP).
 
