@@ -54,6 +54,6 @@ Scripts/
 - Techno Battle Themes (Brooklyn Game Audio) — BGM, Asset Store Standard EULA
 - [Fantasy User Interface Sounds - Lite Edition](https://assetstore.unity.com/packages/slug/272919) — UI·전투 효과음, Asset Store Standard EULA
 - [Punch Sound Pack](https://assetstore.unity.com/packages/slug/58260) (Gamemaster Audio) — 피격·사망음, Asset Store Standard EULA
-- Combat Magic Spells — 마법 공격·몬스터 스킬, Asset Store Standard EULA
+- [Combat Magic Spells - Bundle](https://assetstore.unity.com/packages/slug/284695) — 마법 공격·몬스터 스킬, Asset Store Standard EULA
 
 타이틀·캐릭터 선택 배경, 타이틀 로고, 캐릭터·몬스터 프로필 아이콘은 직접(AI 도구로) 제작했습니다.
